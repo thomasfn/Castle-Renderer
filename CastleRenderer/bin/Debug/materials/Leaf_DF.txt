@@ -1,0 +1,15 @@
+{
+	"shader": "diffuse",
+	"shadowshader": "shadowmap_alphatest",
+	"culling": "none",
+	
+	"texturesampler": "@wrap_linear",
+	"textureoffset": [ 0.0, 1.0 ],
+	"texturescale": [ 1.0, -1.0 ],
+	
+	"diffuse": "$Leaf_DF.png",
+	"alphatest": 0.5,
+	
+	"specular_power": 0.5,
+	"specular_hardness": 50.0
+}

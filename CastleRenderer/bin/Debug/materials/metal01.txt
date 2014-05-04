@@ -1,0 +1,16 @@
+{
+	"shader": "diffuse_normalmap",
+	"shadowshader": "shadowmap_standard",
+	
+	"texturesampler": "@wrap_linear",
+	"textureoffset": [ 0.0, 0.0 ],
+	"texturescale": [ 1.0, 1.0 ],
+	
+	"diffuse": "$metal01_d.png",
+	"normalmap": "$normalmap_from_heightmap:20$metal01_h.png",
+	
+	"specular_power": 0.5,
+	"specular_hardness": 50.0,
+	
+	"height": 0.1
+}

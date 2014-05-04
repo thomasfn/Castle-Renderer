@@ -1,0 +1,12 @@
+{
+	"shader": "bloom",
+	
+	"smpTexture": "@clamp_linear",
+	"blursize": [ 0.0, 1.0 ],
+	
+	"threshold": 0.8,
+	"originalintensity": 1.0,
+	"bloomintensity": 1.3,
+	"originalsaturation": 0.9,
+	"bloomsaturation": 1.1
+}

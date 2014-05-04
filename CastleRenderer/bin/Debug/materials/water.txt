@@ -1,0 +1,15 @@
+{
+	"shader": "water",
+	
+	"normaltexturesampler": "@wrap_linear",
+	"texturesampler": "@clamp_linear",
+	"textureoffset": [ 0.0, 0.0 ],
+	"texturescale": [ 50.0, 50.0 ],
+	
+	"texNormal": "$water01-n.png",
+	
+	"colour": [ 0.2, 0.4, 0.6 ],
+	
+	"specular_power": 2.0,
+	"specular_hardness": 20.0
+}

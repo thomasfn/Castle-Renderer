@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9265DFBE-706C-4AF0-93EE-8D4034CE094C}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CastleRenderer</RootNamespace>
+    <AssemblyName>CastleRenderer</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\Programming Stuff\Craft.Net-master\lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Components\Camera.cs" />
+    <Compile Include="Components\Light.cs" />
+    <Compile Include="Components\Listener.cs" />
+    <Compile Include="Components\MaterialSystem.cs" />
+    <Compile Include="Components\MeshRenderer.cs" />
+    <Compile Include="Components\ParticleSystem.cs" />
+    <Compile Include="Components\PostProcessEffect.cs" />
+    <Compile Include="Components\Renderer.cs" />
+    <Compile Include="Components\SceneLoader.cs" />
+    <Compile Include="Components\SceneManager.cs" />
+    <Compile Include="Components\ShadowCaster.cs" />
+    <Compile Include="Components\Sleeper.cs" />
+    <Compile Include="Components\Spinning.cs" />
+    <Compile Include="Components\Transform.cs" />
+    <Compile Include="Components\UserFlyable.cs" />
+    <Compile Include="Components\UserInputHandler.cs" />
+    <Compile Include="Components\ReflectedCamera.cs" />
+    <Compile Include="Graphics\D3DMesh.cs" />
+    <Compile Include="Graphics\Material.cs" />
+    <Compile Include="Graphics\Mesh.cs" />
+    <Compile Include="Graphics\MeshBuilder.cs" />
+    <Compile Include="Graphics\RenderTarget.cs" />
+    <Compile Include="Graphics\RenderWorkItem.cs" />
+    <Compile Include="Graphics\SBMLoader.cs" />
+    <Compile Include="Graphics\Shader.cs" />
+    <Compile Include="Messages\PopulateParticleSystemList.cs" />
+    <Compile Include="Messages\UpdateMessage.cs" />
+    <Compile Include="Structures\OrderedList.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Util.cs" />
+    <Compile Include="Messages\ExitMessage.cs" />
+    <Compile Include="Messages\InitialiseMessage.cs" />
+    <Compile Include="Messages\FrameMessage.cs" />
+    <Compile Include="Messages\KeyPressMessage.cs" />
+    <Compile Include="Messages\MouseMoveMessage.cs" />
+    <Compile Include="Messages\MousePressMessage.cs" />
+    <Compile Include="Messages\PopulateCameraList.cs" />
+    <Compile Include="Messages\PopulateLightList.cs" />
+    <Compile Include="Messages\PopulateRenderQueue.cs" />
+    <Compile Include="Messages\RenderMessage.cs" />
+    <Compile Include="Messages\ShutdownMessage.cs" />
+    <Compile Include="Messages\WindowCreatedMessage.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Structures\Actor.cs" />
+    <Compile Include="Structures\BaseComponent.cs" />
+    <Compile Include="Structures\MessagePool.cs" />
+    <Compile Include="Structures\ResourcePool.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
