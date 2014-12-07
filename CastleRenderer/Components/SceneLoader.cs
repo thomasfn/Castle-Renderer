@@ -78,8 +78,11 @@ namespace CastleRenderer.Components
                 case "model":
                     actor = LoadModel(source);
                     break;
-                case "particlesystem":
-                    actor = LoadParticleSystem(source);
+                case "cpuparticlesystem":
+                    actor = LoadParticleSystem(source, ParticleSystemType.CPU);
+                    break;
+                case "gpuparticlesystem":
+                    actor = LoadParticleSystem(source, ParticleSystemType.GPU);
                     break;
                 case "ppeffect":
                     actor = LoadPPEffect(source);
@@ -343,14 +346,22 @@ namespace CastleRenderer.Components
             return actor;
         }
 
-        private Actor LoadParticleSystem(JToken source)
+        private enum ParticleSystemType { CPU, GPU }
+
+        private Actor LoadParticleSystem(JToken source, ParticleSystemType type)
         {
             // Create the actor
             Actor actor = new Actor(Owner.MessagePool);
 
             // Add the required components to it
             Transform transform = actor.AddComponent<Transform>();
-            ParticleSystem psystem = actor.AddComponent<ParticleSystem>();
+            ParticleSystem psystem;
+            if (type == ParticleSystemType.CPU)
+                psystem = actor.AddComponent<CPUParticleSystem>();
+            else if (type == ParticleSystemType.GPU)
+                psystem = actor.AddComponent<GPUParticleSystem>();
+            else
+                throw new NotImplementedException();
 
             // Load generic transform
             LoadTransform(transform, source);

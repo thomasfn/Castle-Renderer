@@ -338,7 +338,7 @@ namespace CastleRenderer.Components
                         psys.Material.Shader.SetVariable("view", transform.WorldToObject);
                         psys.Material.Shader.SetVariable("projection", cam.Projection);
                         renderer.SetActiveMaterial(psys.Material);
-                        renderer.DrawImmediate(psys.Mesh, 0, projview, Matrix.Identity);
+                        psys.Draw(renderer, projview);
                     }
                 }
 

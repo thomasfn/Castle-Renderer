@@ -90,7 +90,7 @@
 		},
 		
 		{ "type": "model", "name": "Barrel 1", "model": "barrel", "position": [ -6.4, 16.1, 21.7 ], "scale": [ 1.0, 1.0, 1.0 ], "rotation": [ 0.0, 0.0, 0.0 ] },
-		{ "type": "particlesystem",
+		{ "type": "cpuparticlesystem",
 			"name": "Fire 1",
 			"parent": "Barrel 1",
 			
@@ -122,7 +122,7 @@
 		},
 		
 		{ "type": "model", "name": "Barrel 2", "model": "barrel", "position": [ -15.3, 16.1, 21.7 ], "scale": [ 1.0, 1.0, 1.0 ], "rotation": [ 0.0, 0.0, 0.0 ] },
-		{ "type": "particlesystem",
+		{ "type": "cpuparticlesystem",
 			"name": "Fire 2",
 			"parent": "Barrel 2",
 			

@@ -2,3 +2,7 @@
 *.pdb
 *.config
 CastleRenderer/obj/
+SBMOptimizer/obj/
+*.sdf
+*.opensdf
+*.suo
