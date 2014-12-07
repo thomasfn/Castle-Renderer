@@ -380,19 +380,23 @@ namespace CastleRenderer.Components
                 RenderTarget pp_target = swapB;
                 foreach (PostProcessEffect effect in effectqueue)
                 {
-                    // Bind target
-                    pp_target.Bind();
+                    // Loop each pass
+                    for (int i = 0; i < effect.Passes; i++)
+                    {
+                        // Bind target
+                        pp_target.Bind();
 
-                    // Apply material
-                    effect.Material.SetParameter("texImage", pp_source.GetTexture(0));
-                    effect.Material.SetParameter("imagesize", new Vector2(pp_source.Width, pp_source.Height));
-                    renderer.SetActiveMaterial(effect.Material, false, true);
+                        // Apply material
+                        effect.Material.SetParameter("texImage", pp_source.GetTexture(0));
+                        effect.Material.SetParameter("imagesize", new Vector2(pp_source.Width, pp_source.Height));
+                        renderer.SetActiveMaterial(effect.Material, false, true);
 
-                    // Blit
-                    renderer.DrawImmediate(mesh_fs, 0);
+                        // Blit
+                        renderer.DrawImmediate(mesh_fs, 0);
 
-                    // Swap
-                    Util.Swap(ref pp_source, ref pp_target);
+                        // Swap
+                        Util.Swap(ref pp_source, ref pp_target);
+                    }
                 }
 
                 // Bind camera target

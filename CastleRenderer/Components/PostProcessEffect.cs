@@ -34,6 +34,11 @@ namespace CastleRenderer.Components
         public Material Material { get; set; }
 
         /// <summary>
+        /// The number of passes to run the effect for
+        /// </summary>
+        public int Passes { get; set; }
+
+        /// <summary>
         /// Called when it's time to populate the render queue
         /// </summary>
         /// <param name="msg"></param>

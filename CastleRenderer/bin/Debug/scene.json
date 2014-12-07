@@ -40,7 +40,8 @@
 			"name": "FXAA3",
 			
 			"material": "fxaa3",
-			"priority": 10
+			"priority": 10,
+			"passes": 2
 		},
 		/* { "type": "ppeffect",
 			"name": "Bloom Horizontal",

@@ -1,0 +1,4 @@
+*.exe
+*.pdb
+*.config
+CastleRenderer/obj/

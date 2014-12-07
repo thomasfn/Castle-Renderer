@@ -95,10 +95,18 @@ PShaderOutput PShader( VShaderOutput input )
 	// NOTE: We're halfing the colour here and compensating by doubling it in the light blit shader. This is to allow "overlighting".
 	output.Diffuse = float4( colour * intensity * 0.5, 1.0 );
 	
+	// From OpenGL shader
+	/*vec3 eye = normalize( camerapos - pos.xyz );
+	vec3 r = reflect( -direction, normal );
+	float specularcomponent = 0.3 * pow( clamp( dot( r, eye ), 0.0, 1.0 ), 5.0 );*/
+	
 	// Calculate specular term
-	float3 H = normalize( direction + (pixelpos.xyz - camera_position));
-	float NdotH = dot( normal.xyz, H );
-	intensity *= pow( saturate( -NdotH ), material.x );
+	float3 eye = normalize( camera_position - pixelpos.xyz );
+	float3 r = reflect( direction, normal.xyz );
+	
+	//float3 H = normalize( direction + (pixelpos.xyz - camera_position));
+	//float NdotH = dot( normal.xyz, H );
+	intensity *= pow( saturate( dot( r, eye ) ), material.x );
 	output.Specular = float4( colour * intensity * material.y, 1.0 );
 	
 	return output;

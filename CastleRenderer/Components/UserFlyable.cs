@@ -44,6 +44,28 @@ namespace CastleRenderer.Components
         /// </summary>
         public float Sensitivity { get; set; }
 
+        private Vector3[] recordedpositions;
+        private Quaternion[] recordedrotations;
+        private bool interpolating;
+        private float dtime;
+        private float dspeed;
+
+        /// <summary>
+        /// Called when this component is attached to an actor
+        /// </summary>
+        public override void OnAttach()
+        {
+            // Attach base
+            base.OnAttach();
+
+            // Initialise
+            recordedpositions = new Vector3[2];
+            recordedrotations = new Quaternion[2];
+            interpolating = false;
+            dtime = 0.0f;
+            dspeed = 1.0f;
+        }
+
         /// <summary>
         /// Called when it's time to update the frame
         /// </summary>
@@ -53,6 +75,28 @@ namespace CastleRenderer.Components
         {
             // Get the transform
             Transform transform = Owner.GetComponent<Transform>();
+
+            // Are we interpolating?
+            if (interpolating)
+            {
+                // Reset velocity
+                velocity = Vector3.Zero;
+
+                // Increment dtime
+                dtime += msg.DeltaTime * dspeed;
+                if (dtime > 1.0f) dtime = 1.0f;
+
+                // Compute position and rotation
+                Vector3 position = Vector3.Lerp(recordedpositions[0], recordedpositions[1], dtime);
+                Quaternion rotation = Quaternion.Slerp(recordedrotations[0], recordedrotations[1], dtime);
+
+                // Apply
+                transform.LocalPosition = position;
+                transform.LocalRotation = rotation;
+
+                // Done
+                return;
+            }
 
             // Apply drag
             float frameresistance = Resistance * msg.DeltaTime;
@@ -103,6 +147,45 @@ namespace CastleRenderer.Components
                     break;
                 case Keys.D:
                     move_right = msg.Depressed;
+                    break;
+                case Keys.D1:
+                    if (msg.Depressed)
+                    {
+                        Transform transform = Owner.GetComponent<Transform>();
+                        recordedpositions[0] = transform.LocalPosition;
+                        recordedrotations[0] = transform.LocalRotation;
+                        Console.WriteLine("Recorded camera transform into slot 1");
+                    }
+                    break;
+                case Keys.D2:
+                    if (msg.Depressed)
+                    {
+                        Transform transform = Owner.GetComponent<Transform>();
+                        recordedpositions[1] = transform.LocalPosition;
+                        recordedrotations[1] = transform.LocalRotation;
+                        Console.WriteLine("Recorded camera transform into slot 2");
+                    }
+                    break;
+                case Keys.Space:
+                    if (msg.Depressed)
+                    {
+                        interpolating = !interpolating;
+                        dtime = 0.0f;
+                    }
+                    break;
+                case Keys.Add:
+                    if (msg.Depressed)
+                    {
+                        dspeed *= 1.2f;
+                        Console.WriteLine("dspeed = {0}", dspeed);
+                    }
+                    break;
+                case Keys.Subtract:
+                    if (msg.Depressed)
+                    {
+                        dspeed /= 1.2f;
+                        Console.WriteLine("dspeed = {0}", dspeed);
+                    }
                     break;
             }
         }

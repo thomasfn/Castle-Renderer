@@ -399,6 +399,7 @@ namespace CastleRenderer.Components
             // Load effect settings
             if (source["material"] != null) effect.Material = Owner.GetComponent<MaterialSystem>().GetMaterial((string)source["material"]);
             if (source["priority"] != null) effect.EffectPriority = (int)source["priority"];
+            if (source["passes"] != null) effect.Passes = (int)source["passes"];
 
             // Initialise and return
             actor.Parent = Owner;
