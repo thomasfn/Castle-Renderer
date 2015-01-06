@@ -128,8 +128,8 @@ namespace CastleRenderer.Components
             }
 
             // Setup meshes
-            mesh_fs = MeshBuilder.BuildFullscreenQuad();
-            mesh_skybox = MeshBuilder.BuildCube();
+            mesh_fs = MeshBuilder.BuildFullscreenQuad(true, true);
+            mesh_skybox = MeshBuilder.BuildCube(Matrix.Identity);
         }
 
         /// <summary>

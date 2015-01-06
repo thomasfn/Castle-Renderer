@@ -1,0 +1,37 @@
+{
+	"Actors":
+	[
+		{
+			"Name": "Ocean",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ -500.0, 7.0, -500.0 ],
+					"LocalScale": [ 1000.0, 1.0, 1000.0 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Plane",
+					"Materials": [ "water" ]
+				}
+			}
+		},
+		
+		{
+			"Name": "TestSphere",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 0.0, 20.0, 0.0 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Cube",
+					"Materials": [ "rock2" ]
+				}
+			}
+		}
+	]
+}

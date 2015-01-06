@@ -1,0 +1,37 @@
+{
+	"Actors":
+	[
+		{
+			"Name": "Main Camera",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ -10.0, 20.0, 50.0 ],
+					"LocalRotation": [ 0.0, 128.0, 0.0 ]
+				},
+				"Camera":
+				{
+					"Enabled": true,
+					"Priority": 0,
+			
+					"ProjectionType": "Perspective",
+					"FoV": 0.78,
+					"NearZ": 0.125,
+					"FarZ": 2048,
+					"Viewport": [ 0.0, 0.0, 1280.0, 720.0 ],
+					
+					"Background": "Skybox",
+					"Skybox": "skybox_sunny1"
+				},
+				"UserFlyable":
+				{
+					"MaxSpeed": 2.5,
+					"Acceleration": 1.0,
+					"Resistance": 10.0,
+					"Sensitivity": 0.002
+				}
+			}
+		}
+	]
+}

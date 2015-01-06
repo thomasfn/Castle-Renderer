@@ -44,25 +44,24 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Components\Camera.cs" />
+    <Compile Include="Components\Rendering\Camera.cs" />
     <Compile Include="Components\Particles\CPUParticleSystem.cs" />
     <Compile Include="Components\Particles\GPUParticleSystem.cs" />
-    <Compile Include="Components\Light.cs" />
+    <Compile Include="Components\Rendering\Light.cs" />
     <Compile Include="Components\Listener.cs" />
-    <Compile Include="Components\MaterialSystem.cs" />
-    <Compile Include="Components\MeshRenderer.cs" />
+    <Compile Include="Components\Rendering\MaterialSystem.cs" />
+    <Compile Include="Components\Rendering\MeshRenderer.cs" />
     <Compile Include="Components\Particles\ParticleSystem.cs" />
-    <Compile Include="Components\PostProcessEffect.cs" />
-    <Compile Include="Components\Renderer.cs" />
-    <Compile Include="Components\SceneLoader.cs" />
-    <Compile Include="Components\SceneManager.cs" />
-    <Compile Include="Components\ShadowCaster.cs" />
-    <Compile Include="Components\Sleeper.cs" />
+    <Compile Include="Components\Rendering\PostProcessEffect.cs" />
+    <Compile Include="Components\Rendering\Renderer.cs" />
+    <Compile Include="Components\Scene\SceneLoader.cs" />
+    <Compile Include="Components\Scene\SceneManager.cs" />
+    <Compile Include="Components\Rendering\ShadowCaster.cs" />
     <Compile Include="Components\Spinning.cs" />
     <Compile Include="Components\Transform.cs" />
     <Compile Include="Components\UserFlyable.cs" />
     <Compile Include="Components\UserInputHandler.cs" />
-    <Compile Include="Components\ReflectedCamera.cs" />
+    <Compile Include="Components\Rendering\ReflectedCamera.cs" />
     <Compile Include="Graphics\D3DMesh.cs" />
     <Compile Include="Graphics\Material.cs" />
     <Compile Include="Graphics\Mesh.cs" />

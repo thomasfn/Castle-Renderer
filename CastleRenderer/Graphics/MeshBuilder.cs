@@ -13,11 +13,13 @@ namespace CastleRenderer.Graphics
         public bool UseNormals { get; set; }
         public bool UseTexCoords { get; set; }
         public bool UseTangents { get; set; }
+        public bool UseColours { get; set; }
 
         private List<Vector3> lstPositions;
         private List<Vector3> lstNormals;
         private List<Vector2> lstTexCoords;
         private List<Vector3> lstTangents;
+        private List<Color4> lstColours;
         private List<List<uint>> lstIndices;
 
         public int CurrentVertexCount { get { return lstPositions.Count; } }
@@ -29,6 +31,7 @@ namespace CastleRenderer.Graphics
             lstNormals = new List<Vector3>();
             lstTexCoords = new List<Vector2>();
             lstTangents = new List<Vector3>();
+            lstColours = new List<Color4>();
             lstIndices = new List<List<uint>>();
         }
 
@@ -61,6 +64,15 @@ namespace CastleRenderer.Graphics
         {
             if (!UseTexCoords) return;
             lstTexCoords.AddRange(coords);
+        }
+
+        public void AddColour(Color4 colour)
+        {
+            lstColours.Add(colour);
+        }
+        public void AddColours(IEnumerable<Color4> colours)
+        {
+            lstColours.AddRange(colours);
         }
 
         public void AddIndex(int submesh, ushort idx)
@@ -126,13 +138,13 @@ namespace CastleRenderer.Graphics
             Vector3[] outNormals = new Vector3[lstPositions.Count];
             float[] outN = new float[lstPositions.Count];
 
-            
+
             // Loop each submesh
             foreach (var submesh in lstIndices)
             {
 
                 // Loop each poly
-                List<Vector3> normals = new List<Vector3>();
+                //List<Vector3> normals = new List<Vector3>();
                 for (int k = 0; k < submesh.Count; k += 3)
                 {
                     // Get the indices
@@ -146,7 +158,7 @@ namespace CastleRenderer.Graphics
                     Vector3 c = lstPositions[(int)i2];
                     Vector3 norm = Vector3.Cross(b - a, c - a);
                     norm.Normalize();
-                    normals.Add(norm);
+                    //normals.Add(norm);
 
                     // Add to each vertex's counter
                     outN[i0]++;
@@ -177,6 +189,7 @@ namespace CastleRenderer.Graphics
             if (UseNormals) m.Normals = lstNormals.ToArray();
             if (UseTexCoords) m.TextureCoordinates = lstTexCoords.ToArray();
             if (UseTangents) m.Tangents = lstTangents.ToArray();
+            //if (UseColours) m.Colours = lstColours.ToArray();
             m.Submeshes = new uint[lstIndices.Count][];
             for (int i = 0; i < lstIndices.Count; i++)
                 m.Submeshes[i] = lstIndices[i].ToArray();
@@ -241,6 +254,110 @@ namespace CastleRenderer.Graphics
                 AddIndex((uint)baseidx + 2);
                 AddIndex((uint)baseidx + 3);
                 AddIndex((uint)baseidx);
+            }
+        }
+
+        public void Add2DLine(Vector2 a, Vector2 b, float width)
+        {
+            Vector2 ab = b - a;
+            ab.Normalize();
+            Vector2 crossvec = new Vector2(ab.Y, -ab.X) * width * 0.5f;
+            AddQuad(new Vector3(a - crossvec, 0.0f), new Vector3(a + crossvec, 0.0f), new Vector3(b + crossvec, 0.0f), new Vector3(b - crossvec, 0.0f), new Vector2(0.0f, 0.0f), new Vector2(1.0f, 0.0f), new Vector2(1.0f, 1.0f), new Vector2(0.0f, 1.0f));
+        }
+
+        public void CalculateTangents()
+        {
+            if (!UseTexCoords) throw new Exception("Can't calculate tangents when mesh has no texture coordinate");
+
+            // Build the temp arrays
+            Vector3[] tangentsums = new Vector3[CurrentVertexCount];
+            int[] tangentcounts = new int[CurrentVertexCount];
+
+            // Loop each submesh
+            foreach (List<uint> submesh in lstIndices)
+            {
+                // Loop each triangle
+                for (int i = 0; i < submesh.Count; i += 3)
+                {
+                    // Get the vertex indices
+                    uint i0 = submesh[i];
+                    uint i1 = submesh[i + 1];
+                    uint i2 = submesh[i + 2];
+
+                    // Get the three vertices
+                    Vector3 p0 = lstPositions[(int)i0];
+                    Vector3 p1 = lstPositions[(int)i1];
+                    Vector3 p2 = lstPositions[(int)i2];
+                    Vector2 uv0 = lstTexCoords[(int)i0];
+                    Vector2 uv1 = lstTexCoords[(int)i1];
+                    Vector2 uv2 = lstTexCoords[(int)i2];
+
+                    // Compute the tangent for the triangle
+                    Vector3 tangent = CalculateTriangleTangent(p0, p1, p2, uv0, uv1, uv2);
+
+                    // Add to the vertex arrays
+                    tangentsums[i0] += tangent;
+                    tangentsums[i1] += tangent;
+                    tangentsums[i2] += tangent;
+                    tangentcounts[i0]++;
+                    tangentcounts[i1]++;
+                    tangentcounts[i2]++;
+                }
+            }
+
+            // Compute the average tangents
+            UseTangents = true;
+            for (int i = 0; i < CurrentVertexCount; i++)
+            {
+                Vector3 tangent;
+                if (tangentcounts[i] == 0)
+                    tangent = Vector3.Zero;
+                else
+                    tangent = tangentsums[i] / (float)tangentcounts[i];
+                tangent.Normalize();
+                AddTangent(tangent);
+            }
+        }
+
+        private static Vector3 CalculateTriangleTangent(Vector3 p0, Vector3 p1, Vector3 p2, Vector2 uv0, Vector2 uv1, Vector2 uv2)
+        {
+            Vector3 q1 = p1 - p0;
+            Vector3 q2 = p2 - p0;
+            Vector2 st1 = uv1 - uv0;
+            Vector2 st2 = uv2 - uv0;
+
+            Matrix stmtx = new Matrix();
+            stmtx.set_Rows(0, new Vector4(st1, 0.0f, 0.0f));
+            stmtx.set_Rows(1, new Vector4(st2, 0.0f, 0.0f));
+
+            Matrix qmtx = new Matrix();
+            qmtx.set_Rows(0, new Vector4(q1, 0.0f));
+            qmtx.set_Rows(1, new Vector4(q2, 0.0f));
+
+            //Matrix2 stmtx = new Matrix2(st1, st2);
+            //Matrix2x3 qmtx = new Matrix2x3(q1, q2);
+
+            stmtx.Invert();
+
+            Matrix final = stmtx * qmtx;
+            Vector4 row0 = final.get_Rows(0);
+
+            Vector3 row0_v3 = new Vector3(row0.X, row0.Y, row0.Z);
+            row0_v3.Normalize();
+            return row0_v3;
+        }
+
+        public void Transform(Matrix matrix)
+        {
+            //Matrix3 normalmatrix = new Matrix3(matrix);
+            Vector3 scale, translation;
+            Quaternion rot;
+            matrix.Decompose(out scale, out rot, out translation);
+            for (int i = 0; i < CurrentVertexCount; i++)
+            {
+                lstPositions[i] = Util.Vector3Transform(lstPositions[i], matrix);
+                if (UseNormals) lstNormals[i] = Util.Vector3Transform(lstNormals[i], rot);
+                if (UseTangents) lstTangents[i] = Util.Vector3Transform(lstTangents[i], rot);
             }
         }
 
@@ -528,10 +645,9 @@ namespace CastleRenderer.Graphics
                 }
                 if (usetexcoords)
                 {
-                    // TODO: This
-                    builder.AddTextureCoord(new Vector2(0.0f, 0.0f));
-                    builder.AddTextureCoord(new Vector2(0.0f, 0.0f));
-                    builder.AddTextureCoord(new Vector2(0.0f, 0.0f));
+                    builder.AddTextureCoord(SphericalPositionToUV(tri.A));
+                    builder.AddTextureCoord(SphericalPositionToUV(tri.B));
+                    builder.AddTextureCoord(SphericalPositionToUV(tri.C));
                 }
                 builder.AddIndex((ushort)(i * 3));
                 builder.AddIndex((ushort)(i * 3 + 1));
@@ -542,7 +658,15 @@ namespace CastleRenderer.Graphics
             return builder.Build();
         }
 
-        public static Mesh BuildCube()
+        private static Vector2 SphericalPositionToUV(Vector3 pos)
+        {
+            return new Vector2(
+                (float)(Math.Atan2(pos.X, pos.Z) / (2.0 * Math.PI) + 0.5),
+                (float)(Math.Asin(pos.Y) / Math.PI + 0.5)
+                );
+        }
+
+        public static Mesh BuildCube(Matrix transform)
         {
             // Create mesh builder
             MeshBuilder builder = new MeshBuilder();
@@ -567,25 +691,49 @@ namespace CastleRenderer.Graphics
             builder.AddQuad(new Vector3(0.0f, 0.0f, 1.0f), new Vector3(0.0f, 1.0f, 1.0f), new Vector3(1.0f, 1.0f, 1.0f), new Vector3(1.0f, 0.0f, 1.0f),
                 new Vector2(1.0f, 1.0f), new Vector2(1.0f, 0.0f), new Vector2(0.0f, 0.0f), new Vector2(0.0f, 1.0f), true);
 
+            // Tangents
+            builder.CalculateTangents();
+
             // Done
+            if (transform != Matrix.Identity) builder.Transform(transform);
             return builder.Build();
         }
 
-        public static Mesh BuildFullscreenQuad()
+        public static Mesh BuildFullscreenQuad(bool devicecoords = true, bool flipV = false)
         {
             // Create mesh builder
             MeshBuilder builder = new MeshBuilder();
             builder.UseTexCoords = true;
 
             // Add vertices
-            builder.AddPosition(new Vector3(-1.0f, -1.0f, 0.5f));
-            builder.AddPosition(new Vector3(1.0f, -1.0f, 0.5f));
-            builder.AddPosition(new Vector3(1.0f, 1.0f, 0.5f));
-            builder.AddPosition(new Vector3(-1.0f, 1.0f, 0.5f));
-            builder.AddTextureCoord(new Vector2(0.0f, 1.0f));
-            builder.AddTextureCoord(new Vector2(1.0f, 1.0f));
-            builder.AddTextureCoord(new Vector2(1.0f, 0.0f));
-            builder.AddTextureCoord(new Vector2(0.0f, 0.0f));
+            if (devicecoords)
+            {
+                builder.AddPosition(new Vector3(-1.0f, -1.0f, 0.5f));
+                builder.AddPosition(new Vector3(1.0f, -1.0f, 0.5f));
+                builder.AddPosition(new Vector3(1.0f, 1.0f, 0.5f));
+                builder.AddPosition(new Vector3(-1.0f, 1.0f, 0.5f));
+            }
+            else
+            {
+                builder.AddPosition(new Vector3(0.0f, 0.0f, 0.5f));
+                builder.AddPosition(new Vector3(1.0f, 0.0f, 0.5f));
+                builder.AddPosition(new Vector3(1.0f, 1.0f, 0.5f));
+                builder.AddPosition(new Vector3(0.0f, 1.0f, 0.5f));
+            }
+            if (flipV)
+            {
+                builder.AddTextureCoord(new Vector2(0.0f, 1.0f));
+                builder.AddTextureCoord(new Vector2(1.0f, 1.0f));
+                builder.AddTextureCoord(new Vector2(1.0f, 0.0f));
+                builder.AddTextureCoord(new Vector2(0.0f, 0.0f));
+            }
+            else
+            {
+                builder.AddTextureCoord(new Vector2(0.0f, 0.0f));
+                builder.AddTextureCoord(new Vector2(1.0f, 0.0f));
+                builder.AddTextureCoord(new Vector2(1.0f, 1.0f));
+                builder.AddTextureCoord(new Vector2(0.0f, 1.0f));
+            }
 
             // Add indices
             builder.AddIndex(0);
@@ -623,13 +771,9 @@ namespace CastleRenderer.Graphics
                 builder.AddTextureCoord(new Vector2(1.0f, 0.0f));
                 builder.AddTextureCoord(new Vector2(0.0f, 0.0f));
             }
-            if (tangents)
-            {
-                builder.AddTangent(new Vector3(1.0f, 0.0f, 0.0f));
-                builder.AddTangent(new Vector3(1.0f, 0.0f, 0.0f));
-                builder.AddTangent(new Vector3(1.0f, 0.0f, 0.0f));
-                builder.AddTangent(new Vector3(1.0f, 0.0f, 0.0f));
-            }
+
+            // Add tangents
+            if (tangents) builder.CalculateTangents();
 
             // Add indices
             builder.AddIndex(0);
@@ -665,6 +809,7 @@ namespace CastleRenderer.Graphics
                 Vector3 normal = Vector3.Cross(position, Vector3.UnitZ);
                 normal.Normalize();
                 float ang = (float)Math.Acos(position.Z);
+                //rot = Quaternion.RotationAxis(normal, -ang);
                 rot = Quaternion.RotationAxis(normal, -ang);
             }
 

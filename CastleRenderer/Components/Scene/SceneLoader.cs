@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 
 using CastleRenderer.Structures;
 using CastleRenderer.Messages;
@@ -16,10 +17,44 @@ namespace CastleRenderer.Components
     /// <summary>
     /// Loads the scene from a file
     /// </summary>
-    [RequiresComponent(typeof(MaterialSystem))] // NOTE: Dependance on MaterialSystem implies a dependance on Renderer
+    [RequiresComponent(typeof(MaterialSystem))] // NOTE: Dependance on MaterialSystem implies a dependence on Renderer
     public class SceneLoader : BaseComponent
     {
-        private Dictionary<string, Actor> actors;
+        private Dictionary<string, Actor> sceneactors;
+
+        private Dictionary<string, Type> componenttypes;
+
+        /// <summary>
+        /// Called when this component is attached to an Actor
+        /// </summary>
+        public override void OnAttach()
+        {
+            // Call base
+            base.OnAttach();
+
+            // Load all component types
+            componenttypes = new Dictionary<string, Type>();
+            Type basetype = typeof(BaseComponent);
+            foreach (Type type in AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany((a) => a.GetTypes())
+                .Where((t) => !t.IsAbstract && basetype.IsAssignableFrom(t))
+                )
+            {
+                componenttypes.Add(type.Name, type);
+            }
+        }
+
+        /// <summary>
+        /// Creates a component on the specified actor
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private BaseComponent CreateComponent(Actor actor, string name)
+        {
+            Type type;
+            if (!componenttypes.TryGetValue(name, out type)) return null;
+            return actor.AddComponent(type);
+        }
 
         /// <summary>
         /// Loads a scene from the specified file
@@ -36,431 +71,290 @@ namespace CastleRenderer.Components
             // Parse into JSON
             JObject root = JObject.Parse(content);
 
-            // Locate the objects array
-            if (root["objects"] == null) return true;
-            JToken objects = root["objects"];
-            int cnt = 0;
-            actors = new Dictionary<string, Actor>();
-            actors["root"] = Owner;
-            foreach (var item in objects)
+            // Locate the include array
+            if (root["Include"] != null)
             {
-                if (LoadObject(item))
+                // Loop each item
+                foreach (var item in root["Include"])
+                {
+                    // Include it
+                    string name = item.ToString();
+                    if (!LoadSceneFromFile(name))
+                    {
+                        Console.WriteLine("Failed to load include scene file '{0}'.", name);
+                        return false;
+                    }
+                }
+            }
+
+            // Locate the actors array
+            if (root["Actors"] == null) return true;
+            JToken actors = root["Actors"];
+            int cnt = 0;
+            sceneactors = new Dictionary<string, Actor>();
+            sceneactors["Root"] = Owner;
+            foreach (var item in actors)
+            {
+                if (LoadActor(item))
                     cnt++;
             }
             actors = null;
-            Console.WriteLine("Loaded {0} objects from scene file.", cnt);
+            Console.WriteLine("Loaded {0} actors from scene file '{1}'.", cnt, filename);
 
             // Success
             return true;
         }
 
-        private bool LoadObject(JToken source)
+        private bool LoadActor(JToken source)
         {
-            // Check comment
-            if (source.Type == JTokenType.Comment) return false;
+            // Create the actor
+            Actor actor = new Actor(Owner.MessagePool);
 
-            // Get the type
-            string type = (string)source["type"];
-
-            // Branch off
-            Actor actor = null;
-            switch (type)
+            // Assign the name
+            if (source["Name"] != null)
             {
-                case "camera":
-                    actor = LoadCamera(source);
-                    break;
-                case "primitive":
-                    actor = LoadPrimitive(source);
-                    break;
-                case "light":
-                    actor = LoadLight(source);
-                    break;
-                case "model":
-                    actor = LoadModel(source);
-                    break;
-                case "cpuparticlesystem":
-                    actor = LoadParticleSystem(source, ParticleSystemType.CPU);
-                    break;
-                case "gpuparticlesystem":
-                    actor = LoadParticleSystem(source, ParticleSystemType.GPU);
-                    break;
-                case "ppeffect":
-                    actor = LoadPPEffect(source);
-                    break;
-            }
-
-            // Did we create an actor?
-            if (actor != null)
-            {
-                // Load any extensions
-                LoadExtensions(actor, source);
-
-                // Set name
-                if (source["name"] != null)
-                    actor.Name = (string)source["name"];
+                actor.Name = (string)source["Name"];
+                if (sceneactors.ContainsKey(actor.Name))
+                    Console.WriteLine("Warning - more than one actors hold the same name '{0}'!", actor.Name);
                 else
-                    actor.Name = type;
-                actors[actor.Name] = actor;
+                    sceneactors.Add(actor.Name, actor);
+            }
+            else
+                actor.Name = "Untitled Scene Object";
 
-                // Parent it
-                if (source["parent"] != null)
+            // Assign the parent
+            if (source["Parent"] != null)
+            {
+                string parentname = (string)source["Parent"];
+                Actor parentactor;
+                if (!sceneactors.TryGetValue(parentname, out parentactor))
                 {
-                    Actor parentactor;
-                    if (!actors.TryGetValue((string)source["parent"], out parentactor))
+                    Console.WriteLine("Tried to parent '{0}' to unknown actor '{1}'!", parentname);
+                    return false;
+                }
+            }
+            else
+                actor.Parent = Owner;
+
+            // Read all components
+            if (source["Components"] != null)
+            {
+                foreach (JToken obj in source["Components"])
+                {
+                    JProperty jprop = obj as JProperty;
+                    if (!LoadComponent(actor, jprop.Name, jprop.Value))
                     {
-                        Console.WriteLine("Failed to parent object '{0}' to missing object '{1}' when loading scene.", actor.Name, (string)source["parent"]);
+                        Console.WriteLine("Failed to load components on actor '{0}'!", actor.Name);
                         return false;
                     }
-                    actor.Parent = parentactor;
                 }
-                else
-                    actor.Parent = Owner;
-                return true;
             }
-            else
+            actor.Init();
+
+            // Success
+            return true;
+        }
+
+        private bool LoadComponent(Actor actor, string type, JToken source)
+        {
+            // Add the component
+            BaseComponent component = CreateComponent(actor, type);
+            if (component == null)
             {
-                // Let user know
-                Console.WriteLine("Unrecognised object type '{0}' when loading scene.", type);
+                Console.WriteLine("Unknown component type '{0}' on actor '{1}'!", actor.Name);
                 return false;
             }
-        }
+            Type ctype = component.GetType();
 
-        private Actor LoadCamera(JToken source)
-        {
-            // Create the actor
-            Actor actor = new Actor(Owner.MessagePool);
-
-            // Add the required components to it
-            Transform transform = actor.AddComponent<Transform>();
-            Camera camera = actor.AddComponent<Camera>();
-
-            // Load generic transform
-            LoadTransform(transform, source);
-
-            // Load camera
-            if (source["projectiontype"] != null)
+            // Read all other fields
+            foreach (JToken obj in source)
             {
-                string proj = (string)source["projectiontype"];
-                if (proj == "perspective") camera.ProjectionType = CameraType.Perspective;
-                if (proj == "orthographic") camera.ProjectionType = CameraType.Orthographic;
-            }
-            if (source["fov"] != null) camera.FoV = (float)source["fov"];
-            if (source["nearz"] != null) camera.NearZ = (float)source["nearz"];
-            if (source["farz"] != null) camera.FarZ = (float)source["farz"];
-            if (source["viewport"] != null)
-            {
-                var viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, (float)source["viewport"][0], (float)source["viewport"][1]);
-                viewport.MaxZ = 1.0f;
-                viewport.MinZ = 0.0f;
-                camera.Viewport = viewport;
-            }
-            if (source["skybox"] != null)
-            {
-                camera.Background = BackgroundType.Skybox;
-                camera.Skybox = Owner.GetComponent<MaterialSystem>().GetMaterial((string)source["skybox"]);
-            }
-            if (source["userendertarget"] != null && (bool)source["userendertarget"])
-            {
-                camera.Target = Owner.GetComponent<Renderer>().CreateRenderTarget(1, (int)camera.Viewport.Width, (int)camera.Viewport.Height, "camera_rt");
-                camera.Target.AddDepthComponent();
-                camera.Target.AddTextureComponent();
-                camera.Target.Finish();
-            }
-            if (source["reflectedcamera"] != null && (bool)source["reflectedcamera"])
-            {
-                ReflectedCamera reflectedcam = actor.AddComponent<ReflectedCamera>();
-                reflectedcam.ReflectionPlane = new Plane((float)source["reflectionplane"][0], (float)source["reflectionplane"][1], (float)source["reflectionplane"][2], (float)source["reflectionplane"][3]);
-                reflectedcam.MainCamera = actors[(string)source["reflectionmimic"]];
-                reflectedcam.ReflectionTarget = Owner.GetComponent<MaterialSystem>().GetMaterial((string)source["reflectiontarget"]);
-            }
-            if (source["enabled"] != null) camera.Enabled = (bool)source["enabled"];
-            if (source["priority"] != null) camera.RenderPriority = (int)source["priority"];
-            if (source["clip_plane"] != null)
-            {
-                camera.UseClipping = true;
-                camera.ClipPlane = new Plane((float)source["clip_plane"][0], (float)source["clip_plane"][1], (float)source["clip_plane"][2], (float)source["clip_plane"][3]);
-            }
-
-            // Initialise and return
-            actor.Init();
-            return actor;
-        }
-
-        private Actor LoadPrimitive(JToken source)
-        {
-            // Create the actor
-            Actor actor = new Actor(Owner.MessagePool);
-
-            // Add the required components to it
-            Transform transform = actor.AddComponent<Transform>();
-            MeshRenderer renderer = actor.AddComponent<MeshRenderer>();
-
-            // Load generic transform
-            LoadTransform(transform, source);
-
-            // Load primitive
-            if (source["primitive"] != null)
-            {
-                bool usetexcoords = source["texcoords"] != null && (bool)source["texcoords"];
-                bool usetangents = source["tangents"] != null && (bool)source["tangents"];
-                string prim = (string)source["primitive"];
-                switch (prim)
-                {
-                    case "sphere":
-                        renderer.Mesh = MeshBuilder.BuildSphere(1.0f, 5, usetexcoords, usetangents);
-                        break;
-                    case "cube":
-                        renderer.Mesh = MeshBuilder.BuildCube();
-                        break;
-                    case "fsquad":
-                        renderer.Mesh = MeshBuilder.BuildFullscreenQuad();
-                        break;
-                    case "plane":
-                        renderer.Mesh = MeshBuilder.BuildPlane(usetexcoords, usetangents);
-                        break;
-                }
-            }
-            if (source["material"] != null) renderer.Materials = new Material[] { Owner.GetComponent<MaterialSystem>().GetMaterial((string)source["material"]) };
-
-            // Initialise and return
-            actor.Init();
-            return actor;
-        }
-
-        private Actor LoadLight(JToken source)
-        {
-            // Create the actor
-            Actor actor = new Actor(Owner.MessagePool);
-
-            // Add the required components to it
-            Transform transform = actor.AddComponent<Transform>();
-            Light light = actor.AddComponent<Light>();
-
-            // Load generic transform
-            LoadTransform(transform, source);
-
-            // Load light type
-            if (source["light"] != null)
-            {
-                string lighttype = (string)source["light"];
-                switch (lighttype)
-                {
-                    case "ambient":
-                        light.Type = LightType.Ambient;
-                        break;
-                    case "directional":
-                        light.Type = LightType.Directional;
-                        break;
-                    case "point":
-                        light.Type = LightType.Point;
-                        break;
-                    case "spot":
-                        light.Type = LightType.Spot;
-                        break;
-                }
-            }
-            else
-                light.Type = LightType.None;
-
-            // Load generic light properties
-            if (source["colour"] != null) light.Colour = ParseColor3(source["colour"]);
-            if (source["range"] != null) light.Range = (float)source["range"];
-
-            // Load shadow caster
-            if (source["castshadows"] != null && (bool)source["castshadows"])
-            {
-                ShadowCaster caster = actor.AddComponent<ShadowCaster>();
-                caster.Resolution = 512;
-                if (source["shadowmapsize"] != null) caster.Resolution = (int)source["shadowmapsize"];
-                if (source["shadowcasterscale"] != null) caster.Scale = (int)source["shadowcasterscale"];
-            }
-
-            // Initialise and return
-            actor.Parent = Owner;
-            actor.Init();
-            return actor;
-        }
-
-        private Actor LoadModel(JToken source)
-        {
-            // Create the actor
-            Actor actor = new Actor(Owner.MessagePool);
-
-            // Add the required components to it
-            Transform transform = actor.AddComponent<Transform>();
-
-            // Load generic transform
-            LoadTransform(transform, source);
-
-            // Load model
-            if (source["model"] != null)
-            {
-                string model = (string)source["model"];
-                SBMLoader loader = new SBMLoader("models/" + model + ".sbm");
-                string err;
-                if (!loader.Load(out err))
-                {
-                    Console.WriteLine("Failed to load model '{0}'! ({1})", model, err);
-                    return null;
-                }
-
-                // Is there more than 1 mesh?
-                if (loader.MeshCount > 1)
-                {
-                    for (int i = 0; i < loader.MeshCount; i++)
-                    {
-                        Actor tmp = new Actor(Owner.MessagePool);
-                        tmp.AddComponent<Transform>();
-                        MeshRenderer renderer = tmp.AddComponent<MeshRenderer>();
-                        Mesh mesh;
-                        string[] materialnames;
-                        loader.GetMesh(i, out mesh, out materialnames);
-                        Material[] materials = new Material[materialnames.Length];
-                        for (int j = 0; j < materials.Length; j++)
-                        {
-                            materials[j] = Owner.GetComponent<MaterialSystem>().GetMaterial(materialnames[j]);
-                            if (materials[j] == null) Console.WriteLine("Failed to load material '{0}'!", materialnames[j]);
-                        }
-                        renderer.Mesh = mesh;
-                        renderer.Materials = materials;
-                        tmp.Parent = actor;
-                        tmp.Init();
-                    }
-                }
+                JProperty p = obj as JProperty;
+                PropertyInfo property = ctype.GetProperty(p.Name, BindingFlags.Instance | BindingFlags.Public);
+                if (property == null)
+                    Console.WriteLine("Warning - unknown property '{0}' on component '{1}' on actor '{2}'!", p.Name, ctype.Name, actor.Name);
+                else if (property.SetMethod == null)
+                    Console.WriteLine("Warning - property '{0}' has no set method on component '{1}' on actor '{2}'!", p.Name, ctype.Name, actor.Name);
                 else
                 {
-                    MeshRenderer renderer = actor.AddComponent<MeshRenderer>();
-                    Mesh mesh;
-                    string[] materialnames;
-                    loader.GetMesh(0, out mesh, out materialnames);
-                    Material[] materials = new Material[materialnames.Length];
-                    for (int j = 0; j < materials.Length; j++)
-                        materials[j] = Owner.GetComponent<MaterialSystem>().GetMaterial(materialnames[j]);
-                    renderer.Mesh = mesh;
-                    renderer.Materials = materials;
+                    object value = TokenToTypeSafe(p.Value, property.PropertyType);
+                    if (value != null)
+                        property.SetValue(component, value);
                 }
             }
 
-            // Initialise and return
-            actor.Init();
-            return actor;
+            // Loaded
+            return true;
         }
 
-        private enum ParticleSystemType { CPU, GPU }
-
-        private Actor LoadParticleSystem(JToken source, ParticleSystemType type)
+        private object TokenToTypeSafe(JToken token, Type desiredtype)
         {
-            // Create the actor
-            Actor actor = new Actor(Owner.MessagePool);
-
-            // Add the required components to it
-            Transform transform = actor.AddComponent<Transform>();
-            ParticleSystem psystem;
-            if (type == ParticleSystemType.CPU)
-                psystem = actor.AddComponent<CPUParticleSystem>();
-            else if (type == ParticleSystemType.GPU)
-                psystem = actor.AddComponent<GPUParticleSystem>();
+            object val = TokenToType(token, desiredtype);
+            if (val == null)
+            {
+                Console.WriteLine("Warning - unable to convert json token type '{1}' to type '{0}'!", desiredtype.Name, token.Type);
+                return null;
+            }
+            else if (!desiredtype.IsAssignableFrom(val.GetType()))
+            {
+                Console.WriteLine("Warning - TokenToType produced wrong type '{0}' (desired type is {1}, token type is {2})", val.GetType().Name, desiredtype.Name, token.Type);
+                return null;
+            }
             else
-                throw new NotImplementedException();
-
-            // Load generic transform
-            LoadTransform(transform, source);
-
-            // Load particle system settings
-            if (source["particlecount"] != null) psystem.ParticleCount = (int)source["particlecount"];
-            if (source["transfermode"] != null)
-            {
-                string transfermode = (string)source["transfermode"];
-                switch (transfermode)
-                {
-                    case "add":
-                        psystem.TransferMode = ParticleTransferMode.Add;
-                        break;
-                    case "alpha":
-                        psystem.TransferMode = ParticleTransferMode.Alpha;
-                        break;
-                }
-            }
-            if (source["material"] != null) psystem.Material = Owner.GetComponent<MaterialSystem>().GetMaterial((string)source["material"]);
-            if (source["particlelife"] != null) psystem.ParticleLife = (float)source["particlelife"];
-            if (source["startcolour"] != null) psystem.StartColour = ParseColor4(source["startcolour"]);
-            if (source["endcolour"] != null) psystem.EndColour = ParseColor4(source["endcolour"]);
-            if (source["startsize"] != null) psystem.StartSize = (float)source["startsize"];
-            if (source["endsize"] != null) psystem.EndSize = (float)source["endsize"];
-            if (source["initialvelocity"] != null) psystem.InitialVelocity = ParseVector3(source["initialvelocity"]);
-            if (source["randomvelocity"] != null) psystem.RandomVelocity = ParseVector3(source["randomvelocity"]);
-            if (source["randomposition"] != null) psystem.RandomPosition = ParseVector3(source["randomposition"]);
-            if (source["acceleration"] != null) psystem.Acceleration = ParseVector3(source["acceleration"]);
-            if (source["emissionrate"] != null) psystem.EmissionRate = (int)source["emissionrate"];
-
-            // Initialise and return
-            actor.Parent = Owner;
-            actor.Init();
-            return actor;
+                return val;
         }
 
-        private Actor LoadPPEffect(JToken source)
+        private object TokenToType(JToken token, Type desiredtype)
         {
-            // Create the actor
-            Actor actor = new Actor(Owner.MessagePool);
+            // Check certain desired types
+            if (desiredtype == typeof(Vector2))
+                return ParseVector2(token);
+            else if (desiredtype == typeof(Vector3))
+                return ParseVector3(token);
+            else if (desiredtype == typeof(Vector4))
+                return ParseVector4(token);
+            else if (desiredtype == typeof(Quaternion))
+            {
+                Vector3 vec = ParseVector3(token);
+                return Quaternion.RotationYawPitchRoll(vec.Y, vec.X, vec.Z);
+            }
+            else if (desiredtype == typeof(SlimDX.Direct3D11.Viewport))
+            {
+                Vector4 vec = ParseVector4(token);
+                return new SlimDX.Direct3D11.Viewport(vec.X, vec.Y, vec.Z, vec.W);
+            }
+            else if (desiredtype == typeof(Color3))
+                return ParseColor3(token);
+            else if (desiredtype == typeof(Color4))
+                return ParseColor4(token);
 
-            // Add the required components to it
-            PostProcessEffect effect = actor.AddComponent<PostProcessEffect>();
-
-            // Load effect settings
-            if (source["material"] != null) effect.Material = Owner.GetComponent<MaterialSystem>().GetMaterial((string)source["material"]);
-            if (source["priority"] != null) effect.EffectPriority = (int)source["priority"];
-            if (source["passes"] != null) effect.Passes = (int)source["passes"];
-
-            // Initialise and return
-            actor.Parent = Owner;
-            actor.Init();
-            return actor;
+            // Check token type
+            switch (token.Type)
+            {
+                case JTokenType.String:
+                    if (desiredtype == typeof(string))
+                        return (string)token;
+                    else if (desiredtype.IsEnum)
+                        return Enum.Parse(desiredtype, (string)token);
+                    else if (typeof(Material).IsAssignableFrom(desiredtype))
+                        return GetMaterial((string)token);
+                    else if (typeof(Mesh).IsAssignableFrom(desiredtype))
+                        return GetMesh((string)token);
+                    else
+                        return null;
+                case JTokenType.Boolean:
+                    if (desiredtype == typeof(bool))
+                        return (bool)token;
+                    else
+                        return null;
+                case JTokenType.Integer:
+                    if (desiredtype == typeof(int))
+                        return (int)token;
+                    else if (desiredtype == typeof(float))
+                        return Convert.ToSingle((int)token);
+                    else if (desiredtype == typeof(double))
+                        return Convert.ToDouble((int)token);
+                    else
+                        return null;
+                case JTokenType.Float:
+                    if (desiredtype == typeof(float))
+                        return (float)token;
+                    else if (desiredtype == typeof(int))
+                        return Convert.ToInt32((float)token);
+                    else if (desiredtype == typeof(double))
+                        return Convert.ToDouble((float)token);
+                    else
+                        return null;
+                case JTokenType.Array:
+                    JArray jarr = token as JArray;
+                    if (desiredtype.IsArray)
+                    {
+                        Type etype = desiredtype.GetElementType();
+                        Array arr = Activator.CreateInstance(desiredtype, new object[] { jarr.Count }) as Array;
+                        for (int i = 0; i < jarr.Count; i++)
+                        {
+                            object val = TokenToTypeSafe(jarr[i], etype);
+                            if (val != null) arr.SetValue(val, i);
+                        }
+                        return arr;
+                    }
+                    else
+                        return null;
+                case JTokenType.Object:
+                    JObject jobj = token as JObject;
+                    if (desiredtype.IsGenericType)
+                    {
+                        // Trying to see if it's a Dictionary<string, T>
+                        //Type genbase = desiredtype.GetGenericTypeDefinition();
+                        //Type[] genargs = desiredtype.GetGenericArguments();
+                        throw new NotImplementedException();
+                        // TODO: This!
+                    }
+                    else
+                        return null;
+            }
+            return null;
         }
 
-        private static void LoadTransform(Transform transform, JToken source)
+        private Material GetMaterial(string name)
         {
-            // Check for certain fields
-            if (source["position"] != null) transform.LocalPosition = ParseVector3(source["position"]);
-            if (source["forward"] != null) transform.LocalForward = ParseVector3(source["forward"]);
-            if (source["rotation"] != null)
-            {
-                Vector3 euler = ParseVector3(source["rotation"]);
-                transform.LocalRotation = Quaternion.RotationYawPitchRoll(euler.Y.ToRadians(), euler.X.ToRadians(), euler.Z.ToRadians());
-            }
-            if (source["scale"] != null) transform.LocalScale = ParseVector3(source["scale"]);
+            return Owner.GetComponent<MaterialSystem>().GetMaterial(name);
         }
 
-        private static void LoadExtensions(Actor actor, JToken source)
+        private Mesh GetMesh(string name)
         {
-            // Check for flyable
-            if (source["flyable"] != null && (bool)source["flyable"])
+            string[] args = name.Split(':');
+            if (args.Length <= 1)
             {
-                // Add component
-                UserFlyable flyable = actor.AddComponent<UserFlyable>();
-                if (source["flyable_maxspeed"] != null) flyable.MaxSpeed = (float)source["flyable_maxspeed"];
-                if (source["flyable_accel"] != null) flyable.Acceleration = (float)source["flyable_accel"];
-                if (source["flyable_drag"] != null) flyable.Resistance = (float)source["flyable_drag"];
-                if (source["flyable_sens"] != null) flyable.Sensitivity = (float)source["flyable_sens"];
-                actor.Init();
+                Console.WriteLine("Failed to parse mesh '{0}'!", name);
+                return null;
             }
-
-            // Check for spinning
-            if (source["spinning"] != null && (bool)source["spinning"])
+            string cmd = args[0].Trim().ToLowerInvariant();
+            string arg = args[1].Trim().ToLowerInvariant();
+            switch (cmd)
             {
-                // Add component
-                Spinning spinning = actor.AddComponent<Spinning>();
-                if (source["spinning_axis"] != null) spinning.Axis = ParseVector3(source["spinning_axis"]);
-                if (source["spinning_speed"] != null) spinning.Speed = (float)source["spinning_speed"];
-                actor.Init();
+                case "primitive":
+                case "prim":
+                    switch (arg)
+                    {
+                        case "cube":
+                            return MeshBuilder.BuildCube(Matrix.Identity);
+                        case "sphere":
+                            int divs = 8;
+                            if (args.Length >= 3)
+                            {
+                                if (!int.TryParse(args[2], out divs))
+                                {
+                                    Console.WriteLine("Failed to parse mesh '{0}' (bad argument #2 '{1}')!", name, args[2]);
+                                    return null;
+                                }
+                            }
+                            return MeshBuilder.BuildSphere(1.0f, divs, true, true);
+                        case "plane":
+                            return MeshBuilder.BuildPlane(true, true);
+                        default:
+                            Console.WriteLine("Failed to parse mesh '{0}' (unknown primitive type '{1}')!", name, arg);
+                            return null;
+                    }
+                default:
+                    Console.WriteLine("Failed to parse mesh '{0}' (unknown mesh type '{1}')!", name, cmd);
+                    return null;
             }
         }
 
-
+        private static Vector2 ParseVector2(JToken source)
+        {
+            return new Vector2((float)source[0], (float)source[1]);
+        }
 
         private static Vector3 ParseVector3(JToken source)
         {
             return new Vector3((float)source[0], (float)source[1], (float)source[2]);
+        }
+
+        private static Vector4 ParseVector4(JToken source)
+        {
+            return new Vector4((float)source[0], (float)source[1], (float)source[2], (float)source[3]);
         }
 
         private static Color3 ParseColor3(JToken source)

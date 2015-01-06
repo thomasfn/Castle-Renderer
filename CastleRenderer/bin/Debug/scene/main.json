@@ -1,0 +1,8 @@
+{
+	"Include":
+	[
+		"scene/player.json",
+		"scene/sun.json",
+		"scene/world.json"
+	]
+}

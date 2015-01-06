@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Threading;
 
 using CastleRenderer.Structures;
 using CastleRenderer.Messages;
@@ -13,6 +14,9 @@ namespace CastleRenderer
     /// </summary>
     public static class Program
     {
+        public const int DesiredFPS = 60;
+        public const float DesiredFrametime = 1.0f / DesiredFPS;
+
         /// <summary>
         /// Entry point for the application
         /// </summary>
@@ -31,7 +35,7 @@ namespace CastleRenderer
             root.AddComponent<MaterialSystem>();
             root.AddComponent<SceneManager>();
             root.AddComponent<SceneLoader>();
-            root.AddComponent<Sleeper>().TargetFPS = 60.0f;
+            //root.AddComponent<Sleeper>().TargetFPS = 60.0f;
 
             // Attach exit listener
             bool exit = false;
@@ -46,7 +50,7 @@ namespace CastleRenderer
             pool.SendMessage(initmsg);
 
             // Load the scene
-            if (!root.GetComponent<SceneLoader>().LoadSceneFromFile("scene.json"))
+            if (!root.GetComponent<SceneLoader>().LoadSceneFromFile("scene/main.json"))
             {
                 Console.WriteLine("Failed to load scene!");
                 Console.ReadKey();
@@ -64,18 +68,25 @@ namespace CastleRenderer
             // Loop until done
             while (!exit)
             {
-                // Send frame message
+                // Process a frame, measuring the time taken
                 frametimer.Start();
+                Application.DoEvents();
                 pool.SendMessage(framemsg);
                 frametimer.Stop();
-                framemsg.DeltaTime = (float)frametimer.Elapsed.TotalSeconds;
+                float frametime = (float)frametimer.Elapsed.TotalSeconds;
                 frametimer.Reset();
 
-                // Increase frame number
-                framemsg.FrameNumber++;
+                // Sleep to maintain desired FPS
+                float tosleep = DesiredFrametime - frametime;
+                if (tosleep > 0.0f)
+                {
+                    Thread.Sleep((int)(tosleep * 1000.0f));
+                    frametime = DesiredFrametime;
+                }
 
-                // Process windows events
-                Application.DoEvents();
+                // Update next frame
+                framemsg.DeltaTime = frametime;
+                framemsg.FrameNumber++;
             }
 
             // Send the shutdown message

@@ -1,0 +1,33 @@
+{
+	"Actors":
+	[
+		{
+			"Name": "Ambient Light",
+			"Components":
+			{
+				"Transform": {},
+				"Light":
+				{
+					"Type": "Ambient",
+					"Colour": [ 0.3, 0.3, 0.4 ]
+				}
+			}
+		},
+		{
+			"Name": "Sun Light",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ -15.0, 50.0, 10.0 ],
+					"LocalForward": [ 0.8, -1.0, -0.4 ]
+				},
+				"Light":
+				{
+					"Type": "Directional",
+					"Colour": [ 0.8, 0.8, 0.7 ]
+				}
+			}
+		}
+	]
+}
