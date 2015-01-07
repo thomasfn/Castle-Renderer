@@ -6,3 +6,8 @@ SBMOptimizer/obj/
 *.sdf
 *.opensdf
 *.suo
+FBXConverter/Debug/
+*.ilk
+Sponza/
+SBMOptimizer/bin/
+Debug/

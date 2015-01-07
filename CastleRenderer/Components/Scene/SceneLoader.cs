@@ -24,6 +24,19 @@ namespace CastleRenderer.Components
 
         private Dictionary<string, Type> componenttypes;
 
+        private struct ModelMesh
+        {
+            public Mesh Mesh;
+            public string[] Materials;
+        }
+
+        private class Model
+        {
+            public ModelMesh[] Meshes { get; set; }
+        }
+
+        private Dictionary<string, Model> models;
+
         /// <summary>
         /// Called when this component is attached to an Actor
         /// </summary>
@@ -93,6 +106,7 @@ namespace CastleRenderer.Components
             int cnt = 0;
             sceneactors = new Dictionary<string, Actor>();
             sceneactors["Root"] = Owner;
+            models = new Dictionary<string, Model>();
             foreach (var item in actors)
             {
                 if (LoadActor(item))
@@ -218,6 +232,11 @@ namespace CastleRenderer.Components
                 Vector3 vec = ParseVector3(token);
                 return Quaternion.RotationYawPitchRoll(vec.Y, vec.X, vec.Z);
             }
+            else if (desiredtype == typeof(Plane))
+            {
+                Vector4 vec = ParseVector4(token);
+                return new Plane(vec);
+            }
             else if (desiredtype == typeof(SlimDX.Direct3D11.Viewport))
             {
                 Vector4 vec = ParseVector4(token);
@@ -238,8 +257,58 @@ namespace CastleRenderer.Components
                         return Enum.Parse(desiredtype, (string)token);
                     else if (typeof(Material).IsAssignableFrom(desiredtype))
                         return GetMaterial((string)token);
+                    else if (desiredtype == typeof(Material[]))
+                    {
+                        string name = (string)token;
+                        string[] args = name.Split(':');
+                        if (args.Length <= 1)
+                        {
+                            Console.WriteLine("Failed to parse special material '{0}'!", name);
+                            return null;
+                        }
+                        string cmd = args[0].Trim().ToLowerInvariant();
+                        string arg = args[1].Trim().ToLowerInvariant();
+                        switch (cmd)
+                        {
+                            case "model":
+                                Model model = GetModel(arg);
+                                if (model == null)
+                                {
+                                    Console.WriteLine("Failed to parse material source '{0}' (unknown model '{1}')", name, cmd);
+                                    return null;
+                                }
+                                int meshindex = 0;
+                                if (args.Length >= 3)
+                                {
+                                    if (!int.TryParse(args[2], out meshindex))
+                                    {
+                                        Console.WriteLine("Failed to parse material source '{0}' (bad argument #2 '{1}')!", name, args[2]);
+                                        return null;
+                                    }
+                                }
+                                string[] matnames = model.Meshes[meshindex].Materials;
+                                Material[] mats = new Material[matnames.Length];
+                                for (int i = 0; i < mats.Length; i++)
+                                {
+                                    mats[i] = GetMaterial(matnames[i]);
+                                }
+                                return mats;
+                            default:
+                                Console.WriteLine("Failed to parse material source '{0}' (unknown source type '{1}')", name, cmd);
+                                return null;
+                        }
+                    }
                     else if (typeof(Mesh).IsAssignableFrom(desiredtype))
                         return GetMesh((string)token);
+                    else if (typeof(Actor).IsAssignableFrom(desiredtype))
+                    {
+                        Actor actor;
+                        if (!sceneactors.TryGetValue((string)token, out actor))
+                        {
+                            return null;
+                        }
+                        return actor;
+                    }
                     else
                         return null;
                 case JTokenType.Boolean:
@@ -282,7 +351,14 @@ namespace CastleRenderer.Components
                         return null;
                 case JTokenType.Object:
                     JObject jobj = token as JObject;
-                    if (desiredtype.IsGenericType)
+                    if (typeof(RenderTarget).IsAssignableFrom(desiredtype))
+                    {
+                        RenderTarget rt = Owner.GetComponent<Renderer>().CreateRenderTarget((int)jobj["SampleCount"], (int)jobj["Width"], (int)jobj["Height"], (string)jobj["Name"]);
+                        if ((bool)jobj["TextureComponent"]) rt.AddTextureComponent();
+                        if ((bool)jobj["DepthComponent"]) rt.AddDepthComponent();
+                        return rt;
+                    }
+                    else if (desiredtype.IsGenericType)
                     {
                         // Trying to see if it's a Dictionary<string, T>
                         //Type genbase = desiredtype.GetGenericTypeDefinition();
@@ -336,10 +412,52 @@ namespace CastleRenderer.Components
                             Console.WriteLine("Failed to parse mesh '{0}' (unknown primitive type '{1}')!", name, arg);
                             return null;
                     }
+                case "model":
+                    Model model = GetModel(arg);
+                    if (model == null) return null;
+                    int meshindex = 0;
+                    if (args.Length >= 3)
+                    {
+                        if (!int.TryParse(args[2], out meshindex))
+                        {
+                            Console.WriteLine("Failed to parse mesh '{0}' (bad argument #2 '{1}')!", name, args[2]);
+                            return null;
+                        }
+                    }
+                    return model.Meshes[meshindex].Mesh;
                 default:
                     Console.WriteLine("Failed to parse mesh '{0}' (unknown mesh type '{1}')!", name, cmd);
                     return null;
             }
+        }
+
+        private Model GetModel(string name)
+        {
+            Model model;
+            if (!models.TryGetValue(name, out model))
+            {
+                if (!File.Exists(name))
+                {
+                    Console.WriteLine("Failed to parse mesh '{0}' (file not found)");
+                    return null;
+                }
+                Console.WriteLine("Loading model '{0}'...", name);
+                SBMLoader loader = new SBMLoader(name);
+                string err;
+                if (!loader.Load(out err))
+                {
+                    Console.WriteLine("Failed to load model '{0}' ({1})", name, err);
+                    return null;
+                }
+                model = new Model();
+                model.Meshes = new ModelMesh[loader.MeshCount];
+                for (int i = 0; i < loader.MeshCount; i++)
+                {
+                    loader.GetMesh(i, out model.Meshes[i].Mesh, out model.Meshes[i].Materials);
+                }
+                models.Add(name, model);
+            }
+            return model;
         }
 
         private static Vector2 ParseVector2(JToken source)

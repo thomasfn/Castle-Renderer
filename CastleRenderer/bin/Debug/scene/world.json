@@ -19,17 +19,17 @@
 		},
 		
 		{
-			"Name": "TestSphere",
+			"Name": "Sponza",
 			"Components":
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 0.0, 20.0, 0.0 ]
+					"LocalPosition": [ 0.0, 10.0, 0.0 ]
 				},
 				"MeshRenderer":
 				{
-					"Mesh": "Primitive:Cube",
-					"Materials": [ "rock2" ]
+					"Mesh": "Model:models/sponza.sbm",
+					"Materials": "Model:models/sponza.sbm"
 				}
 			}
 		}
