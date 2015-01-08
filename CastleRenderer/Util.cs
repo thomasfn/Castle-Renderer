@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 
 using SlimDX;
 
@@ -47,6 +48,35 @@ namespace CastleRenderer
             T tmp = a;
             a = b;
             b = tmp;
+        }
+
+
+        public delegate T ReflectionGetter<T>(int index);
+
+        /// <summary>
+        /// Gets all input parameters to the specified shader reflection
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="getter"></param>
+        /// <returns></returns>
+        public static T[] GetUnknownShaderReflectionArray<T>(ReflectionGetter<T> getter)
+        {
+            var list = new List<T>();
+            int i = 0;
+            bool exit = false;
+            while (!exit)
+            {
+                try
+                {
+                    T obj = getter(i++);
+                    list.Add(obj);
+                }
+                catch (Exception)
+                {
+                    exit = true;
+                }
+            }
+            return list.ToArray();
         }
     }
 }

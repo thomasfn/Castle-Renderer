@@ -63,6 +63,11 @@
     <Compile Include="Components\UserInputHandler.cs" />
     <Compile Include="Components\Rendering\ReflectedCamera.cs" />
     <Compile Include="Graphics\D3DMesh.cs" />
+    <Compile Include="Graphics\MaterialSystem\JsonMaterial.cs" />
+    <Compile Include="Graphics\MaterialSystem\Material.cs" />
+    <Compile Include="Graphics\MaterialSystem\MaterialParameterSet.cs" />
+    <Compile Include="Graphics\MaterialSystem\MaterialPipeline.cs" />
+    <Compile Include="Graphics\Shaders\IShader.cs" />
     <Compile Include="Graphics\Material.cs" />
     <Compile Include="Graphics\Mesh.cs" />
     <Compile Include="Graphics\MeshBuilder.cs" />
@@ -70,6 +75,7 @@
     <Compile Include="Graphics\RenderWorkItem.cs" />
     <Compile Include="Graphics\SBMLoader.cs" />
     <Compile Include="Graphics\Shader.cs" />
+    <Compile Include="Graphics\Shaders\VertexShader.cs" />
     <Compile Include="Messages\PopulateParticleSystemList.cs" />
     <Compile Include="Messages\UpdateMessage.cs" />
     <Compile Include="Structures\OrderedList.cs">
