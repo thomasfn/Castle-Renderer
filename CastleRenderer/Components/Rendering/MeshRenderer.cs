@@ -3,6 +3,7 @@
 using CastleRenderer.Structures;
 using CastleRenderer.Messages;
 using CastleRenderer.Graphics;
+using CastleRenderer.Graphics.MaterialSystem;
 
 using SlimDX;
 

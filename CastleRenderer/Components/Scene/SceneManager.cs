@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 using CastleRenderer.Structures;
 using CastleRenderer.Messages;
 using CastleRenderer.Graphics;
+using CastleRenderer.Graphics.MaterialSystem;
 
 using SlimDX;
 
@@ -45,6 +47,8 @@ namespace CastleRenderer.Components
 
         private Mesh mesh_fs;
         private Mesh mesh_skybox;
+
+        private MaterialParameterStruct<CBuffer_Clip> matpset_clip;
 
         /// <summary>
         /// Called when the initialise message has been received
@@ -104,27 +108,30 @@ namespace CastleRenderer.Components
             swapB_colour = swapB.AddTextureComponent();
             swapB.Finish();
 
+            // Initialise struct-based parameter blocks
+            matpset_clip = new MaterialParameterStruct<CBuffer_Clip>(renderer.Device.ImmediateContext, new CBuffer_Clip { Enabled = 0.0f });
+
             // Setup materials
             MaterialSystem matsys = Owner.GetComponent<MaterialSystem>();
-            mat_blit = matsys.CreateMaterial("blit", "blit");
-            mat_blit.SetParameter("smpTexture", renderer.Sampler_Clamp);
-            mat_blitlight = matsys.CreateMaterial("blit_light", "blit_light");
-            mat_blitlight.SetParameter("smpTexture", renderer.Sampler_Clamp);
-            mat_blitlight.SetParameter("texColour", gbuffer.GetTexture(gbuffer_colour));
-            mat_blitlight.SetParameter("texDiffuseLight", lightaccum.GetTexture(lightaccum_diffuse));
-            mat_blitlight.SetParameter("texSpecularLight", lightaccum.GetTexture(lightaccum_specular));
+            mat_blit = matsys.CreateMaterial("Blit", matsys.GetShader("Vertex_FSQuadPassthrough"), matsys.GetShader("Pixel_Blit"));
+            //mat_blit.SetParameter("smpTexture", renderer.Sampler_Clamp);
+            mat_blitlight = matsys.CreateMaterial("BlitLight", matsys.GetShader("Vertex_FSQuadPassthrough"), matsys.GetShader("Pixel_BlitLight"));
+            //mat_blitlight.SetParameter("smpTexture", renderer.Sampler_Clamp);
+            //mat_blitlight.SetParameter("texColour", gbuffer.GetTexture(gbuffer_colour));
+            //mat_blitlight.SetParameter("texDiffuseLight", lightaccum.GetTexture(lightaccum_diffuse));
+            //mat_blitlight.SetParameter("texSpecularLight", lightaccum.GetTexture(lightaccum_specular));
 
             // Setup lights
             mat_lights = new Dictionary<LightType, Material>();
-            mat_lights.Add(LightType.Ambient, matsys.CreateMaterial("light_ambient", "light_ambient"));
-            mat_lights.Add(LightType.Directional, matsys.CreateMaterial("light_directional", "light_directional"));
-            mat_lights.Add(LightType.Point, matsys.CreateMaterial("light_point", "light_point"));
+            //mat_lights.Add(LightType.Ambient, matsys.CreateMaterial("light_ambient", "light_ambient"));
+            //mat_lights.Add(LightType.Directional, matsys.CreateMaterial("light_directional", "light_directional"));
+            //mat_lights.Add(LightType.Point, matsys.CreateMaterial("light_point", "light_point"));
             foreach (Material mat in mat_lights.Values)
             {
-                mat.SetParameter("texNormal", gbuffer.GetTexture(gbuffer_normal));
+                /*mat.SetParameter("texNormal", gbuffer.GetTexture(gbuffer_normal));
                 mat.SetParameter("texPosition", gbuffer.GetTexture(gbuffer_position));
                 mat.SetParameter("texMaterial", gbuffer.GetTexture(gbuffer_material));
-                mat.SetParameter("smpTexture", renderer.Sampler_Clamp);
+                mat.SetParameter("smpTexture", renderer.Sampler_Clamp);*/
             }
 
             // Setup meshes
@@ -224,8 +231,8 @@ namespace CastleRenderer.Components
                     if (activematerial != item.Material)
                     {
                         activematerial = item.Material;
-                        if (activematerial.ShadowShader != null)
-                            activematerial.ShadowShader.SetVariable("light_position", position);
+                        //if (activematerial.ShadowPipeline != null)
+                            //activematerial.ShadowShader.SetVariable("light_position", position);
                         renderer.SetActiveMaterial(activematerial, true);
                     }
 
@@ -276,10 +283,16 @@ namespace CastleRenderer.Components
                 foreach (RenderWorkItem item in renderqueue)
                 {
                     // Set the material
-                    item.Material.SetParameter("useclip", cam.UseClipping ? 1.0f : 0.0f);
-                    if (cam.UseClipping) item.Material.SetParameter("clip", clip);
+                    if (cam.UseClipping)
+                        matpset_clip.Value = new CBuffer_Clip { Enabled = 1.0f, Plane = clip };
+                    else
+                        matpset_clip.Value = new CBuffer_Clip { Enabled = 0.0f, Plane = clip };
+                    item.Material.SetParameterBlock("Clip", matpset_clip);
                     renderer.SetActiveMaterial(item.Material);
-                    var desiredculling = item.Material.CullingMode != null ? item.Material.CullingMode : renderer.Culling_Backface;
+                    var desiredculling =
+                        item.Material.CullingMode == MaterialCullingMode.Backface ? renderer.Culling_Backface :
+                        item.Material.CullingMode == MaterialCullingMode.Forwardface ? renderer.Culling_Frontface :
+                        null;
                     if (renderer.Culling != desiredculling) renderer.Culling = desiredculling;
 
                     // Draw it

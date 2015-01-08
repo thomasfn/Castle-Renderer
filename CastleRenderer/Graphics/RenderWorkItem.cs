@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using CastleRenderer.Graphics.MaterialSystem;
+
 using SlimDX;
 
 namespace CastleRenderer.Graphics

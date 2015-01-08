@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using CastleRenderer.Structures;
 using CastleRenderer.Messages;
 using CastleRenderer.Graphics;
+using CastleRenderer.Graphics.MaterialSystem;
 
 using SlimDX;
 using SlimDX.Direct3D11;
@@ -42,12 +43,21 @@ namespace CastleRenderer.Components
         /// </summary>
         public float Range { get; set; }
 
+        // The parameter set for this light
+        private MaterialParameterSet lightpset;
+
         /// <summary>
         /// Applies this light's settings to the specified material
         /// </summary>
         /// <param name="material"></param>
         public void ApplyLightSettings(Material material)
         {
+            // Initialise the parameter set if needed
+            if (lightpset == null)
+            {
+                lightpset = material.Pipeline.CreateParameterSet(Type.ToString());
+            }
+
             // Cache the transform
             Transform transform = Owner.GetComponent<Transform>();
 
@@ -55,31 +65,35 @@ namespace CastleRenderer.Components
             ShadowCaster caster = Owner.GetComponent<ShadowCaster>();
             if (caster != null)
             {
-                material.SetParameter("shadowmap", caster.ShadowTexture);
-                material.SetParameter("shadowmatrix", caster.ProjectionView);
+                // TODO: This
+                //material.SetParameter("shadowmap", caster.ShadowTexture);
+                lightpset.SetParameter("ShadowMatrix", caster.ProjectionView);
             }
 
             // All lights have colour
-            material.SetParameter("colour", new Vector3(Colour.Red, Colour.Green, Colour.Blue));
+            lightpset.SetParameter("colour", new Vector3(Colour.Red, Colour.Green, Colour.Blue));
 
             // Switch on type
             switch (Type)
             {
                 case LightType.Directional:
-                    material.SetParameter("position", transform.Position);
-                    material.SetParameter("direction", transform.Forward);
+                    lightpset.SetParameter("Position", transform.Position);
+                    lightpset.SetParameter("Direction", transform.Forward);
                     break;
                 case LightType.Point:
-                    material.SetParameter("position", transform.Position);
-                    material.SetParameter("range", Range);
+                    lightpset.SetParameter("Position", transform.Position);
+                    lightpset.SetParameter("Range", Range);
                     break;
                 case LightType.Spot:
-                    material.SetParameter("position", transform.Position);
-                    material.SetParameter("direction", transform.Forward);
-                    material.SetParameter("range", Range);
+                    lightpset.SetParameter("Position", transform.Position);
+                    lightpset.SetParameter("Direction", transform.Forward);
+                    lightpset.SetParameter("Range", Range);
                     break;
                     
             }
+
+            // Apply to material
+            material.SetParameterBlock(Type.ToString(), lightpset);
         }
 
         /// <summary>

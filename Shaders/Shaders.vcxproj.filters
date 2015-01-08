@@ -15,8 +15,18 @@
     <FxCompile Include="Pixel_Debug.hlsl">
       <Filter>Pixel</Filter>
     </FxCompile>
+    <FxCompile Include="Vertex_FSQuadPassthrough.hlsl">
+      <Filter>Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="Pixel_Blit.hlsl">
+      <Filter>Pixel</Filter>
+    </FxCompile>
+    <FxCompile Include="Pixel_BlitLight.hlsl">
+      <Filter>Pixel</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common.hlsli" />
+    <None Include="CommonCBuffers.hlsli" />
   </ItemGroup>
 </Project>

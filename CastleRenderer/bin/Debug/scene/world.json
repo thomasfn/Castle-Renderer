@@ -28,8 +28,8 @@
 				},
 				"MeshRenderer":
 				{
-					"Mesh": "Model:models/sponza.sbm",
-					"Materials": "Model:models/sponza.sbm"
+					"Mesh": "Primitive:Cube",
+					"Materials": [ "coloured" ]
 				}
 			}
 		}

@@ -1,4 +1,8 @@
 
+#include "CommonCBuffers.hlsli"
+
+// BasicVertex
+
 struct BasicInputVertex
 {
 	float4 Position : POSITION;
@@ -8,6 +12,22 @@ struct BasicOutputVertex
 {
 	float4 Position : SV_POSITION;
 };
+
+// FSQuadVertex
+
+struct FSQuadInputVertex
+{
+	float4 Position : POSITION;
+	float2 TexCoord : TEXCOORD0;
+};
+
+struct FSQuadOutputVertex
+{
+	float4 Position : SV_POSITION;
+	float2 TexCoord : TEXCOORD0;
+};
+
+// FullVertex
 
 struct FullInputVertex
 {
@@ -31,6 +51,8 @@ struct FullOutputVertex
 
 	float2 TexCoord : TEXCOORD0;
 };
+
+// BasicPixel
 
 struct BasicOutputPixel
 {

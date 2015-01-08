@@ -30,6 +30,11 @@ namespace CastleRenderer.Graphics.Shaders
         /// </summary>
         public Device OwnerDevice { get; private set; }
 
+        /// <summary>
+        /// Gets the signature for this shader
+        /// </summary>
+        public ShaderSignature Signature { get; private set; }
+
         // The actual shader object
         private d3dVertexShader shader;
 
@@ -43,9 +48,16 @@ namespace CastleRenderer.Graphics.Shaders
             // Store parameters
             OwnerDevice = device;
 
-            // Initialise bytecode
+            // Initialise bytecode and signature
             using (DataStream strm = new DataStream(raw, true, false))
+            {
+                strm.Position = 0;
                 Bytecode = new ShaderBytecode(strm);
+                strm.Position = 0;
+                Signature = new ShaderSignature(strm);
+            }
+
+            // Create the shader
             shader = new d3dVertexShader(device, Bytecode);
             shader.DebugName = name;
         }

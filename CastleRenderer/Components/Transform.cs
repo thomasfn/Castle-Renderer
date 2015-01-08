@@ -49,6 +49,7 @@ namespace CastleRenderer.Components
                 normal.Normalize();
                 float ang = (float)Math.Acos(forward.Z);
                 LocalRotation = Quaternion.RotationAxis(normal, -ang);
+                
             }
         }
 

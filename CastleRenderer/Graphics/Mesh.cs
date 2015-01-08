@@ -3,6 +3,8 @@
 using SlimDX;
 using SlimDX.Direct3D11;
 
+using CastleRenderer.Graphics.MaterialSystem;
+
 namespace CastleRenderer.Graphics
 {
     public enum MeshTopology {  Points, Triangles  }
@@ -74,12 +76,12 @@ namespace CastleRenderer.Graphics
             }
         }
 
-        public bool Render(Shader shader, int submesh)
+        public bool Render(MaterialPipeline pipeline, int submesh)
         {
             if (d3dmesh == null) return false;
             if (d3dmesh.Iteration < Iteration) return false;
             d3dmesh.SetSubmesh(submesh);
-            d3dmesh.Render(shader);
+            d3dmesh.Render(pipeline);
             return true;
         }
 

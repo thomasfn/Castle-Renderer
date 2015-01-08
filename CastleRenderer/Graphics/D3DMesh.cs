@@ -6,6 +6,8 @@ using SlimDX.Direct3D11;
 
 using Buffer = SlimDX.Direct3D11.Buffer;
 
+using CastleRenderer.Graphics.MaterialSystem;
+
 namespace CastleRenderer.Graphics
 {
     /// <summary>
@@ -28,7 +30,7 @@ namespace CastleRenderer.Graphics
         private Buffer[] submeshes;
         private int curindices;
 
-        private Dictionary<Shader, InputLayout> shadermap;
+        private Dictionary<MaterialPipeline, InputLayout> pipelinemap;
 
         public int Iteration { get; private set; }
 
@@ -118,7 +120,7 @@ namespace CastleRenderer.Graphics
             
 
             // Build the shader map
-            shadermap = new Dictionary<Shader, InputLayout>();
+            pipelinemap = new Dictionary<MaterialPipeline, InputLayout>();
 
             // Update iteration
             Iteration = mesh.Iteration;
@@ -161,11 +163,11 @@ namespace CastleRenderer.Graphics
             curindices = mesh.Submeshes[idx].Length;
         }
 
-        private InputLayout GetInputLayout(Shader shader)
+        private InputLayout GetInputLayout(MaterialPipeline pipeline)
         {
-            if (shadermap.ContainsKey(shader)) return shadermap[shader];
-            var layout = shader.CreateLayout(inputelements);
-            shadermap.Add(shader, layout);
+            if (pipelinemap.ContainsKey(pipeline)) return pipelinemap[pipeline];
+            var layout = pipeline.CreateLayout(inputelements);
+            pipelinemap.Add(pipeline, layout);
             return layout;
         }
 
@@ -173,9 +175,9 @@ namespace CastleRenderer.Graphics
         public static VertexBufferBinding CurrentVertexBufferBinding;
         public static Buffer CurrentIndexBuffer;
 
-        public void Render(Shader shader)
+        public void Render(MaterialPipeline pipeline)
         {
-            InputLayout layout = GetInputLayout(shader);
+            InputLayout layout = GetInputLayout(pipeline);
             if (layout != CurrentInputLayout)
             {
                 CurrentInputLayout = layout;
@@ -201,9 +203,9 @@ namespace CastleRenderer.Graphics
             if (vtxBuffer != null) vtxBuffer.Dispose();
             foreach (var submesh in submeshes)
                 submesh.Dispose();
-            foreach (var pair in shadermap)
+            foreach (var pair in pipelinemap)
                 pair.Value.Dispose();
-            shadermap.Clear();
+            pipelinemap.Clear();
         }
     }
 }

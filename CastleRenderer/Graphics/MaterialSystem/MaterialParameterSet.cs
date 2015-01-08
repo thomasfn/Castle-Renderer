@@ -12,26 +12,10 @@ namespace CastleRenderer.Graphics.MaterialSystem
     /// <summary>
     /// Represents a set of material parameters
     /// </summary>
-    public class MaterialParameterSet
+    public class MaterialParameterSet : MaterialParameterBlock
     {
         // The constant buffer that we map to
         private ConstantBuffer cbuffer;
-
-        /// <summary>
-        /// Gets the parameter buffer
-        /// </summary>
-        public Buffer Buffer { get; private set; }
-
-        // The datastream
-        private DataStream ds;
-
-        // Do we need to be updated?
-        private bool dirty;
-
-        /// <summary>
-        /// Gets the context for this parameter set
-        /// </summary>
-        public DeviceContext Context { get; private set; }
 
         private abstract class Holder { public Holder<T> As<T>() where T : struct, IEquatable<T> { return this as Holder<T>; } }
         private sealed class Holder<T> : Holder where T : struct, IEquatable<T> { public T Value; }
@@ -64,26 +48,20 @@ namespace CastleRenderer.Graphics.MaterialSystem
         private Dictionary<string, ParameterInfo> parameters;
 
         /// <summary>
+        /// Gets the size of this parameter set in bytes
+        /// </summary>
+        public override int Size { get { return cbuffer.Description.Size; } }
+
+        /// <summary>
         /// Initialises a new instance of the MaterialParameterSet class
         /// </summary>
         /// <param name="cbuffer"></param>
         public MaterialParameterSet(DeviceContext context, ConstantBuffer cbuffer)
+            : base(context)
         {
             // Store cbuffer
             this.cbuffer = cbuffer;
             var cbufdesc = cbuffer.Description;
-            
-            // Initialise datastream and buffer
-            ds = new DataStream(cbufdesc.Size, true, true);
-            BufferDescription desc = new BufferDescription
-            {
-                Usage = ResourceUsage.Default,
-                SizeInBytes = cbufdesc.Size,
-                BindFlags = BindFlags.ConstantBuffer
-            };
-            ds.Position = 0;
-            Buffer = new Buffer(context.Device, ds, desc);
-            Buffer.DebugName = string.Format("MaterialParameterSet ({0})", cbufdesc.Name);
 
             // Initialise parameters
             parameters = new Dictionary<string, ParameterInfo>();
@@ -109,6 +87,9 @@ namespace CastleRenderer.Graphics.MaterialSystem
                     }
                 }
             }
+
+            // Update
+            Update();
         }
 
         /// <summary>
@@ -174,22 +155,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
             holder.Value = value;
 
             // We are now dirty
-            dirty = true;
-        }
-
-        /// <summary>
-        /// Updates the buffer behind this parameter set if needed
-        /// </summary>
-        public void Update()
-        {
-            // Check if dirty
-            if (!dirty) return;
-
-            // Update
-            dirty = false;
-            ds.Position = 0;
-            Context.UpdateSubresource(new DataBox(0, 0, ds), Buffer, 0);
-
+            MakeDirty();
         }
 
     }

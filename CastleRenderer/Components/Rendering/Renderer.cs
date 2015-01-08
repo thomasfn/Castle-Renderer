@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using CastleRenderer.Structures;
 using CastleRenderer.Messages;
 using CastleRenderer.Graphics;
+using CastleRenderer.Graphics.MaterialSystem;
 
 using SlimDX;
 using SlimDX.Windows;
@@ -604,15 +605,16 @@ namespace CastleRenderer.Components
         /// <summary>
         /// Binds the specified texture to the specified texture at the given variable name and slot
         /// </summary>
-        /// <param name="shader"></param>
+        /// <param name="pipeline"></param>
         /// <param name="uniform"></param>
         /// <param name="texture"></param>
         /// <param name="slot"></param>
-        public void BindShaderTexture(Shader shader, string uniform, Texture2D texture)
+        public void BindShaderTexture(MaterialPipeline pipeline, string uniform, Texture2D texture)
         {
             // Get the view and bind it to the shader
             ShaderResourceView view = AcquireResourceView(texture);
-            shader.SetVariable(uniform, view);
+            //pipeline.SetVariable(uniform, view);
+            // TODO: This
 
             // See if the view is already bound to a slot
             // Whilst we're at it, see if there's a free slot we can use, and search for slot with the lowest uses

@@ -19,12 +19,15 @@ namespace CastleRenderer.Graphics.MaterialSystem
         private HashSet<IShader> shaders;
         private List<IShader> pipeline;
 
+        // Signature for the vertex shader
+        private ShaderSignature vtxsig;
+
         private sealed class ConstantBufferBinding
         {
             public IShader Shader { get; set; }
             public int Slot { get; set; }
             public ConstantBuffer CBuffer { get; set; }
-            public MaterialParameterSet CurrentSet { get; set; }
+            public MaterialParameterBlock CurrentBlock { get; set; }
         }
 
         private sealed class ConstantBufferData
@@ -98,6 +101,9 @@ namespace CastleRenderer.Graphics.MaterialSystem
             if (tmp != null) pipeline.Add(tmp);
             // TODO: Add support for tessellation?
 
+            // Get the vertex shader signature
+            vtxsig = pipeline[0].Signature;
+
             // Reflect all shaders
             ShaderReflection[] refl = new ShaderReflection[pipeline.Count];
             for (int i = 0; i < pipeline.Count; i++)
@@ -159,23 +165,23 @@ namespace CastleRenderer.Graphics.MaterialSystem
                 }
             }
 
-            // Sucess
+            // Success
             err = null;
             return true;
         }
 
         /// <summary>
-        /// Binds the specified parameter set to a CBuffer by the specified name on this pipeline
+        /// Binds the specified parameter block to a CBuffer by the specified name on this pipeline
         /// </summary>
         /// <param name="cbuffername"></param>
         /// <param name="set"></param>
-        public void SetMaterialParameterSet(string cbuffername, MaterialParameterSet set)
+        public void SetMaterialParameterBlock(string cbuffername, MaterialParameterBlock block)
         {
             ConstantBufferData data;
             if (!cbuffers.TryGetValue(cbuffername, out data)) return;
             foreach (var binding in data.Bindings)
             {
-                binding.CurrentSet = set;
+                binding.CurrentBlock = block;
             }
         }
 
@@ -191,7 +197,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
             // Make all constant buffers active
             // TODO: Optimise by keeping track of a Buffer[] for each shader and batch setting the whole array instead of one binding at a time
             foreach (ConstantBufferBinding binding in cbufferbindings)
-                binding.Shader.SetConstantBuffer(Context, binding.Slot, binding.CurrentSet != null ? binding.CurrentSet.Buffer : null);
+                binding.Shader.SetConstantBuffer(Context, binding.Slot, binding.CurrentBlock != null ? binding.CurrentBlock.Buffer : null);
                 
         }
 
@@ -215,6 +221,16 @@ namespace CastleRenderer.Graphics.MaterialSystem
             if (!cbuffers.TryGetValue(cbuffername, out data)) return null;
             ConstantBuffer cbuf = data.Bindings.Single().CBuffer;
             return new MaterialParameterSet(Context, cbuf);
+        }
+
+        /// <summary>
+        /// Creates an input layout for the specified set of input elements
+        /// </summary>
+        /// <param name="elements"></param>
+        /// <returns></returns>
+        public InputLayout CreateLayout(InputElement[] elements)
+        {
+            return new InputLayout(Context.Device, vtxsig, elements);
         }
 
 

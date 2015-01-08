@@ -31,6 +31,11 @@ namespace CastleRenderer.Graphics.Shaders
         Device OwnerDevice { get; }
 
         /// <summary>
+        /// Gets the signature for this shader
+        /// </summary>
+        ShaderSignature Signature { get; }
+
+        /// <summary>
         /// Makes this shader active on the specified context
         /// </summary>
         /// <param name="context"></param>

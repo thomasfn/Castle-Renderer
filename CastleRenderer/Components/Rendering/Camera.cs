@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using CastleRenderer.Structures;
 using CastleRenderer.Messages;
 using CastleRenderer.Graphics;
+using CastleRenderer.Graphics.MaterialSystem;
 
 using SlimDX;
 using SlimDX.Direct3D11;
@@ -100,6 +101,16 @@ namespace CastleRenderer.Components
             }
         }
 
+        /// <summary>
+        /// Gets the material parameter block for the camera
+        /// </summary>
+        public MaterialParameterStruct<CBuffer_Camera> CameraParameterBlock { get; private set; }
+
+        /// <summary>
+        /// Gets the material parameter block for the camera
+        /// </summary>
+        public MaterialParameterStruct<CBuffer_CameraTransform> CameraTransformParameterBlock { get; private set; }
+
         public override void OnAttach()
         {
             // Base attach
@@ -110,6 +121,12 @@ namespace CastleRenderer.Components
                 Projection = Matrix.OrthoLH(1.0f, 1.0f, NearZ, FarZ);
             else if (ProjectionType == CameraType.Perspective)
                 Projection = Matrix.PerspectiveFovLH(FoV, Viewport.Width / Viewport.Height, NearZ, FarZ);
+
+            // Initialise parameter blocks
+            var ctxt = Owner.Root.GetComponent<Renderer>().Device.ImmediateContext;
+            CameraParameterBlock = new MaterialParameterStruct<CBuffer_Camera>(ctxt, new CBuffer_Camera());
+            CameraTransformParameterBlock = new MaterialParameterStruct<CBuffer_CameraTransform>(ctxt, new CBuffer_CameraTransform());
+
         }
 
         /// <summary>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using CastleRenderer.Structures;
 using CastleRenderer.Messages;
 using CastleRenderer.Graphics;
+using CastleRenderer.Graphics.MaterialSystem;
 
 using SlimDX;
 using SlimDX.Direct3D11;

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using CastleRenderer.Structures;
 using CastleRenderer.Messages;
 using CastleRenderer.Graphics;
+using CastleRenderer.Graphics.MaterialSystem;
 
 using SlimDX;
 using SlimDX.Direct3D11;
@@ -56,7 +57,8 @@ namespace CastleRenderer.Components
             me.OnAttach();
             
             // Apply our RT to the target
-            ReflectionTarget.SetParameter("texReflection", me.Target.GetTexture(0));
+            //ReflectionTarget.SetParameter("texReflection", me.Target.GetTexture(0));
+            // TODO: This
 
             // Make timer
             timer = new Stopwatch();
@@ -94,8 +96,8 @@ namespace CastleRenderer.Components
             me.LocalRotation = Quaternion.RotationAxis(reflectedaxis, -angle);
 
             // Update material
-            ReflectionTarget.SetParameter("time", (float)timer.Elapsed.TotalSeconds);
-            ReflectionTarget.SetParameter("camera_position", mimicpos);
+            //ReflectionTarget.SetParameter("time", (float)timer.Elapsed.TotalSeconds);
+            //ReflectionTarget.SetParameter("camera_position", mimicpos);
         }
     }
 }
