@@ -3,7 +3,7 @@
 Texture2D SourceTexture : register(t0);
 SamplerState BlitSampler : register(s0);
 
-BasicOutputPixel main(FSQuadOutputVertex vertex) : SV_TARGET
+BasicOutputPixel main(TexturedOutputVertex vertex) : SV_TARGET
 {
 	BasicOutputPixel output = (BasicOutputPixel)0;
 

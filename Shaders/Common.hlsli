@@ -13,17 +13,39 @@ struct BasicOutputVertex
 	float4 Position : SV_POSITION;
 };
 
-// FSQuadVertex
+// TexturedVertex
 
-struct FSQuadInputVertex
+struct TexturedInputVertex
 {
-	float4 Position : POSITION;
+	float3 Position : POSITION;
 	float2 TexCoord : TEXCOORD0;
 };
 
-struct FSQuadOutputVertex
+struct TexturedOutputVertex
 {
 	float4 Position : SV_POSITION;
+	float2 TexCoord : TEXCOORD0;
+};
+
+// TexturedNormalVertex
+
+struct TexturedNormalInputVertex
+{
+	float3 Position : POSITION;
+
+	float3 Normal : NORMAL;
+
+	float2 TexCoord : TEXCOORD0;
+	
+};
+
+struct TexturedNormalOutputVertex
+{
+	float4 Position : SV_POSITION;
+
+	float3 WorldPosition : POSITION;
+	float3 WorldNormal : NORMAL;
+
 	float2 TexCoord : TEXCOORD0;
 };
 
@@ -31,7 +53,7 @@ struct FSQuadOutputVertex
 
 struct FullInputVertex
 {
-	float4 Position : POSITION;
+	float3 Position : POSITION;
 
 	float3 Normal : NORMAL;
 	float3 Tangent : TANGENT;

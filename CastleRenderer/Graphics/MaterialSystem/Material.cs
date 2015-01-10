@@ -16,7 +16,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
         protected Dictionary<string, MaterialParameterBlock> parameterblocks;
 
         // All resources (textures etc)
-        protected Dictionary<string, ResourceView> resources;
+        protected Dictionary<string, ShaderResourceView> resources;
 
         // All sampler states
         protected Dictionary<string, SamplerState> samplerstates;
@@ -52,7 +52,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
 
             // Initialise
             parameterblocks = new Dictionary<string, MaterialParameterBlock>();
-            resources = new Dictionary<string, ResourceView>();
+            resources = new Dictionary<string, ShaderResourceView>();
             samplerstates = new Dictionary<string, SamplerState>();
         }
 
@@ -63,7 +63,8 @@ namespace CastleRenderer.Graphics.MaterialSystem
         {
             foreach (var pair in parameterblocks)
                 Pipeline.SetMaterialParameterBlock(pair.Key, pair.Value);
-            Pipeline.Activate();
+            foreach (var pair in resources)
+                Pipeline.SetResource(pair.Key, pair.Value);
         }
 
         /// <summary>
@@ -93,7 +94,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
         /// </summary>
         /// <param name="name"></param>
         /// <param name="resource"></param>
-        public void SetResource(string name, ResourceView resource)
+        public void SetResource(string name, ShaderResourceView resource)
         {
             resources[name] = resource;
         }
@@ -103,9 +104,9 @@ namespace CastleRenderer.Graphics.MaterialSystem
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public ResourceView GetResource(string name)
+        public ShaderResourceView GetResource(string name)
         {
-            ResourceView resource;
+            ShaderResourceView resource;
             if (!resources.TryGetValue(name, out resource)) return resource;
             return null;
         }

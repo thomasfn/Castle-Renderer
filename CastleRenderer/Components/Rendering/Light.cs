@@ -71,7 +71,7 @@ namespace CastleRenderer.Components
             }
 
             // All lights have colour
-            lightpset.SetParameter("colour", new Vector3(Colour.Red, Colour.Green, Colour.Blue));
+            lightpset.SetParameter("Colour", new Vector3(Colour.Red, Colour.Green, Colour.Blue));
 
             // Switch on type
             switch (Type)

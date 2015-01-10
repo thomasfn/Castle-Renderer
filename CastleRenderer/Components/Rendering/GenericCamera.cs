@@ -54,8 +54,8 @@ namespace CastleRenderer.Components
 
             // Initialise parameter blocks
             var ctxt = Owner.Root.GetComponent<Renderer>().Device.ImmediateContext;
-            CameraParameterBlock = new MaterialParameterStruct<CBuffer_Camera>(ctxt, new CBuffer_Camera { Position = transform.Position, Forward = transform.Forward });
-            CameraTransformParameterBlock = new MaterialParameterStruct<CBuffer_CameraTransform>(ctxt, new CBuffer_CameraTransform { Projection = Projection, View = transform.WorldToObject });
+            CameraParameterBlock = new MaterialParameterStruct<CBuffer_Camera>(ctxt, new CBuffer_Camera { CameraPosition = transform.Position, CameraForward = transform.Forward });
+            CameraTransformParameterBlock = new MaterialParameterStruct<CBuffer_CameraTransform>(ctxt, new CBuffer_CameraTransform { ProjectionMatrix = Projection, ViewMatrix = transform.WorldToObject });
         }
 
         public override void OnDetach()
@@ -70,8 +70,8 @@ namespace CastleRenderer.Components
 
         private void transform_OnTransformChange(Transform sender)
         {
-            CameraParameterBlock.Value = new CBuffer_Camera { Position = sender.Position, Forward = sender.Forward };
-            CameraTransformParameterBlock.Value = new CBuffer_CameraTransform { Projection = Projection, View = sender.WorldToObject };
+            CameraParameterBlock.Value = new CBuffer_Camera { CameraPosition = sender.Position, CameraForward = sender.Forward };
+            CameraTransformParameterBlock.Value = new CBuffer_CameraTransform { ProjectionMatrix = Projection, ViewMatrix = sender.WorldToObject };
         }
     }
 }

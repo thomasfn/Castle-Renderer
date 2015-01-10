@@ -1,20 +1,23 @@
 #include "Common.hlsli"
 
-BasicOutputPixel main(FSQuadOutputVertex vertex) : SV_TARGET
+Texture2D ColourTexture : register(t0);
+Texture2D DiffuseTexture : register(t1);
+Texture2D SpecularTexture : register(t2);
+
+SamplerState BlitSampler : register(s0);
+
+BasicOutputPixel main(TexturedOutputVertex vertex) : SV_TARGET
 {
 	BasicOutputPixel output = (BasicOutputPixel)0;
 
-	//float4 colour = texColour.Sample(smpTexture, input.TexCoord);
+	float4 colour = ColourTexture.Sample(BlitSampler, vertex.TexCoord);
 	// NOTE: We're doubling the colour here to compensate for halfing it in the light shaders. This is to allow "overlighting".
-	//float4 diffuse = texDiffuseLight.Sample(smpTexture, input.TexCoord) * 2.0;
-	//float4 specular = texSpecularLight.Sample(smpTexture, input.TexCoord);
+	float4 diffuse = DiffuseTexture.Sample(BlitSampler, vertex.TexCoord) * 2.0;
+	float4 specular = SpecularTexture.Sample(BlitSampler, vertex.TexCoord);
 
 	//float3 add = saturate( specular.xyz );
 
-	//output.Colour = float4(colour.xyz * diffuse.xyz + specular.xyz, colour.w);
-
-	// TODO: Output texture somehow
-	output.Colour = float4(1.0, 0.0, 1.0, 1.0);
+	output.Colour = float4(colour.xyz * diffuse.xyz + specular.xyz, colour.w);
 
 	return output;
 }

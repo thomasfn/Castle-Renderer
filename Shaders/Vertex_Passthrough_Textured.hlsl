@@ -2,9 +2,9 @@
 
 TexturedOutputVertex main(TexturedInputVertex vertex)
 {
-	FSQuadOutputVertex output = (FSQuadOutputVertex)0;
+	TexturedOutputVertex output = (TexturedOutputVertex)0;
 
-	output.Position = vertex.Position;
+	output.Position = float4(vertex.Position, 1.0);
 	output.TexCoord = vertex.TexCoord;
 
 	return output;

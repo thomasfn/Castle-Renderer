@@ -25,6 +25,8 @@ namespace CastleRenderer.Graphics.MaterialSystem
         // The input parameter
         private ShaderParameterDescription[] pipelineinputs;
 
+        #region Binding Classes
+
         private sealed class ConstantBufferBinding
         {
             public IShader Shader { get; set; }
@@ -47,7 +49,8 @@ namespace CastleRenderer.Graphics.MaterialSystem
         {
             public IShader Shader { get; set; }
             public int Slot { get; set; }
-            public ResourceView CurrentView { get; set; }
+            public InputBindingDescription Description { get; set; }
+            public ShaderResourceView CurrentView { get; set; }
         }
 
         private sealed class ResourceData
@@ -60,6 +63,26 @@ namespace CastleRenderer.Graphics.MaterialSystem
             }
         }
 
+        private sealed class SamplerStateBinding
+        {
+            public IShader Shader { get; set; }
+            public int Slot { get; set; }
+            public InputBindingDescription Description { get; set; }
+            public SamplerState CurrentSamplerState { get; set; }
+        }
+
+        private sealed class SamplerStateData
+        {
+            public HashSet<SamplerStateBinding> Bindings { get; private set; }
+
+            public SamplerStateData()
+            {
+                Bindings = new HashSet<SamplerStateBinding>();
+            }
+        }
+
+        #endregion
+
         // All constant buffers attached to this pipeline
         private Dictionary<string, ConstantBufferData> cbuffers;
         private HashSet<ConstantBufferBinding> cbufferbindings;
@@ -67,6 +90,10 @@ namespace CastleRenderer.Graphics.MaterialSystem
         // All resources attached to this pipeline
         private Dictionary<string, ResourceData> resources;
         private HashSet<ResourceBinding> resourcebindings;
+
+        // All sampler states attached to this pipeline
+        private Dictionary<string, SamplerStateData> samplerstates;
+        private HashSet<SamplerStateBinding> samplerstatebindings;
 
         /// <summary>
         /// Gets the owner device for this pipeline
@@ -170,7 +197,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
                 }
                 for (int j = 0; j < firstdesc.OutputParameters; j++)
                 {
-                    if (first.GetOutputParameterDescription(j) != second.GetInputParameterDescription(j))
+                    if (!VerifyParameterMatch(first.GetOutputParameterDescription(j), second.GetInputParameterDescription(j)))
                     {
                         err = string.Format("Output parameters of {0} stage do not match input parameters of {1} stage", pipeline[i].Type, pipeline[i + 1].Type);
                         return false;
@@ -203,28 +230,90 @@ namespace CastleRenderer.Graphics.MaterialSystem
                             return false;
                         }
                     }
-                    var binding = new ConstantBufferBinding { Shader = pipeline[i], CBuffer = cbuffer };
-                    binding.Slot = j;
+                    var binding = new ConstantBufferBinding { Shader = pipeline[i], CBuffer = cbuffer, Slot = j };
                     data.Bindings.Add(binding);
                     cbufferbindings.Add(binding);
                 }
             }
 
-            // Find all resource bindings
+            // Find all resource bindings and sampler states
             resources = new Dictionary<string, ResourceData>();
             resourcebindings = new HashSet<ResourceBinding>();
+            samplerstates = new Dictionary<string, SamplerStateData>();
+            samplerstatebindings = new HashSet<SamplerStateBinding>();
             for (int i = 0; i < pipeline.Count; i++)
             {
                 var shaderdesc = refl[i].Description;
                 for (int j = 0; j < shaderdesc.BoundResources; j++)
                 {
-                    
+                    InputBindingDescription desc = refl[i].GetResourceBindingDescription(j);
+                    if (desc.Type == ShaderInputType.Sampler)
+                    {
+                        SamplerStateData data;
+                        if (!samplerstates.TryGetValue(desc.Name, out data))
+                        {
+                            data = new SamplerStateData();
+                            samplerstates.Add(desc.Name, data);
+                        }
+                        foreach (var existingbinding in data.Bindings)
+                        {
+                            if (existingbinding.Description.Type != desc.Type)
+                            {
+                                err = string.Format("Sampler state '{0}' of {1} stage does not match {2} stage", desc.Name, pipeline[i].Type, existingbinding.Shader.Type);
+                                return false;
+                            }
+                        }
+                        var binding = new SamplerStateBinding { Shader = pipeline[i], Description = desc, Slot = desc.BindPoint };
+                        data.Bindings.Add(binding);
+                        samplerstatebindings.Add(binding);
+                    }
+                    else
+                    {
+                        ResourceData data;
+                        if (!resources.TryGetValue(desc.Name, out data))
+                        {
+                            data = new ResourceData();
+                            resources.Add(desc.Name, data);
+                        }
+                        foreach (var existingbinding in data.Bindings)
+                        {
+                            if (existingbinding.Description.Type != desc.Type)
+                            {
+                                err = string.Format("Resource '{0}' of {1} stage does not match {2} stage", desc.Name, pipeline[i].Type, existingbinding.Shader.Type);
+                                return false;
+                            }
+                        }
+                        var binding = new ResourceBinding { Shader = pipeline[i], Description = desc, Slot = desc.BindPoint };
+                        data.Bindings.Add(binding);
+                        resourcebindings.Add(binding);
+                    }
                 }
             }
 
             // Success
             err = null;
             return true;
+        }
+
+        private static bool VerifyParameterMatch(ShaderParameterDescription a, ShaderParameterDescription b)
+        {
+            if (a.ComponentType != b.ComponentType) return false;
+            if (a.SemanticIndex != b.SemanticIndex) return false;
+            if (a.SemanticName != b.SemanticName) return false;
+            //if (CountComponents(a.ReadWriteMask) != CountComponents(b.ReadWriteMask)) return false;
+            return true;
+        }
+
+        private static int CountComponents(RegisterComponentMaskFlags flags)
+        {
+            int c = 0;
+            if (flags == RegisterComponentMaskFlags.None) return 0;
+            if (flags == RegisterComponentMaskFlags.All) return 4;
+            if ((flags & RegisterComponentMaskFlags.ComponentW) == RegisterComponentMaskFlags.ComponentW) c++;
+            if ((flags & RegisterComponentMaskFlags.ComponentZ) == RegisterComponentMaskFlags.ComponentZ) c++;
+            if ((flags & RegisterComponentMaskFlags.ComponentY) == RegisterComponentMaskFlags.ComponentY) c++;
+            if ((flags & RegisterComponentMaskFlags.ComponentX) == RegisterComponentMaskFlags.ComponentX) c++;
+            return c;
         }
 
         /// <summary>
@@ -244,6 +333,38 @@ namespace CastleRenderer.Graphics.MaterialSystem
         }
 
         /// <summary>
+        /// Binds the specified resource view to this pipeline
+        /// </summary>
+        /// <param name="resourcename"></param>
+        /// <param name="resource"></param>
+        public void SetResource(string resourcename, ShaderResourceView resource)
+        {
+            ResourceData data;
+            if (!resources.TryGetValue(resourcename, out data)) return;
+            foreach (var binding in data.Bindings)
+            {
+                binding.CurrentView = resource;
+                if (IsActive) binding.Shader.SetResource(Context, binding.Slot, binding.CurrentView);
+            }
+        }
+
+        /// <summary>
+        /// Binds the specified resource view to this pipeline
+        /// </summary>
+        /// <param name="resourcename"></param>
+        /// <param name="resource"></param>
+        public void SetSamplerState(string samplerstatename, SamplerState samplerstate)
+        {
+            SamplerStateData data;
+            if (!samplerstates.TryGetValue(samplerstatename, out data)) return;
+            foreach (var binding in data.Bindings)
+            {
+                binding.CurrentSamplerState = samplerstate;
+                if (IsActive) binding.Shader.SetSamplerState(Context, binding.Slot, binding.CurrentSamplerState);
+            }
+        }
+
+        /// <summary>
         /// Makes this pipeline active
         /// </summary>
         public void Activate(bool force = false)
@@ -259,6 +380,14 @@ namespace CastleRenderer.Graphics.MaterialSystem
             // TODO: Optimise by keeping track of a Buffer[] for each shader and batch setting the whole array instead of one binding at a time
             foreach (ConstantBufferBinding binding in cbufferbindings)
                 binding.Shader.SetConstantBuffer(Context, binding.Slot, binding.CurrentBlock != null ? binding.CurrentBlock.Buffer : null);
+
+            // Make all resources active
+            foreach (ResourceBinding binding in resourcebindings)
+                binding.Shader.SetResource(Context, binding.Slot, binding.CurrentView);
+
+            // Make all sampler states active
+            foreach (SamplerStateBinding binding in samplerstatebindings)
+                binding.Shader.SetSamplerState(Context, binding.Slot, binding.CurrentSamplerState);
 
             // We're now active
             activepipeline = this;

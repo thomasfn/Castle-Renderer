@@ -94,5 +94,27 @@ namespace CastleRenderer.Graphics.Shaders
         {
             context.PixelShader.SetConstantBuffer(buffer, slot);
         }
+
+        /// <summary>
+        /// Sets a resource on this shader
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="slot"></param>
+        /// <param name="resource"></param>
+        public void SetResource(DeviceContext context, int slot, ShaderResourceView resource)
+        {
+            context.PixelShader.SetShaderResource(resource, slot);
+        }
+
+        /// <summary>
+        /// Sets a sampler state on this shader
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="slot"></param>
+        /// <param name="samplerstate"></param>
+        public void SetSamplerState(DeviceContext context, int slot, SamplerState samplerstate)
+        {
+            context.PixelShader.SetSampler(samplerstate, slot);
+        }
     }
 }

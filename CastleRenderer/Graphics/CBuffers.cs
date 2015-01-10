@@ -11,8 +11,8 @@ namespace CastleRenderer.Graphics
     [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 32)]
     public struct CBuffer_Clip
     {
-        public float Enabled;
-        public Vector4 Plane;
+        public float ClipEnabled;
+        public Vector4 ClipPlane;
     }
 
     /// <summary>
@@ -30,8 +30,8 @@ namespace CastleRenderer.Graphics
     [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 32)]
     public struct CBuffer_Camera
     {
-        public Vector3 Position;
-        public Vector3 Forward;
+        public Vector3 CameraPosition;
+        public Vector3 CameraForward;
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ namespace CastleRenderer.Graphics
     [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 128)]
     public struct CBuffer_CameraTransform
     {
-        public Matrix Projection;
-        public Matrix View;
+        public Matrix ProjectionMatrix;
+        public Matrix ViewMatrix;
     }
 }

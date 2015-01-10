@@ -7,6 +7,9 @@
     <Filter Include="Pixel">
       <UniqueIdentifier>{5bbf01c6-60cd-4097-b621-4d1dfb5d64c3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Pixel\Lights">
+      <UniqueIdentifier>{82d63d33-8e3f-4141-97ee-8bf7515f023e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Vertex_Passthrough.hlsl">
@@ -15,24 +18,33 @@
     <FxCompile Include="Pixel_Debug.hlsl">
       <Filter>Pixel</Filter>
     </FxCompile>
-    <FxCompile Include="Vertex_FSQuadPassthrough.hlsl">
-      <Filter>Vertex</Filter>
-    </FxCompile>
     <FxCompile Include="Pixel_Blit.hlsl">
       <Filter>Pixel</Filter>
     </FxCompile>
     <FxCompile Include="Pixel_BlitLight.hlsl">
       <Filter>Pixel</Filter>
     </FxCompile>
-    <FxCompile Include="Vertex_TexturedPassthrough.hlsl">
-      <Filter>Vertex</Filter>
-    </FxCompile>
     <FxCompile Include="Pixel_Skybox.hlsl">
       <Filter>Pixel</Filter>
+    </FxCompile>
+    <FxCompile Include="Pixel_Light_Ambient.hlsl">
+      <Filter>Pixel\Lights</Filter>
+    </FxCompile>
+    <FxCompile Include="Vertex_Transform_Textured.hlsl">
+      <Filter>Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="Vertex_Passthrough_Textured.hlsl">
+      <Filter>Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="Vertex_Transform_TexturedNormal.hlsl">
+      <Filter>Vertex</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common.hlsli" />
     <None Include="CommonCBuffers.hlsli" />
+    <None Include="DeferredLight.hlsli">
+      <Filter>Pixel\Lights</Filter>
+    </None>
   </ItemGroup>
 </Project>

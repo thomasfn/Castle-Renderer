@@ -152,7 +152,7 @@ namespace CastleRenderer.Components
                 SwapEffect = SwapEffect.Discard
             };
             Device tmp;
-            var result = Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.Debug, description, out tmp, out swapchain);
+            var result = Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, description, out tmp, out swapchain);
             if (result.IsFailure)
             {
                 Console.WriteLine("Failed to create Direct3D11 device (" + result.Code.ToString() + ":" + result.Description + ")");
@@ -587,7 +587,12 @@ namespace CastleRenderer.Components
             return new RenderTarget(Device, context, width, height, samplecount, name);
         }
 
-        private ShaderResourceView AcquireResourceView(Resource resource)
+        /// <summary>
+        /// Gets a shader resource view for the specified resource
+        /// </summary>
+        /// <param name="resource"></param>
+        /// <returns></returns>
+        public ShaderResourceView AcquireResourceView(Resource resource)
         {
             // See if it already exists
             ShaderResourceView view;
@@ -608,7 +613,7 @@ namespace CastleRenderer.Components
         /// <param name="uniform"></param>
         /// <param name="texture"></param>
         /// <param name="slot"></param>
-        public void BindShaderTexture(MaterialPipeline pipeline, string uniform, Texture2D texture)
+        /*public void BindShaderTexture(MaterialPipeline pipeline, string uniform, Texture2D texture)
         {
             // Get the view and bind it to the shader
             ShaderResourceView view = AcquireResourceView(texture);
@@ -642,7 +647,7 @@ namespace CastleRenderer.Components
             context.PixelShader.SetShaderResource(view, freeslot);
             resourceviewslots[freeslot].View = view;
             resourceviewslots[freeslot].NumUses = 1;
-        }
+        }*/
 
         /// <summary>
         /// Called when it's time to shutdown

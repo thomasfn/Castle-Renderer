@@ -109,29 +109,29 @@ namespace CastleRenderer.Components
             swapB.Finish();
 
             // Initialise struct-based parameter blocks
-            matpset_clip = new MaterialParameterStruct<CBuffer_Clip>(renderer.Device.ImmediateContext, new CBuffer_Clip { Enabled = 0.0f });
+            matpset_clip = new MaterialParameterStruct<CBuffer_Clip>(renderer.Device.ImmediateContext, new CBuffer_Clip { ClipEnabled = 0.0f });
 
             // Setup materials
             MaterialSystem matsys = Owner.GetComponent<MaterialSystem>();
-            mat_blit = matsys.CreateMaterial("Blit", matsys.GetShader("Vertex_FSQuadPassthrough"), matsys.GetShader("Pixel_Blit"));
-            //mat_blit.SetParameter("smpTexture", renderer.Sampler_Clamp);
-            mat_blitlight = matsys.CreateMaterial("BlitLight", matsys.GetShader("Vertex_FSQuadPassthrough"), matsys.GetShader("Pixel_BlitLight"));
-            //mat_blitlight.SetParameter("smpTexture", renderer.Sampler_Clamp);
-            //mat_blitlight.SetParameter("texColour", gbuffer.GetTexture(gbuffer_colour));
-            //mat_blitlight.SetParameter("texDiffuseLight", lightaccum.GetTexture(lightaccum_diffuse));
-            //mat_blitlight.SetParameter("texSpecularLight", lightaccum.GetTexture(lightaccum_specular));
+            mat_blit = matsys.CreateMaterial("Blit", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_Blit"));
+            mat_blit.SetSamplerState("BlitSampler", renderer.Sampler_Clamp);
+            mat_blitlight = matsys.CreateMaterial("BlitLight", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_BlitLight"));
+            mat_blitlight.SetSamplerState("BlitSampler", renderer.Sampler_Clamp);
+            mat_blitlight.SetResource("ColourTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_colour)));
+            mat_blitlight.SetResource("DiffuseTexture", renderer.AcquireResourceView(lightaccum.GetTexture(lightaccum_diffuse)));
+            mat_blitlight.SetResource("SpecularTexture", renderer.AcquireResourceView(lightaccum.GetTexture(lightaccum_specular)));
 
             // Setup lights
             mat_lights = new Dictionary<LightType, Material>();
-            //mat_lights.Add(LightType.Ambient, matsys.CreateMaterial("light_ambient", "light_ambient"));
+            mat_lights.Add(LightType.Ambient, matsys.CreateMaterial("AmbientLight", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_Light_Ambient")));
             //mat_lights.Add(LightType.Directional, matsys.CreateMaterial("light_directional", "light_directional"));
             //mat_lights.Add(LightType.Point, matsys.CreateMaterial("light_point", "light_point"));
             foreach (Material mat in mat_lights.Values)
             {
-                /*mat.SetParameter("texNormal", gbuffer.GetTexture(gbuffer_normal));
-                mat.SetParameter("texPosition", gbuffer.GetTexture(gbuffer_position));
-                mat.SetParameter("texMaterial", gbuffer.GetTexture(gbuffer_material));
-                mat.SetParameter("smpTexture", renderer.Sampler_Clamp);*/
+                mat.SetResource("NormalTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_normal)));
+                mat.SetResource("PositionTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_position)));
+                mat.SetResource("MaterialTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_material)));
+                mat.SetSamplerState("GBufferSampler", renderer.Sampler_Clamp);
             }
 
             // Setup meshes
@@ -284,9 +284,9 @@ namespace CastleRenderer.Components
                 {
                     // Set the material
                     if (cam.UseClipping)
-                        matpset_clip.Value = new CBuffer_Clip { Enabled = 1.0f, Plane = clip };
+                        matpset_clip.Value = new CBuffer_Clip { ClipEnabled = 1.0f, ClipPlane = clip };
                     else
-                        matpset_clip.Value = new CBuffer_Clip { Enabled = 0.0f, Plane = clip };
+                        matpset_clip.Value = new CBuffer_Clip { ClipEnabled = 0.0f, ClipPlane = clip };
                     item.Material.SetParameterBlock("Clip", matpset_clip);
                     renderer.SetActiveMaterial(item.Material);
                     var desiredculling =
@@ -318,15 +318,16 @@ namespace CastleRenderer.Components
                 foreach (Light light in lightmsg.Lights)
                 {
                     // Set the material
-                    /*
-                    Material lightmat = mat_lights[light.Type];
-                    light.ApplyLightSettings(lightmat);
-                    lightmat.Apply();
-                    renderer.SetActiveMaterial(lightmat);
+                    Material lightmat;
+                    if (mat_lights.TryGetValue(light.Type, out lightmat))
+                    {
+                        light.ApplyLightSettings(lightmat);
+                        lightmat.Apply();
+                        renderer.SetActiveMaterial(lightmat);
 
-                    // Draw it
-                    renderer.DrawImmediate(mesh_fs, 0);
-                     * */
+                        // Draw it
+                        renderer.DrawImmediate(mesh_fs, 0);
+                    }
                 }
 
                 // Are there particle systems to draw?
@@ -369,14 +370,13 @@ namespace CastleRenderer.Components
                     if (cam.Skybox != null)
                     {
                         renderer.SetActiveMaterial(cam.Skybox);
-                        Vector3 campos = transform.Position;
                         renderer.DrawImmediate(mesh_skybox, 0, cam.CameraTransformParameterBlock, cam.ObjectTransformParameterBlock);
                     }
                 }
 
                 // Blit lighting
-                renderer.SetActiveMaterial(mat_blitlight);
-                renderer.DrawImmediate(mesh_fs, 0);
+                //renderer.SetActiveMaterial(mat_blitlight);
+                //renderer.DrawImmediate(mesh_fs, 0);
 
                 // Are there particle systems to draw?
                 if (psysmsg.ParticleSystems.Count > 0)
@@ -422,7 +422,7 @@ namespace CastleRenderer.Components
                     renderer.BindBackbuffer();
 
                 // Blit final result
-                //mat_blit.SetParameter("texSource", pp_source.GetTexture(0));
+                mat_blit.SetResource("SourceTexture", renderer.AcquireResourceView(pp_source.GetTexture(0)));
                 renderer.SetActiveMaterial(mat_blit, false, true);
                 renderer.DrawImmediate(mesh_fs, 0);
             }

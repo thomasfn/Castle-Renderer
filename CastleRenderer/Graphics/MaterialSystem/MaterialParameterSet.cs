@@ -114,7 +114,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
                 case ShaderVariableClass.Scalar:
                     return typeof(float);
                 case ShaderVariableClass.Vector:
-                    switch (desc.Elements)
+                    switch (desc.Columns)
                     {
                         case 1:
                             return typeof(float);
