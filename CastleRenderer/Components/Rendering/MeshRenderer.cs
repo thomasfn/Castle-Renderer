@@ -13,7 +13,7 @@ namespace CastleRenderer.Components
     /// Renders a mesh with a set of materials
     /// </summary>
     [RequiresComponent(typeof(Transform))]
-    public class MeshRenderer : BaseComponent
+    public class MeshRenderer : GenericRenderer
     {
         /// <summary>
         /// The mesh to render
@@ -42,7 +42,7 @@ namespace CastleRenderer.Components
             // Render all submeshes
             for (int i = 0; i < Materials.Length; i++)
                 if (Materials[i] != null)
-                    msg.SceneManager.QueueDraw(Mesh, i, Materials[i], mtx);
+                    msg.SceneManager.QueueDraw(Mesh, i, Materials[i], ObjectTransformParameterBlock);
         }
 
     }

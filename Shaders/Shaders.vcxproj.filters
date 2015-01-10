@@ -24,6 +24,12 @@
     <FxCompile Include="Pixel_BlitLight.hlsl">
       <Filter>Pixel</Filter>
     </FxCompile>
+    <FxCompile Include="Vertex_TexturedPassthrough.hlsl">
+      <Filter>Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="Pixel_Skybox.hlsl">
+      <Filter>Pixel</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common.hlsli" />

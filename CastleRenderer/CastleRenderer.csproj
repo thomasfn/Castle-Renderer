@@ -47,6 +47,8 @@
     <Compile Include="Components\Rendering\Camera.cs" />
     <Compile Include="Components\Particles\CPUParticleSystem.cs" />
     <Compile Include="Components\Particles\GPUParticleSystem.cs" />
+    <Compile Include="Components\Rendering\GenericCamera.cs" />
+    <Compile Include="Components\Rendering\GenericRenderer.cs" />
     <Compile Include="Components\Rendering\Light.cs" />
     <Compile Include="Components\Listener.cs" />
     <Compile Include="Components\Rendering\MaterialSystem.cs" />
@@ -75,6 +77,7 @@
     <Compile Include="Graphics\RenderTarget.cs" />
     <Compile Include="Graphics\RenderWorkItem.cs" />
     <Compile Include="Graphics\SBMLoader.cs" />
+    <Compile Include="Graphics\Shaders\PixelShader.cs" />
     <Compile Include="Graphics\Shaders\VertexShader.cs" />
     <Compile Include="Messages\PopulateParticleSystemList.cs" />
     <Compile Include="Messages\UpdateMessage.cs" />

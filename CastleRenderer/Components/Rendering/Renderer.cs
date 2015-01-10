@@ -152,7 +152,7 @@ namespace CastleRenderer.Components
                 SwapEffect = SwapEffect.Discard
             };
             Device tmp;
-            var result = Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, description, out tmp, out swapchain);
+            var result = Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.Debug, description, out tmp, out swapchain);
             if (result.IsFailure)
             {
                 Console.WriteLine("Failed to create Direct3D11 device (" + result.Code.ToString() + ":" + result.Description + ")");
@@ -447,15 +447,15 @@ namespace CastleRenderer.Components
             if (activematerial == null || forceswitch)
             {
                 activematerial = material;
-                Shader shader = shadow ? material.ShadowShader : material.Shader;
-                if (shader == null)
+                MaterialPipeline pipeline = shadow ? material.ShadowPipeline : material.Pipeline;
+                if (pipeline == null)
                 {
                     activematerial = null;
                     activematerialshadow = false;
                     return;
                 }
-                shader.Activate(context);
-                if (!noapply) material.Apply(shadow);
+                pipeline.Activate(true);
+                if (!noapply) material.Apply();
                 frame_materialswitches++;
                 frame_shaderswitches++;
                 return;
@@ -465,25 +465,25 @@ namespace CastleRenderer.Components
             if (material != activematerial)
             {
                 // Did the shader change?
-                Shader oldshader = shadow ? activematerial.ShadowShader : activematerial.Shader;
-                Shader newshader = shadow ? material.ShadowShader : material.Shader;
-                if (newshader == null)
+                MaterialPipeline oldpipeline = shadow ? activematerial.ShadowPipeline : activematerial.Pipeline;
+                MaterialPipeline newpipeline = shadow ? material.ShadowPipeline : material.Pipeline;
+                if (newpipeline == null)
                 {
                     activematerial = null;
                     activematerialshadow = false;
                     return;
                 }
-                if (oldshader != newshader)
+                if (oldpipeline != newpipeline)
                 {
                     // Activate new shader
-                    newshader.Activate(context);
+                    newpipeline.Activate();
                     frame_shaderswitches++;
                 }
 
                 // Apply
                 activematerial = material;
                 activematerialshadow = shadow;
-                if (!noapply) material.Apply(shadow);
+                if (!noapply) material.Apply();
                 frame_materialswitches++;
             }
         }
@@ -495,23 +495,22 @@ namespace CastleRenderer.Components
         /// <param name="submesh"></param>
         /// <param name="material"></param>
         /// <param name="transform"></param>
-        public void DrawImmediate(Mesh mesh, int submesh, Matrix projectionview, Matrix transform)
+        public void DrawImmediate(Mesh mesh, int submesh, MaterialParameterBlock cameratransform, MaterialParameterBlock objecttransform)
         {
             // Sanity check
             if (activematerial == null) return;
 
             // Setup the material
-            Shader shader = activematerialshadow ? activematerial.ShadowShader : activematerial.Shader;
-            if (shader == null) return;
-            shader.SetVariable("projectionview", projectionview);
-            shader.SetVariable("transform", transform);
-            shader.DefaultPass.Apply(context);
+            MaterialPipeline pipeline = activematerialshadow ? activematerial.ShadowPipeline : activematerial.Pipeline;
+            if (pipeline == null) return;
+            pipeline.SetMaterialParameterBlock("CameraTransform", cameratransform);
+            pipeline.SetMaterialParameterBlock("ObjectTransform", objecttransform);
 
             // Setup the mesh
-            if (!mesh.Render(shader, submesh))
+            if (!mesh.Render(pipeline, submesh))
             {
                 mesh.Upload(Device, context);
-                mesh.Render(shader, submesh);
+                mesh.Render(pipeline, submesh);
             }
             frame_drawcalls++;
         }
@@ -527,13 +526,13 @@ namespace CastleRenderer.Components
             if (activematerial == null) return;
 
             // Setup the material
-            activematerial.Shader.Effect.GetTechniqueByIndex(0).GetPassByIndex(0).Apply(context);
+            //activematerial.Shader.Effect.GetTechniqueByIndex(0).GetPassByIndex(0).Apply(context);
 
             // Setup the mesh
-            if (!mesh.Render(activematerial.Shader, submesh))
+            if (!mesh.Render(activematerial.Pipeline, submesh))
             {
                 mesh.Upload(Device, context);
-                mesh.Render(activematerial.Shader, submesh);
+                mesh.Render(activematerial.Pipeline, submesh);
             }
         }
 

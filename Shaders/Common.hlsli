@@ -5,7 +5,7 @@
 
 struct BasicInputVertex
 {
-	float4 Position : POSITION;
+	float3 Position : POSITION;
 };
 
 struct BasicOutputVertex

@@ -8,7 +8,7 @@ namespace CastleRenderer.Graphics
     /// <summary>
     /// CBuffer that controls clipping plane
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack=16)]
+    [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 32)]
     public struct CBuffer_Clip
     {
         public float Enabled;
@@ -18,7 +18,7 @@ namespace CastleRenderer.Graphics
     /// <summary>
     /// CBuffer that represents object transform
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 16)]
+    [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 64)]
     public struct CBuffer_ObjectTransform
     {
         public Matrix ModelMatrix;
@@ -27,7 +27,7 @@ namespace CastleRenderer.Graphics
     /// <summary>
     /// CBuffer that represents camera state
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 16)]
+    [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 32)]
     public struct CBuffer_Camera
     {
         public Vector3 Position;
@@ -37,7 +37,7 @@ namespace CastleRenderer.Graphics
     /// <summary>
     /// CBuffer that represents camera state
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 16)]
+    [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 128)]
     public struct CBuffer_CameraTransform
     {
         public Matrix Projection;

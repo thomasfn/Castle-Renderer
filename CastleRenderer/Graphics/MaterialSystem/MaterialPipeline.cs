@@ -22,6 +22,9 @@ namespace CastleRenderer.Graphics.MaterialSystem
         // Signature for the vertex shader
         private ShaderSignature vtxsig;
 
+        // The input parameter
+        private ShaderParameterDescription[] pipelineinputs;
+
         private sealed class ConstantBufferBinding
         {
             public IShader Shader { get; set; }
@@ -40,14 +43,49 @@ namespace CastleRenderer.Graphics.MaterialSystem
             }
         }
 
+        private sealed class ResourceBinding
+        {
+            public IShader Shader { get; set; }
+            public int Slot { get; set; }
+            public ResourceView CurrentView { get; set; }
+        }
+
+        private sealed class ResourceData
+        {
+            public HashSet<ResourceBinding> Bindings { get; private set; }
+
+            public ResourceData()
+            {
+                Bindings = new HashSet<ResourceBinding>();
+            }
+        }
+
         // All constant buffers attached to this pipeline
         private Dictionary<string, ConstantBufferData> cbuffers;
         private HashSet<ConstantBufferBinding> cbufferbindings;
+
+        // All resources attached to this pipeline
+        private Dictionary<string, ResourceData> resources;
+        private HashSet<ResourceBinding> resourcebindings;
 
         /// <summary>
         /// Gets the owner device for this pipeline
         /// </summary>
         public DeviceContext Context { get; private set; }
+
+        // The currently active pipeline
+        private static MaterialPipeline activepipeline;
+
+        /// <summary>
+        /// Returns if this pipeline is currently active or not
+        /// </summary>
+        public bool IsActive
+        {
+            get
+            {
+                return activepipeline == this;
+            }
+        }
 
         /// <summary>
         /// Initialises a new instance of the MaterialPipeline class
@@ -110,22 +148,29 @@ namespace CastleRenderer.Graphics.MaterialSystem
             {
                 refl[i] = new ShaderReflection(pipeline[i].Bytecode);
             }
+
+            // Get the input parameter
+            pipelineinputs = new ShaderParameterDescription[refl[0].Description.InputParameters];
+            for (int i = 0; i < pipelineinputs.Length; i++)
+            {
+                pipelineinputs[i] = refl[0].GetInputParameterDescription(i);
+            }
             
             // Verify the output of each stage matches the input of the next
             for (int i = 0; i < pipeline.Count - 1; i++)
             {
                 ShaderReflection first = refl[i];
                 ShaderReflection second = refl[i + 1];
-                var outputs = Util.GetUnknownShaderReflectionArray(first.GetOutputParameterDescription);
-                var inputs = Util.GetUnknownShaderReflectionArray(second.GetInputParameterDescription);
-                if (outputs.Length != inputs.Length)
+                var firstdesc = first.Description;
+                var seconddesc = second.Description;
+                if (firstdesc.OutputParameters != seconddesc.InputParameters)
                 {
                     err = string.Format("Output parameters of {0} stage do not match input parameters of {1} stage", pipeline[i].Type, pipeline[i + 1].Type);
                     return false;
                 }
-                for (int j = 0; j < outputs.Length; j++)
+                for (int j = 0; j < firstdesc.OutputParameters; j++)
                 {
-                    if (inputs[j] != outputs[j])
+                    if (first.GetOutputParameterDescription(j) != second.GetInputParameterDescription(j))
                     {
                         err = string.Format("Output parameters of {0} stage do not match input parameters of {1} stage", pipeline[i].Type, pipeline[i + 1].Type);
                         return false;
@@ -138,10 +183,10 @@ namespace CastleRenderer.Graphics.MaterialSystem
             cbufferbindings = new HashSet<ConstantBufferBinding>();
             for (int i = 0; i < pipeline.Count; i++)
             {
-                var shaderconstantbuffers = Util.GetUnknownShaderReflectionArray(refl[i].GetConstantBuffer);
-                for (int j = 0; j < shaderconstantbuffers.Length; j++)
+                var shaderdesc = refl[i].Description;
+                for (int j = 0; j < shaderdesc.ConstantBuffers; j++)
                 {
-                    ConstantBuffer cbuffer = shaderconstantbuffers[j];
+                    ConstantBuffer cbuffer = refl[i].GetConstantBuffer(j);
                     var desc = cbuffer.Description;
                     ConstantBufferData data;
                     if (!cbuffers.TryGetValue(desc.Name, out data))
@@ -165,6 +210,18 @@ namespace CastleRenderer.Graphics.MaterialSystem
                 }
             }
 
+            // Find all resource bindings
+            resources = new Dictionary<string, ResourceData>();
+            resourcebindings = new HashSet<ResourceBinding>();
+            for (int i = 0; i < pipeline.Count; i++)
+            {
+                var shaderdesc = refl[i].Description;
+                for (int j = 0; j < shaderdesc.BoundResources; j++)
+                {
+                    
+                }
+            }
+
             // Success
             err = null;
             return true;
@@ -182,14 +239,18 @@ namespace CastleRenderer.Graphics.MaterialSystem
             foreach (var binding in data.Bindings)
             {
                 binding.CurrentBlock = block;
+                if (IsActive) binding.Shader.SetConstantBuffer(Context, binding.Slot, binding.CurrentBlock != null ? binding.CurrentBlock.Buffer : null);
             }
         }
 
         /// <summary>
         /// Makes this pipeline active
         /// </summary>
-        public void Activate()
+        public void Activate(bool force = false)
         {
+            // Check for already active
+            if (!force && activepipeline == this) return;
+
             // Make all shaders active
             foreach (IShader shader in shaders)
                 shader.MakeActive(Context);
@@ -198,7 +259,9 @@ namespace CastleRenderer.Graphics.MaterialSystem
             // TODO: Optimise by keeping track of a Buffer[] for each shader and batch setting the whole array instead of one binding at a time
             foreach (ConstantBufferBinding binding in cbufferbindings)
                 binding.Shader.SetConstantBuffer(Context, binding.Slot, binding.CurrentBlock != null ? binding.CurrentBlock.Buffer : null);
-                
+
+            // We're now active
+            activepipeline = this;
         }
 
         /// <summary>
@@ -230,7 +293,11 @@ namespace CastleRenderer.Graphics.MaterialSystem
         /// <returns></returns>
         public InputLayout CreateLayout(InputElement[] elements)
         {
-            return new InputLayout(Context.Device, vtxsig, elements);
+            // Filter out elements which aren't inputs to this pipeline
+            InputElement[] newelements = elements
+                .Where((e) => pipelineinputs.Any((i) => i.SemanticName == e.SemanticName && i.SemanticIndex == e.SemanticIndex))
+                .ToArray();
+            return new InputLayout(Context.Device, vtxsig, newelements);
         }
 
 

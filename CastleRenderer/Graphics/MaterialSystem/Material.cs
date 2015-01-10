@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using SlimDX.Direct3D11;
+
 namespace CastleRenderer.Graphics.MaterialSystem
 {
     public enum MaterialCullingMode { None, Forwardface, Backface }
@@ -12,6 +14,12 @@ namespace CastleRenderer.Graphics.MaterialSystem
     {
         // All parameter sets
         protected Dictionary<string, MaterialParameterBlock> parameterblocks;
+
+        // All resources (textures etc)
+        protected Dictionary<string, ResourceView> resources;
+
+        // All sampler states
+        protected Dictionary<string, SamplerState> samplerstates;
 
         /// <summary>
         /// Gets the material pipeline associated with this material
@@ -44,6 +52,8 @@ namespace CastleRenderer.Graphics.MaterialSystem
 
             // Initialise
             parameterblocks = new Dictionary<string, MaterialParameterBlock>();
+            resources = new Dictionary<string, ResourceView>();
+            samplerstates = new Dictionary<string, SamplerState>();
         }
 
         /// <summary>
@@ -75,6 +85,50 @@ namespace CastleRenderer.Graphics.MaterialSystem
         {
             MaterialParameterBlock set;
             if (parameterblocks.TryGetValue(name, out set)) return set;
+            return null;
+        }
+
+        /// <summary>
+        /// Sets a resource on this material
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="resource"></param>
+        public void SetResource(string name, ResourceView resource)
+        {
+            resources[name] = resource;
+        }
+
+        /// <summary>
+        /// Gets a resource on this material
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public ResourceView GetResource(string name)
+        {
+            ResourceView resource;
+            if (!resources.TryGetValue(name, out resource)) return resource;
+            return null;
+        }
+
+        /// <summary>
+        /// Sets a sampler state on this material
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="samplerstate"></param>
+        public void SetSamplerState(string name, SamplerState samplerstate)
+        {
+            samplerstates[name] = samplerstate;
+        }
+
+        /// <summary>
+        /// Sets a sampler state on this material
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="samplerstate"></param>
+        public SamplerState GetSamplerState(string name)
+        {
+            SamplerState samplerstate;
+            if (!samplerstates.TryGetValue(name, out samplerstate)) return samplerstate;
             return null;
         }
     }

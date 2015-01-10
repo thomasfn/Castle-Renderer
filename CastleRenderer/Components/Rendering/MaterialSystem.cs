@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 
 using CastleRenderer.Structures;
 using CastleRenderer.Messages;
@@ -86,31 +87,32 @@ namespace CastleRenderer.Components
             definitionmap = new Dictionary<string, MaterialDefinition>();
 
             // Load all material groups
-            foreach (string filename in Directory.GetFiles("materials/*.json"))
+            foreach (string filename in Directory.GetFiles("materials").Where((f) => Path.GetExtension(f) == ".json"))
             {
                 // Load text
-                string src = File.ReadAllText(string.Format("materials/{0}", filename));
+                string matgrpname = Path.GetFileNameWithoutExtension(filename);
+                string src = File.ReadAllText(filename);
                 JObject root = JObject.Parse(src);
 
                 // Verify
                 if (root["Shaders"] == null)
                 {
-                    Console.WriteLine("Missing shaders for material group '{0}'", filename);
+                    Console.WriteLine("Missing shaders for material group '{0}'", matgrpname);
                     continue;
                 }
                 if (root["ParameterSets"] == null)
                 {
-                    Console.WriteLine("Missing parameter sets for material group '{0}'", filename);
+                    Console.WriteLine("Missing parameter sets for material group '{0}'", matgrpname);
                     continue;
                 }
                 if (root["Mappings"] == null)
                 {
-                    Console.WriteLine("Missing mappings for material group '{0}'", filename);
+                    Console.WriteLine("Missing mappings for material group '{0}'", matgrpname);
                     continue;
                 }
                 if (root["Materials"] == null)
                 {
-                    Console.WriteLine("Missing materials for material group '{0}'", filename);
+                    Console.WriteLine("Missing materials for material group '{0}'", matgrpname);
                     continue;
                 }
                 JArray jshaders = root["Shaders"] as JArray;
@@ -120,7 +122,7 @@ namespace CastleRenderer.Components
 
                 // Create group
                 MaterialGroup matgrp = new MaterialGroup();
-                matgrp.Name = filename;
+                matgrp.Name = matgrpname;
                 string[] shaders = new string[jshaders.Count];
                 int i;
                 for (i = 0; i < jshaders.Count; i++)
@@ -144,7 +146,7 @@ namespace CastleRenderer.Components
                     {
                         object val = TranslateJsonType(pair2.Value);
                         if (val == null)
-                            Console.WriteLine("Unable to translate Json token '{0}' to a .NET type! ({1})", pair2.Value, filename);
+                            Console.WriteLine("Unable to translate Json token '{0}' to a .NET type! ({1})", pair2.Value, matgrpname);
                         else
                             set.Parameters.Add((string)pair2.Key, val);
                     }
@@ -163,13 +165,13 @@ namespace CastleRenderer.Components
                     {
                         object val = TranslateJsonType(pair2.Value);
                         if (val == null)
-                            Console.WriteLine("Unable to translate Json token '{0}' to a .NET type! ({1})", pair2.Value, filename);
+                            Console.WriteLine("Unable to translate Json token '{0}' to a .NET type! ({1})", pair2.Value, matgrpname);
                         else
                             matdef.ParameterSet.Parameters.Add((string)pair2.Key, val);
                     }
                     definitions[i++] = matdef;
                     if (definitionmap.ContainsKey(matdef.Name))
-                        Console.WriteLine("Material definition '{0}' in group {1} conflicts with definition of the same name from group {2}", matdef.Name, filename, definitionmap[matdef.Name].Group.Name);
+                        Console.WriteLine("Material definition '{0}' in group {1} conflicts with definition of the same name from group {2}", matdef.Name, matgrpname, definitionmap[matdef.Name].Group.Name);
                     else
                         definitionmap.Add(matdef.Name, matdef);
                 }
@@ -237,8 +239,11 @@ namespace CastleRenderer.Components
             // Create the shader
             IShader shader = null;
             var device = Owner.GetComponent<Renderer>().Device;
-            if (name.ToLowerInvariant().StartsWith("vertex"))
+            string lowername = name.ToLowerInvariant();
+            if (lowername.StartsWith("vertex"))
                 shader = new VertexShader(device, raw, name);
+            else if (lowername.StartsWith("pixel"))
+                shader = new PixelShader(device, raw, name);
 
             // Error check
             if (shader == null)
@@ -328,7 +333,7 @@ namespace CastleRenderer.Components
             // Setup the parameter sets
             foreach (var pair in matdef.Group.ParameterSets)
             {
-                MaterialParameterSet matpset = material.GetParameterBlock(pair.Key);
+                MaterialParameterSet matpset = material.GetParameterBlock(pair.Key) as MaterialParameterSet;
                 if (matpset == null)
                 {
                     matpset = material.Pipeline.CreateParameterSet(pair.Key);
@@ -339,7 +344,7 @@ namespace CastleRenderer.Components
             }
             foreach (var mapping in matdef.Group.Mappings)
             {
-                MaterialParameterSet matpset = material.GetParameterBlock(mapping.TargetSet);
+                MaterialParameterSet matpset = material.GetParameterBlock(mapping.TargetSet) as MaterialParameterSet;
                 if (matpset == null)
                 {
                     matpset = material.Pipeline.CreateParameterSet(mapping.TargetSet);

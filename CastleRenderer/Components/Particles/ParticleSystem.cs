@@ -25,7 +25,7 @@ namespace CastleRenderer.Components
     /// Represents a particle system in 3D space
     /// </summary>
     [RequiresComponent(typeof(Transform))]
-    public abstract class ParticleSystem : BaseComponent
+    public abstract class ParticleSystem : GenericRenderer
     {
         /// <summary>
         /// The maximum particle count that this system manages
@@ -155,7 +155,7 @@ namespace CastleRenderer.Components
         /// </summary>
         /// <param name="renderer"></param>
         /// <param name="projview"></param>
-        public abstract void Draw(Renderer renderer, Matrix projview);
+        public abstract void Draw(Renderer renderer, GenericCamera camera);
 
         [MessageHandler(typeof(PopulateParticleSystemList))]
         public void OnPopulateParticleSystem(PopulateParticleSystemList msg)

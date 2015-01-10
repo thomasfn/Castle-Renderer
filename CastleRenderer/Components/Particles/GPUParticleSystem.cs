@@ -33,7 +33,7 @@ namespace CastleRenderer.Components
             throw new NotImplementedException();
         }
 
-        public override void Draw(Renderer renderer, Matrix projview)
+        public override void Draw(Renderer renderer, GenericCamera camera)
         {
             throw new NotImplementedException();
         }

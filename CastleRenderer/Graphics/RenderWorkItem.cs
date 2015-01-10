@@ -14,9 +14,8 @@ namespace CastleRenderer.Graphics
     {
         public Mesh Mesh { get; set; }
         public int SubmeshIndex { get; set; }
-        public Matrix Transform { get; set; }
         public Material Material { get; set; }
-
+        public MaterialParameterStruct<CBuffer_ObjectTransform> ObjectTransformParameterBlock { get; set; }
     }
 
     public class RenderWorkItemComparer : IComparer<RenderWorkItem>

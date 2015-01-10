@@ -98,9 +98,14 @@ namespace CastleRenderer.Components
             return false;
         }
 
-        public override void Draw(Renderer renderer, Matrix projview)
+        /// <summary>
+        /// Draws this particle system
+        /// </summary>
+        /// <param name="renderer"></param>
+        /// <param name="projview"></param>
+        public override void Draw(Renderer renderer, GenericCamera camera)
         {
-            renderer.DrawImmediate(Mesh, 0, projview, Matrix.Identity);
+            renderer.DrawImmediate(Mesh, 0, camera.CameraTransformParameterBlock, ObjectTransformParameterBlock);
         }
     }
 }

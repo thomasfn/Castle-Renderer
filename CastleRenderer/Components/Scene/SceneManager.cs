@@ -136,7 +136,7 @@ namespace CastleRenderer.Components
 
             // Setup meshes
             mesh_fs = MeshBuilder.BuildFullscreenQuad(true, true);
-            mesh_skybox = MeshBuilder.BuildCube(Matrix.Identity);
+            mesh_skybox = MeshBuilder.BuildCube(Matrix.Translation(-0.5f, -0.5f, -0.5f));
         }
 
         /// <summary>
@@ -146,14 +146,14 @@ namespace CastleRenderer.Components
         /// <param name="submesh"></param>
         /// <param name="material"></param>
         /// <param name="transform"></param>
-        public void QueueDraw(Mesh mesh, int submesh, Material material, Matrix transform)
+        public void QueueDraw(Mesh mesh, int submesh, Material material, MaterialParameterStruct<CBuffer_ObjectTransform> transformparameterblock)
         {
             // Create the work item
             RenderWorkItem item = workitempool.Request();
             item.Mesh = mesh;
             item.SubmeshIndex = submesh;
             item.Material = material;
-            item.Transform = transform;
+            item.ObjectTransformParameterBlock = transformparameterblock;
 
             // Add to queue
             renderqueue.Add(item);
@@ -237,7 +237,7 @@ namespace CastleRenderer.Components
                     }
 
                     // Draw it
-                    renderer.DrawImmediate(item.Mesh, item.SubmeshIndex, projview, item.Transform);
+                    renderer.DrawImmediate(item.Mesh, item.SubmeshIndex, caster.CameraTransformParameterBlock, item.ObjectTransformParameterBlock);
                 }
             }
 
@@ -296,7 +296,7 @@ namespace CastleRenderer.Components
                     if (renderer.Culling != desiredculling) renderer.Culling = desiredculling;
 
                     // Draw it
-                    renderer.DrawImmediate(item.Mesh, item.SubmeshIndex, projview, item.Transform);
+                    renderer.DrawImmediate(item.Mesh, item.SubmeshIndex, cam.CameraTransformParameterBlock, item.ObjectTransformParameterBlock);
                 }
 
                 // Setup light accum state
@@ -309,21 +309,24 @@ namespace CastleRenderer.Components
                 // Update camera details on all light types
                 foreach (Material lightmat in mat_lights.Values)
                 {
-                    lightmat.SetParameter("camera_position", position);
-                    lightmat.SetParameter("camera_forward", forward);
+                    //lightmat.SetParameter("camera_position", position);
+                    //lightmat.SetParameter("camera_forward", forward);
+                    lightmat.Pipeline.SetMaterialParameterBlock("Camera", cam.CameraParameterBlock);
                 }
 
                 // Draw all lights
                 foreach (Light light in lightmsg.Lights)
                 {
                     // Set the material
+                    /*
                     Material lightmat = mat_lights[light.Type];
                     light.ApplyLightSettings(lightmat);
-                    lightmat.Apply(false);
+                    lightmat.Apply();
                     renderer.SetActiveMaterial(lightmat);
 
                     // Draw it
                     renderer.DrawImmediate(mesh_fs, 0);
+                     * */
                 }
 
                 // Are there particle systems to draw?
@@ -348,10 +351,10 @@ namespace CastleRenderer.Components
                             renderer.Blend = renderer.Blend_Alpha;
                         else
                             renderer.Blend = renderer.Blend_Opaque;
-                        psys.Material.Shader.SetVariable("view", transform.WorldToObject);
-                        psys.Material.Shader.SetVariable("projection", cam.Projection);
+                        //psys.Material.Shader.SetVariable("view", transform.WorldToObject);
+                        //psys.Material.Shader.SetVariable("projection", cam.Projection);
                         renderer.SetActiveMaterial(psys.Material);
-                        psys.Draw(renderer, projview);
+                        psys.Draw(renderer, cam);
                     }
                 }
 
@@ -367,7 +370,7 @@ namespace CastleRenderer.Components
                     {
                         renderer.SetActiveMaterial(cam.Skybox);
                         Vector3 campos = transform.Position;
-                        renderer.DrawImmediate(mesh_skybox, 0, cam.ProjectionView, Matrix.Translation(campos.X - 0.5f, campos.Y - 0.5f, campos.Z - 0.5f));
+                        renderer.DrawImmediate(mesh_skybox, 0, cam.CameraTransformParameterBlock, cam.ObjectTransformParameterBlock);
                     }
                 }
 
@@ -380,7 +383,7 @@ namespace CastleRenderer.Components
                 {
                     // Blit particles
                     renderer.Blend = renderer.Blend_Add;
-                    mat_blit.SetParameter("texSource", particleaccum.GetTexture(particleaccum_colour));
+                    //mat_blit.SetParameter("texSource", particleaccum.GetTexture(particleaccum_colour));
                     renderer.SetActiveMaterial(mat_blit);
                     renderer.DrawImmediate(mesh_fs, 0);
                 }
@@ -400,8 +403,8 @@ namespace CastleRenderer.Components
                         pp_target.Bind();
 
                         // Apply material
-                        effect.Material.SetParameter("texImage", pp_source.GetTexture(0));
-                        effect.Material.SetParameter("imagesize", new Vector2(pp_source.Width, pp_source.Height));
+                        //effect.Material.SetParameter("texImage", pp_source.GetTexture(0));
+                        //effect.Material.SetParameter("imagesize", new Vector2(pp_source.Width, pp_source.Height));
                         renderer.SetActiveMaterial(effect.Material, false, true);
 
                         // Blit
@@ -419,7 +422,7 @@ namespace CastleRenderer.Components
                     renderer.BindBackbuffer();
 
                 // Blit final result
-                mat_blit.SetParameter("texSource", pp_source.GetTexture(0));
+                //mat_blit.SetParameter("texSource", pp_source.GetTexture(0));
                 renderer.SetActiveMaterial(mat_blit, false, true);
                 renderer.DrawImmediate(mesh_fs, 0);
             }

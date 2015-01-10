@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using SlimDX;
 using SlimDX.D3DCompiler;
 
-using d3dVertexShader = SlimDX.Direct3D11.VertexShader;
+using d3dPixelShader = SlimDX.Direct3D11.PixelShader;
 
 namespace CastleRenderer.Graphics.Shaders
 {
@@ -13,12 +13,12 @@ namespace CastleRenderer.Graphics.Shaders
     /// <summary>
     /// Represents a compiled vertex shader
     /// </summary>
-    public class VertexShader : IShader
+    public class PixelShader : IShader
     {
         /// <summary>
         /// Gets the shader type
         /// </summary>
-        public ShaderType Type { get { return ShaderType.Vertex; } }
+        public ShaderType Type { get { return ShaderType.Pixel; } }
 
         /// <summary>
         /// Gets the shader bytecode
@@ -36,14 +36,14 @@ namespace CastleRenderer.Graphics.Shaders
         public ShaderSignature Signature { get; private set; }
 
         // The actual shader object
-        private d3dVertexShader shader;
+        private d3dPixelShader shader;
 
         /// <summary>
         /// Initialises a new instance of the VertexShader class
         /// </summary>
         /// <param name="device"></param>
         /// <param name="raw"></param>
-        public VertexShader(Device device, byte[] raw, string name = "Vertex Shader")
+        public PixelShader(Device device, byte[] raw, string name = "Pixel Shader")
         {
             // Store parameters
             OwnerDevice = device;
@@ -58,7 +58,7 @@ namespace CastleRenderer.Graphics.Shaders
             }
 
             // Create the shader
-            shader = new d3dVertexShader(device, Bytecode);
+            shader = new d3dPixelShader(device, Bytecode);
             shader.DebugName = name;
         }
 
@@ -82,7 +82,7 @@ namespace CastleRenderer.Graphics.Shaders
         /// <param name="context"></param>
         public void MakeActive(DeviceContext context)
         {
-            context.VertexShader.Set(shader);
+            context.PixelShader.Set(shader);
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace CastleRenderer.Graphics.Shaders
         /// <param name="buffer"></param>
         public void SetConstantBuffer(DeviceContext context, int slot, Buffer buffer)
         {
-            context.VertexShader.SetConstantBuffer(buffer, slot);
+            context.PixelShader.SetConstantBuffer(buffer, slot);
         }
     }
 }

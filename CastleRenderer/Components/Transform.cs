@@ -10,22 +10,62 @@ namespace CastleRenderer.Components
     /// <summary>
     /// Represents a transform into the 3D world
     /// </summary>
+    [ComponentPriority(0)]
     public class Transform : BaseComponent
     {
+        public delegate void TransformChange(Transform sender);
+        public event TransformChange OnTransformChange;
+
+        private Vector3 localposition, localscale;
+        private Quaternion localrotation;
+
         /// <summary>
         /// The position of this transform in local space
         /// </summary>
-        public Vector3 LocalPosition { get; set; }
+        public Vector3 LocalPosition
+        {
+            get
+            {
+                return localposition;
+            }
+            set
+            {
+                localposition = value;
+                if (OnTransformChange != null) OnTransformChange(this);
+            }
+        }
 
         /// <summary>
         /// The rotation of this transform in local space
         /// </summary>
-        public Quaternion LocalRotation { get; set; }
+        public Quaternion LocalRotation
+        {
+            get
+            {
+                return localrotation;
+            }
+            set
+            {
+                localrotation = value;
+                if (OnTransformChange != null) OnTransformChange(this);
+            }
+        }
 
         /// <summary>
         /// The scale of this transform in local space
         /// </summary>
-        public Vector3 LocalScale { get; set; }
+        public Vector3 LocalScale
+        {
+            get
+            {
+                return localscale;
+            }
+            set
+            {
+                localscale = value;
+                if (OnTransformChange != null) OnTransformChange(this);
+            }
+        }
 
         /// <summary>
         /// The forward vector of this transform in local space
@@ -49,7 +89,7 @@ namespace CastleRenderer.Components
                 normal.Normalize();
                 float ang = (float)Math.Acos(forward.Z);
                 LocalRotation = Quaternion.RotationAxis(normal, -ang);
-                
+                if (OnTransformChange != null) OnTransformChange(this);
             }
         }
 

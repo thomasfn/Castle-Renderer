@@ -15,28 +15,12 @@ namespace CastleRenderer.Components
     /// </summary>
     [RequiresComponent(typeof(Light))]
     [ComponentPriority(1)]
-    public class ShadowCaster : BaseComponent
+    public class ShadowCaster : GenericCamera
     {
-        /// <summary>
-        /// The projection matrix
-        /// </summary>
-        public Matrix Projection { get; private set; }
-
         /// <summary>
         /// The resolution of this shadow caster
         /// </summary>
         public int Resolution { get; set; }
-
-        /// <summary>
-        /// The projection view matrix
-        /// </summary>
-        public Matrix ProjectionView
-        {
-            get
-            {
-                return Owner.GetComponent<Transform>().WorldToObject * Projection;
-            }
-        }
 
         /// <summary>
         /// The render target associated with this shadow caster
