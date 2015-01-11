@@ -1,0 +1,27 @@
+{
+	"Shaders":
+	[
+		"Vertex_Skybox",
+		"Pixel_Skybox"
+	],
+	"ParameterSets": {},
+	"Resources": {},
+	"SamplerStates":
+	{
+		"SkyboxSampler" : "Clamp"
+	},
+	"CullingMode": "None",
+	"Mappings": {},
+	"Materials":
+	{
+		"skybox_sunny1":
+		{
+			"Resources.UpTexture": "Texture:skyboxes/Sunny1_up.tif",
+			"Resources.DownTexture": "Texture:skyboxes/Sunny1_down.tif",
+			"Resources.LeftTexture": "Texture:skyboxes/Sunny1_left.tif",
+			"Resources.RightTexture": "Texture:skyboxes/Sunny1_right.tif",
+			"Resources.ForwardTexture": "Texture:skyboxes/Sunny1_front.tif",
+			"Resources.BackTexture": "Texture:skyboxes/Sunny1_back.tif",
+		}
+	}
+}

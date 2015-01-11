@@ -65,6 +65,8 @@ namespace CastleRenderer.Graphics.MaterialSystem
                 Pipeline.SetMaterialParameterBlock(pair.Key, pair.Value);
             foreach (var pair in resources)
                 Pipeline.SetResource(pair.Key, pair.Value);
+            foreach (var pair in samplerstates)
+                Pipeline.SetSamplerState(pair.Key, pair.Value);
         }
 
         /// <summary>

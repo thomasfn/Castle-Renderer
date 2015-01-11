@@ -111,7 +111,12 @@ namespace CastleRenderer.Graphics
                 if (mesh.Normals != null) strm.Write(mesh.Normals[i]);
                 if (mesh.TextureCoordinates != null) strm.Write(mesh.TextureCoordinates[i]);
                 if (mesh.Tangents != null) strm.Write(mesh.Tangents[i]);
-                if (mesh.Normals != null && mesh.Tangents != null) strm.Write(Vector3.Cross(mesh.Normals[i], mesh.Tangents[i]));
+                if (mesh.Normals != null && mesh.Tangents != null)
+                {
+                    Vector3 binormal = Vector3.Cross(mesh.Normals[i], mesh.Tangents[i]);
+                    binormal.Normalize();
+                    strm.Write(binormal);
+                }
             }
             strm.Position = 0;
 
@@ -148,7 +153,12 @@ namespace CastleRenderer.Graphics
                 if (mesh.Normals != null) strm.Write(mesh.Normals[i]);
                 if (mesh.TextureCoordinates != null) strm.Write(mesh.TextureCoordinates[i]);
                 if (mesh.Tangents != null) strm.Write(mesh.Tangents[i]);
-                if (mesh.Normals != null && mesh.Tangents != null) strm.Write(Vector3.Cross(mesh.Normals[i], mesh.Tangents[i]));
+                if (mesh.Normals != null && mesh.Tangents != null)
+                {
+                    Vector3 binormal = Vector3.Cross(mesh.Normals[i], mesh.Tangents[i]);
+                    binormal.Normalize();
+                    strm.Write(binormal);
+                }
             }
             strm.Position = 0;
 

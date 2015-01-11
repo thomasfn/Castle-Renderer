@@ -86,7 +86,8 @@ namespace CastleRenderer.Graphics
                         builder.AddPosition(new Vector3(rdr.ReadSingle(), rdr.ReadSingle(), rdr.ReadSingle()));
                         builder.AddNormal(new Vector3(rdr.ReadSingle(), rdr.ReadSingle(), rdr.ReadSingle()));
                         builder.AddTextureCoord(new Vector2(rdr.ReadSingle(), rdr.ReadSingle()));
-                        builder.AddTangent(new Vector3(rdr.ReadSingle(), rdr.ReadSingle(), rdr.ReadSingle()));
+                        Vector3 tangent = new Vector3(rdr.ReadSingle(), rdr.ReadSingle(), rdr.ReadSingle());
+                        builder.AddTangent(tangent);
                     }
 
                     // Loop each submesh

@@ -28,3 +28,9 @@
 	float Roughness; \
 	float Reflectivity; \
 }
+
+#define CBUFFER_TEXTURE_TRANSFORM(_reg_) cbuffer TextureTransform : register(_reg_) \
+{ \
+	float2 TextureOffset; \
+	float2 TextureScale; \
+}

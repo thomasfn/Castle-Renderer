@@ -1,0 +1,41 @@
+{
+	"Shaders":
+	[
+		"Vertex_Transform_Full",
+		"Pixel_Physical_BumpTextured"
+	],
+	"ParameterSets":
+	{
+		"TextureTransform":
+		{
+			"TextureOffset": [ 0.0, 0.0 ],
+			"TextureScale": [ 1.0, 1.0 ]
+		},
+		"PhysicalProperties":
+		{
+			"Roughness": 0.7,
+			"Reflectivity": 0.3
+		}
+	},
+	"Resources": {},
+	"SamplerStates":
+	{
+		"TextureSampler": "Wrap"
+	},
+	"CullingMode": "None",
+	"Mappings":
+	{
+		"Roughness": "PhysicalProperties.Roughness",
+		"Reflectivity": "PhysicalProperties.Reflectivity"
+	},
+	"Materials":
+	{
+		"Concrete01":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Resources.DiffuseTexture": "Texture:concrete01-d.png",
+			"Resources.NormalTexture": "Texture:concrete01-n.png"
+		}
+	}
+}

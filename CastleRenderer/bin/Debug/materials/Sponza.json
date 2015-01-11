@@ -1,0 +1,231 @@
+{
+	"Shaders":
+	[
+		"Vertex_Transform_Full",
+		"Pixel_Physical_BumpTextured"
+	],
+	"ParameterSets":
+	{
+		"TextureTransform":
+		{
+			"TextureOffset": [ 0.0, 1.0 ],
+			"TextureScale": [ 1.0, -1.0 ]
+		},
+		"PhysicalProperties":
+		{
+			"Roughness": 0.7,
+			"Reflectivity": 0.3
+		},
+		"BumpmapProperties":
+		{
+			"BumpHeight": 1.0
+		}
+	},
+	"Resources": {},
+	"SamplerStates":
+	{
+		"TextureSampler": "Wrap"
+	},
+	"CullingMode": "Backface",
+	"Mappings":
+	{
+		"Roughness": "PhysicalProperties.Roughness",
+		"Reflectivity": "PhysicalProperties.Reflectivity",
+		"Height": "BumpmapProperties.BumpHeight"
+	},
+	"Materials":
+	{
+		"sponza_column_b_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_column_b_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_column_b_ddn.png"
+		},
+		"sponza_thorn_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_thorn_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_thorn_ddn.png"
+		},
+		"chain_texture":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/chain_texture.png",
+			"Resources.NormalTexture": "Texture:sponza/chain_texture_ddn.png"
+		},
+		"vase_hanging":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/vase_hanging.png",
+			"Resources.NormalTexture": "Texture:sponza/vase_hanging_ddn.png"
+		},
+		"sponza_column_c_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_column_c_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_column_c_ddn.png"
+		},
+		"sponza_details_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_details_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_details_ddn.png"
+		},
+		"spnza_bricks_a_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/spnza_bricks_a_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/spnza_bricks_a_ddn.png"
+		},
+		"sponza_column_a_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_column_a_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_column_a_ddn.png"
+		},
+		"sponza_ceiling_a_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_ceiling_a_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_ceiling_a_ddn.png"
+		},
+		"sponza_column_b_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_column_b_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_column_b_ddn.png"
+		},
+		"vase_plant":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/vase_plant.png",
+			"Resources.NormalTexture": "Texture:sponza/vase_plant_ddn.png"
+		},
+		"vase_round":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/vase_round.png",
+			"Resources.NormalTexture": "Texture:sponza/vase_round_ddn.png"
+		},
+		"background":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/background.png",
+			"Resources.NormalTexture": "Texture:sponza/background_ddn.png"
+		},
+		"sponza_arch_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_arch_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_arch_ddn.png"
+		},
+		"sponza_floor_a_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_floor_a_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_floor_a_ddn.png"
+		},
+		"sponza_flagpole_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_flagpole_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_flagpole_ddn.png"
+		},
+		"vase_dif":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/vase_dif.png",
+			"Resources.NormalTexture": "Texture:sponza/vase_ddn.png"
+		},
+		"lion":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/lion.png",
+			"Resources.NormalTexture": "Texture:sponza/lion_ddn.png"
+		},
+		"sponza_curtain_blue_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_curtain_blue_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_curtain_blue_ddn.png"
+		},
+		"sponza_curtain_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_curtain_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_curtain_ddn.png"
+		},
+		"sponza_fabric_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_fabric_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_fabric_ddn.png"
+		},
+		"sponza_fabric_green_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_fabric_green_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_fabric_green_ddn.png"
+		},
+		"sponza_fabric_blue_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_fabric_blue_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_fabric_blue_ddn.png"
+		},
+		"sponza_curtain_green_diff":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.5,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_curtain_green_diff.png",
+			"Resources.NormalTexture": "Texture:sponza/sponza_curtain_green_ddn.png"
+		}
+	}
+}

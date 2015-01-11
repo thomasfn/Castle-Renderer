@@ -1,0 +1,42 @@
+{
+	"Shaders":
+	[
+		"Vertex_Transform_Full",
+		"Pixel_Physical_SolidColour"
+	],
+	"ParameterSets":
+	{
+		"TextureTransform":
+		{
+			"TextureOffset": [ 0.0, 0.0 ],
+			"TextureScale": [ 1.0, 1.0 ]
+		},
+		"SolidColour":
+		{
+			"Colour": [ 1.0, 0.0, 0.0, 1.0 ]
+		},
+		"PhysicalProperties":
+		{
+			"Roughness": 0.5,
+			"Reflectivity": 0.5
+		}
+	},
+	"Resources": {},
+	"SamplerStates": {},
+	"CullingMode": "Backface",
+	"Mappings":
+	{
+		"Colour": "SolidColour.Colour",
+		"Roughness": "PhysicalProperties.Roughness",
+		"Reflectivity": "PhysicalProperties.Reflectivity"
+	},
+	"Materials":
+	{
+		"LightGrayShiny":
+		{
+			"Colour": [ 0.75, 0.75, 0.75, 1.0 ],
+			"Roughness": 0.2,
+			"Reflectivity": 0.2
+		}
+	}
+}

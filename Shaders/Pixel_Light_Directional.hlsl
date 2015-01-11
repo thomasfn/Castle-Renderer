@@ -16,8 +16,8 @@ DeferredLightOutputPixel main(TexturedOutputVertex vertex) : SV_TARGET
 {
 	DeferredLightOutputPixel output = (DeferredLightOutputPixel)0;
 
-		float4 normal = NormalTexture.Sample(GBufferSampler, vertex.TexCoord);
 		float4 position = PositionTexture.Sample(GBufferSampler, vertex.TexCoord);
+		float4 normal = NormalTexture.Sample(GBufferSampler, vertex.TexCoord);
 		float4 material = MaterialTexture.Sample(GBufferSampler, vertex.TexCoord);
 
 		float diffuseterm, specularterm;

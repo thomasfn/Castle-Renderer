@@ -90,3 +90,15 @@ struct GBufferOutputPixel
 	float4 Normal : SV_TARGET2;
 	float4 Material : SV_TARGET3;
 };
+
+// Helper methods
+
+float3 UnpackNormal(in float3 norm)
+{
+	return normalize( (norm.xzy * 2.0) - 1.0 );
+}
+
+float3x3 CreateNormalMatrix(in float3 normal, in float3 tangent, in float3 binormal)
+{
+	return float3x3(binormal, normal, tangent * -1.0);
+}

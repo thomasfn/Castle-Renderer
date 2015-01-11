@@ -2,6 +2,7 @@
 
 CBUFFER_CAMERA_TRANSFORM(b0);
 CBUFFER_OBJECT_TRANSFORM(b1);
+CBUFFER_TEXTURE_TRANSFORM(b2);
 
 FullOutputVertex main(FullInputVertex vertex)
 {
@@ -18,7 +19,7 @@ FullOutputVertex main(FullInputVertex vertex)
 	output.WorldBinormal = normalize(mul(float4(vertex.Binormal, 1.0), modelmatrixrot).xyz);
 
 	output.Position = mul(worldpos, projview);
-	output.TexCoord = vertex.TexCoord;
+	output.TexCoord = TextureOffset + TextureScale * vertex.TexCoord;
 
 	return output;
 }

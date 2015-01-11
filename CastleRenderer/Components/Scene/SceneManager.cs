@@ -82,8 +82,8 @@ namespace CastleRenderer.Components
             gbuffer.ClearColour = new Color4(0.0f, 0.0f, 0.0f, 0.0f);
             gbuffer.AddDepthComponent();
             gbuffer_colour = gbuffer.AddTextureComponent();
-            gbuffer_normal = gbuffer.AddTextureComponent(SlimDX.DXGI.Format.R32G32B32A32_Float);
             gbuffer_position = gbuffer.AddTextureComponent(SlimDX.DXGI.Format.R32G32B32A32_Float);
+            gbuffer_normal = gbuffer.AddTextureComponent(SlimDX.DXGI.Format.R32G32B32A32_Float);
             gbuffer_material = gbuffer.AddTextureComponent(SlimDX.DXGI.Format.R32G32B32A32_Float);
             gbuffer.Finish();
 
@@ -128,8 +128,8 @@ namespace CastleRenderer.Components
             //mat_lights.Add(LightType.Point, matsys.CreateMaterial("light_point", "light_point"));
             foreach (Material mat in mat_lights.Values)
             {
-                mat.SetResource("NormalTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_normal)));
                 mat.SetResource("PositionTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_position)));
+                mat.SetResource("NormalTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_normal)));
                 mat.SetResource("MaterialTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_material)));
                 mat.SetSamplerState("GBufferSampler", renderer.Sampler_Clamp);
             }

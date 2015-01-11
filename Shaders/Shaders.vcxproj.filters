@@ -51,6 +51,12 @@
     <FxCompile Include="Pixel_Light_Directional.hlsl">
       <Filter>Pixel\Lights</Filter>
     </FxCompile>
+    <FxCompile Include="Pixel_Physical_SimpleTextured.hlsl">
+      <Filter>Pixel</Filter>
+    </FxCompile>
+    <FxCompile Include="Pixel_Physical_BumpTextured.hlsl">
+      <Filter>Pixel</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common.hlsli" />
