@@ -42,6 +42,6 @@ namespace CastleRenderer.Graphics
     {
         public Matrix ProjectionMatrix;
         public Matrix ViewMatrix;
-        public Matrix ViewMatrixInvTrans;
+        public Matrix ViewMatrixRotOnly;
     }
 }

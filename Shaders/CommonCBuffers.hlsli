@@ -7,7 +7,7 @@
 
 #define CBUFFER_OBJECT_TRANSFORM(_reg_) cbuffer ObjectTransform : register(_reg_) \
 { \
-	float4x4 ModelMatrix; \
+	row_major float4x4 ModelMatrix; \
 }
 
 #define CBUFFER_CAMERA(_reg_) cbuffer Camera : register(_reg_) \
@@ -18,7 +18,13 @@
 
 #define CBUFFER_CAMERA_TRANSFORM(_reg_) cbuffer CameraTransform : register(_reg_) \
 { \
-	float4x4 ProjectionMatrix; \
-	float4x4 ViewMatrix; \
-	float4x4 ViewMatrixInvTrans; \
+	row_major float4x4 ProjectionMatrix; \
+	row_major float4x4 ViewMatrix; \
+	row_major float4x4 ViewMatrixRotOnly; \
+}
+
+#define CBUFFER_PHYSICAL_PROPERTIES(_reg_) cbuffer PhysicalProperties : register(_reg_) \
+{ \
+	float Roughness; \
+	float Reflectivity; \
 }

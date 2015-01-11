@@ -267,7 +267,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
                         data.Bindings.Add(binding);
                         samplerstatebindings.Add(binding);
                     }
-                    else
+                    else if (desc.Type != ShaderInputType.ConstantBuffer)
                     {
                         ResourceData data;
                         if (!resources.TryGetValue(desc.Name, out data))

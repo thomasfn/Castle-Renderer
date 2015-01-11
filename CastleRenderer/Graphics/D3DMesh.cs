@@ -73,6 +73,7 @@ namespace CastleRenderer.Graphics
             if (mesh.Normals != null) elementsize += Vector3.SizeInBytes;
             if (mesh.TextureCoordinates != null) elementsize += Vector2.SizeInBytes;
             if (mesh.Tangents != null) elementsize += Vector3.SizeInBytes;
+            if (mesh.Normals != null && mesh.Tangents != null) elementsize += Vector3.SizeInBytes;
             buffersize = elementsize * mesh.Positions.Length;
 
             // Determine input elements
@@ -95,6 +96,11 @@ namespace CastleRenderer.Graphics
                 inputelementslist.Add(new InputElement("TANGENT", 0, SlimDX.DXGI.Format.R32G32B32_Float, curoffset, 0));
                 curoffset += Vector3.SizeInBytes;
             }
+            if (mesh.Normals != null && mesh.Tangents != null)
+            {
+                inputelementslist.Add(new InputElement("BINORMAL", 0, SlimDX.DXGI.Format.R32G32B32_Float, curoffset, 0));
+                curoffset += Vector3.SizeInBytes;
+            }
             inputelements = inputelementslist.ToArray();
 
             // Write the stream
@@ -105,6 +111,7 @@ namespace CastleRenderer.Graphics
                 if (mesh.Normals != null) strm.Write(mesh.Normals[i]);
                 if (mesh.TextureCoordinates != null) strm.Write(mesh.TextureCoordinates[i]);
                 if (mesh.Tangents != null) strm.Write(mesh.Tangents[i]);
+                if (mesh.Normals != null && mesh.Tangents != null) strm.Write(Vector3.Cross(mesh.Normals[i], mesh.Tangents[i]));
             }
             strm.Position = 0;
 
@@ -141,6 +148,7 @@ namespace CastleRenderer.Graphics
                 if (mesh.Normals != null) strm.Write(mesh.Normals[i]);
                 if (mesh.TextureCoordinates != null) strm.Write(mesh.TextureCoordinates[i]);
                 if (mesh.Tangents != null) strm.Write(mesh.Tangents[i]);
+                if (mesh.Normals != null && mesh.Tangents != null) strm.Write(Vector3.Cross(mesh.Normals[i], mesh.Tangents[i]));
             }
             strm.Position = 0;
 

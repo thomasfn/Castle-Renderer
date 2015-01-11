@@ -1,7 +1,7 @@
 
 #include "DeferredLight.hlsli"
 
-cbuffer Ambient : register(b1)
+cbuffer Ambient : register(b0)
 {
 	float3 Colour;
 };

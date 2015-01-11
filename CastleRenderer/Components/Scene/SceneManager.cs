@@ -124,7 +124,7 @@ namespace CastleRenderer.Components
             // Setup lights
             mat_lights = new Dictionary<LightType, Material>();
             mat_lights.Add(LightType.Ambient, matsys.CreateMaterial("AmbientLight", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_Light_Ambient")));
-            //mat_lights.Add(LightType.Directional, matsys.CreateMaterial("light_directional", "light_directional"));
+            mat_lights.Add(LightType.Directional, matsys.CreateMaterial("DirectionalLight", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_Light_Directional")));
             //mat_lights.Add(LightType.Point, matsys.CreateMaterial("light_point", "light_point"));
             foreach (Material mat in mat_lights.Values)
             {
@@ -289,11 +289,6 @@ namespace CastleRenderer.Components
                         matpset_clip.Value = new CBuffer_Clip { ClipEnabled = 0.0f, ClipPlane = clip };
                     item.Material.SetParameterBlock("Clip", matpset_clip);
                     renderer.SetActiveMaterial(item.Material);
-                    var desiredculling =
-                        item.Material.CullingMode == MaterialCullingMode.Backface ? renderer.Culling_Backface :
-                        item.Material.CullingMode == MaterialCullingMode.Frontface ? renderer.Culling_Frontface :
-                        null;
-                    if (renderer.Culling != desiredculling) renderer.Culling = desiredculling;
 
                     // Draw it
                     renderer.DrawImmediate(item.Mesh, item.SubmeshIndex, cam.CameraTransformParameterBlock, item.ObjectTransformParameterBlock);
@@ -376,8 +371,8 @@ namespace CastleRenderer.Components
                 }
 
                 // Blit lighting
-                //renderer.SetActiveMaterial(mat_blitlight);
-                //renderer.DrawImmediate(mesh_fs, 0);
+                renderer.SetActiveMaterial(mat_blitlight);
+                renderer.DrawImmediate(mesh_fs, 0);
 
                 // Are there particle systems to draw?
                 if (psysmsg.ParticleSystems.Count > 0)

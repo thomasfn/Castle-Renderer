@@ -12,7 +12,7 @@ TexturedNormalOutputVertex main(TexturedNormalInputVertex vertex)
 	float4 worldpos = mul(float4(vertex.Position, 1.0), ModelMatrix);
 
 	output.WorldPosition = worldpos.xyz;
-	output.WorldNormal = vertex.Normal; // TODO: Transform normal
+	output.WorldNormal = normalize(mul(float4(vertex.Normal, 1.0), (float3x3)ModelMatrix).xyz);
 
 	output.Position = mul(worldpos, projview);
 	output.TexCoord = vertex.TexCoord;

@@ -10,14 +10,16 @@ BasicOutputPixel main(TexturedOutputVertex vertex) : SV_TARGET
 {
 	BasicOutputPixel output = (BasicOutputPixel)0;
 
-	float4 colour = ColourTexture.Sample(BlitSampler, vertex.TexCoord);
+	float4 colour = pow( ColourTexture.Sample(BlitSampler, vertex.TexCoord), 2.2 );
 	// NOTE: We're doubling the colour here to compensate for halfing it in the light shaders. This is to allow "overlighting".
 	float4 diffuse = DiffuseTexture.Sample(BlitSampler, vertex.TexCoord) * 2.0;
 	float4 specular = SpecularTexture.Sample(BlitSampler, vertex.TexCoord);
 
+
+
 	//float3 add = saturate( specular.xyz );
 
-	output.Colour = float4(colour.xyz * diffuse.xyz + specular.xyz, colour.w);
+	output.Colour = pow( float4(colour.xyz * diffuse.xyz + specular.xyz, colour.w), 1.0 / 2.2 );
 
 	return output;
 }

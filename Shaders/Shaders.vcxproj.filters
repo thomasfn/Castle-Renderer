@@ -42,11 +42,23 @@
     <FxCompile Include="Vertex_Skybox.hlsl">
       <Filter>Vertex</Filter>
     </FxCompile>
+    <FxCompile Include="Vertex_Transform_Full.hlsl">
+      <Filter>Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="Pixel_Physical_SolidColour.hlsl">
+      <Filter>Pixel</Filter>
+    </FxCompile>
+    <FxCompile Include="Pixel_Light_Directional.hlsl">
+      <Filter>Pixel\Lights</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common.hlsli" />
     <None Include="CommonCBuffers.hlsli" />
     <None Include="DeferredLight.hlsli">
+      <Filter>Pixel\Lights</Filter>
+    </None>
+    <None Include="LightingModels.hlsli">
       <Filter>Pixel\Lights</Filter>
     </None>
   </ItemGroup>

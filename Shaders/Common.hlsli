@@ -80,3 +80,13 @@ struct BasicOutputPixel
 {
 	float4 Colour : SV_TARGET0;
 };
+
+// GBufferPixel
+
+struct GBufferOutputPixel
+{
+	float4 Colour : SV_TARGET0;
+	float4 Position : SV_TARGET1;
+	float4 Normal : SV_TARGET2;
+	float4 Material : SV_TARGET3;
+};

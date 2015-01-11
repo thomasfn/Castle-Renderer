@@ -51,8 +51,8 @@ namespace CastleRenderer.Components
             // Initialise parameter blocks
             Transform transform = Owner.GetComponent<Transform>();
             var ctxt = Owner.Root.GetComponent<Renderer>().Device.ImmediateContext;
-            CameraParameterBlock = new MaterialParameterStruct<CBuffer_Camera>(ctxt, new CBuffer_Camera { CameraPosition = transform.Position, CameraForward = transform.Forward });
-            CameraTransformParameterBlock = new MaterialParameterStruct<CBuffer_CameraTransform>(ctxt, new CBuffer_CameraTransform { ProjectionMatrix = Projection, ViewMatrix = transform.WorldToObject });
+            CameraParameterBlock = new MaterialParameterStruct<CBuffer_Camera>(ctxt, default(CBuffer_Camera));
+            CameraTransformParameterBlock = new MaterialParameterStruct<CBuffer_CameraTransform>(ctxt, default(CBuffer_CameraTransform));
         }
 
         protected override void UpdateMaterialParameterBlocks()
@@ -63,10 +63,10 @@ namespace CastleRenderer.Components
             CameraParameterBlock.Value = new CBuffer_Camera { CameraPosition = transform.Position, CameraForward = transform.Forward };
 
             var view = transform.WorldToObject;
-            view.Invert();
-            view = Matrix.Transpose(view);
-
-            CameraTransformParameterBlock.Value = new CBuffer_CameraTransform { ProjectionMatrix = Projection, ViewMatrix = transform.WorldToObject, ViewMatrixInvTrans = view };
+            view.set_Rows(3, Vector4.Zero);
+            view.set_Columns(3, Vector4.Zero);
+            view.M44 = 1.0f;
+            CameraTransformParameterBlock.Value = new CBuffer_CameraTransform { ProjectionMatrix = Projection, ViewMatrix = transform.WorldToObject, ViewMatrixRotOnly = view };
         }
     }
 }

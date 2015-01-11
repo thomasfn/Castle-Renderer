@@ -370,6 +370,25 @@ namespace CastleRenderer.Components
 
         private static object TranslateJsonType(JToken token)
         {
+            switch (token.Type)
+            {
+                case JTokenType.Float:
+                    return (float)token;
+                case JTokenType.Array:
+                    JArray jarr = token as JArray;
+                    switch (jarr.Count)
+                    {
+                        case 1:
+                            return (float)jarr[0];
+                        case 2:
+                            return new Vector2((float)jarr[0], (float)jarr[1]);
+                        case 3:
+                            return new Vector3((float)jarr[0], (float)jarr[1], (float)jarr[2]);
+                        case 4:
+                            return new Vector4((float)jarr[0], (float)jarr[1], (float)jarr[2], (float)jarr[3]);
+                    }
+                    break;
+            }
             return null;
         }
 

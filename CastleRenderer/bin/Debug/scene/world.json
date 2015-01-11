@@ -19,17 +19,17 @@
 		},
 		
 		{
-			"Name": "Sponza",
+			"Name": "DebugSphere",
 			"Components":
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 0.0, 10.0, 0.0 ]
+					"LocalPosition": [ 0.0, 0.0, 0.0 ]
 				},
 				"MeshRenderer":
 				{
-					"Mesh": "Primitive:Cube",
-					"Materials": [ "coloured" ]
+					"Mesh": "Primitive:Sphere:6",
+					"Materials": [ "LightGrayShiny" ]
 				}
 			}
 		}
