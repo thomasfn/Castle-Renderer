@@ -1,4 +1,3 @@
-Sponza/
 *.exe
 *.config
 *.pdb
@@ -11,3 +10,4 @@ CastleRenderer/obj/
 FBXConverter/Debug/
 SBMOptimizer/bin/Debug/
 SBMOptimizer/obj/
+Shaders/Debug/
