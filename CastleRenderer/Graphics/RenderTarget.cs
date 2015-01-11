@@ -108,6 +108,7 @@ namespace CastleRenderer.Graphics
                 MipSlice = 0,
                 FirstArraySlice = 0
             });
+            depthcomponent.View.DebugName = string.Format("-> {0}", depthcomponent.Texture.DebugName);
         }
 
         /// <summary>
@@ -145,6 +146,7 @@ namespace CastleRenderer.Graphics
                 MipSlice = 0,
                 FirstArraySlice = 0
             });
+            c.View.DebugName = string.Format("-> {0}", c.Texture.DebugName);
 
             // Return the index
             return components.Count - 1;

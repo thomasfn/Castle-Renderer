@@ -49,6 +49,8 @@ namespace CastleRenderer.Components
             public string Name { get; set; }
             public ParameterSet ParameterSet { get; set; }
             public MaterialGroup Group { get; set; }
+            public Dictionary<string, ShaderResourceView> Resources { get; set; }
+            public Dictionary<string, SamplerState> SamplerStates { get; set; }
         }
 
         private struct ParameterMapping
@@ -67,7 +69,9 @@ namespace CastleRenderer.Components
             public MaterialDefinition[] Definitions { get; set; }
             public MaterialPipeline Pipeline { get; set; }
             public Dictionary<string, ParameterSet> ParameterSets { get; set; }
-            
+            public Dictionary<string, ShaderResourceView> Resources { get; set; }
+            public Dictionary<string, SamplerState> SamplerStates { get; set; }
+            public MaterialCullingMode CullingMode { get; set; }
         }
 
         /// <summary>
@@ -105,6 +109,16 @@ namespace CastleRenderer.Components
                     Console.WriteLine("Missing parameter sets for material group '{0}'", matgrpname);
                     continue;
                 }
+                if (root["Resources"] == null)
+                {
+                    Console.WriteLine("Missing resources for material group '{0}'", matgrpname);
+                    continue;
+                }
+                if (root["SamplerStates"] == null)
+                {
+                    Console.WriteLine("Missing sampler states for material group '{0}'", matgrpname);
+                    continue;
+                }
                 if (root["Mappings"] == null)
                 {
                     Console.WriteLine("Missing mappings for material group '{0}'", matgrpname);
@@ -117,6 +131,8 @@ namespace CastleRenderer.Components
                 }
                 JArray jshaders = root["Shaders"] as JArray;
                 JObject jpsets = root["ParameterSets"] as JObject;
+                JObject jresources = root["Resources"] as JObject;
+                JObject jsamplerstates = root["SamplerStates"] as JObject;
                 JObject jmappings = root["Mappings"] as JObject;
                 JObject jmaterials = root["Materials"] as JObject;
 
@@ -153,6 +169,20 @@ namespace CastleRenderer.Components
                     psets.Add((string)pair.Key, set);
                 }
                 matgrp.ParameterSets = psets;
+                Dictionary<string, ShaderResourceView> resources = new Dictionary<string, ShaderResourceView>();
+                foreach (var pair in jresources)
+                {
+                    ShaderResourceView resource = ParseResource(pair.Value);
+                    if (resource != null) resources.Add((string)pair.Key, resource);
+                }
+                matgrp.Resources = resources;
+                Dictionary<string, SamplerState> samplerstates = new Dictionary<string, SamplerState>();
+                foreach (var pair in jsamplerstates)
+                {
+                    SamplerState samplerstate = ParseSamplerState(pair.Value);
+                    if (samplerstate != null) samplerstates.Add((string)pair.Key, samplerstate);
+                }
+                matgrp.SamplerStates = samplerstates;
                 MaterialDefinition[] definitions = new MaterialDefinition[jmaterials.Count];
                 i = 0;
                 foreach (var pair in jmaterials)
@@ -161,13 +191,30 @@ namespace CastleRenderer.Components
                     matdef.Name = (string)pair.Key;
                     matdef.Group = matgrp;
                     matdef.ParameterSet = new ParameterSet();
+                    matdef.Resources = new Dictionary<string, ShaderResourceView>();
+                    matdef.SamplerStates = new Dictionary<string, SamplerState>();
                     foreach (var pair2 in pair.Value as JObject)
                     {
-                        object val = TranslateJsonType(pair2.Value);
-                        if (val == null)
-                            Console.WriteLine("Unable to translate Json token '{0}' to a .NET type! ({1})", pair2.Value, matgrpname);
+                        string key = (string)pair2.Key;
+                        string keylower = key.ToLowerInvariant();
+                        if (keylower.StartsWith("resources."))
+                        {
+                            ShaderResourceView resource = ParseResource(pair2.Value);
+                            if (resource != null) matdef.Resources.Add(key.Substring(10), resource);
+                        }
+                        else if (keylower.StartsWith("samplerstates."))
+                        {
+                            SamplerState samplerstate = ParseSamplerState(pair2.Value);
+                            if (samplerstate != null) matdef.SamplerStates.Add(key.Substring(14), samplerstate);
+                        }
                         else
-                            matdef.ParameterSet.Parameters.Add((string)pair2.Key, val);
+                        {
+                            object val = TranslateJsonType(pair2.Value);
+                            if (val == null)
+                                Console.WriteLine("Unable to translate Json token '{0}' to a .NET type! ({1})", pair2.Value, matgrpname);
+                            else
+                                matdef.ParameterSet.Parameters.Add(key, val);
+                        }
                     }
                     definitions[i++] = matdef;
                     if (definitionmap.ContainsKey(matdef.Name))
@@ -176,6 +223,30 @@ namespace CastleRenderer.Components
                         definitionmap.Add(matdef.Name, matdef);
                 }
                 matgrp.Definitions = definitions;
+
+                if (root["CullingMode"] != null)
+                {
+                    string cullingmode = (string)root["CullingMode"];
+                    switch (cullingmode.ToLowerInvariant())
+                    {
+                        case "frontface":
+                        case "forwardface":
+                            matgrp.CullingMode = MaterialCullingMode.Frontface;
+                            break;
+                        case "backface":
+                        case "backwardface":
+                            matgrp.CullingMode = MaterialCullingMode.Backface;
+                            break;
+                        case "none":
+                            matgrp.CullingMode = MaterialCullingMode.None;
+                            break;
+                        default:
+                            Console.WriteLine("Unknown culling mode '{0}' in group {1}!", cullingmode, matgrp.Name);
+                            break;
+                    }
+                }
+                else
+                    matgrp.CullingMode = MaterialCullingMode.None;
 
                 // Create pipeline
                 MaterialPipeline pipeline = new MaterialPipeline(Owner.GetComponent<Renderer>().Device.ImmediateContext);
@@ -196,6 +267,105 @@ namespace CastleRenderer.Components
                 else
                     matgrp.Pipeline = pipeline;
             }
+        }
+
+        private ShaderResourceView ParseResource(JToken token)
+        {
+            if (token.Type != JTokenType.String)
+            {
+                Console.WriteLine("Unable to parse json token into resource ({0})", token);
+                return null;
+            }
+            string str = (string)token;
+            string[] args = str.Split(':');
+            if (args.Length <= 1)
+            {
+                Console.WriteLine("Unable to parse json token into resource ({0})", token);
+                return null;
+            }
+            string type = args[0].Trim().ToLowerInvariant();
+            var renderer = Owner.GetComponent<Renderer>();
+            switch (type)
+            {
+                case "texture":
+                    string name = args[1];
+                    Texture2D tex = GetTexture(name);
+                    if (tex == null) return null;
+                    return renderer.AcquireResourceView(tex);
+            }
+            Console.WriteLine("Unknown resource type '{0}'!", type);
+            return null;
+            /*// Is it a scripted texture?
+            string texturedata = value.Substring(1);
+            string[] script = null;
+            if (texturedata.Contains("$"))
+            {
+                string[] texturearray = texturedata.Split('$');
+                if (texturearray.Length != 2)
+                {
+                    Console.WriteLine("Parameter '{0}' in material {1} has bad scripted texture data!");
+                }
+                else
+                {
+                    texturedata = texturearray[1];
+                    if (texturearray[0].Contains(":"))
+                        script = texturearray[0].Split(':');
+                    else
+                        script = new string[] { texturearray[0] };
+                }
+            }
+
+            // Texture
+            Texture2D tex = GetTexture(texturedata);
+            if (tex == null)
+                Console.WriteLine("Parameter '{0}' in material {1} referenced an invalid texture!", obj.Key, name);
+            else
+            {
+                // Apply script
+                if (script != null && script.Length >= 1)
+                {
+                    switch (script[0])
+                    {
+                        case "normalmap_from_heightmap":
+                            var device = Owner.GetComponent<Renderer>().Device;
+                            Texture2D output = new Texture2D(device, tex.Description);
+                            output.DebugName = tex.DebugName + "_normals";
+                            float height = 1.0f;
+                            if (script.Length > 1) float.TryParse(script[1], out height);
+                            Result result = Texture2D.ComputeNormalMap(device.ImmediateContext, tex, output, (NormalMapFlags)0, Channel.Red, height);
+                            if (result.IsFailure)
+                                Console.WriteLine("Failed to convert heightmap at '{0}' to normalmap in material {1}!", texturedata, name);
+                            else
+                                tex = output;
+                            break;
+                    }
+                }*/
+        }
+
+        private SamplerState ParseSamplerState(JToken token)
+        {
+            if (token.Type != JTokenType.String)
+            {
+                Console.WriteLine("Unable to parse json token into sampler state ({0})", token);
+                return null;
+            }
+            string str = ((string)token).ToLowerInvariant().Trim();
+            var renderer = Owner.GetComponent<Renderer>();
+            switch (str)
+            {
+                case "clamp":
+                    return renderer.Sampler_Clamp;
+                case "clamplinear":
+                case "clamp_linear":
+                    return renderer.Sampler_Clamp_Linear;
+                case "clamppoint":
+                case "clamp_point":
+                    return renderer.Sampler_Clamp_Point;
+                case "wrap":
+                    return renderer.Sampler_Wrap;
+            }
+            Console.WriteLine("Unknown sampler state '{0}'!", str);
+            return null;
         }
 
         private static object TranslateJsonType(JToken token)
@@ -329,6 +499,7 @@ namespace CastleRenderer.Components
 
             // Create the material
             Material material = new Material(name, matdef.Group.Pipeline);
+            material.CullingMode = matdef.Group.CullingMode;
 
             // Setup the parameter sets
             foreach (var pair in matdef.Group.ParameterSets)
@@ -354,6 +525,16 @@ namespace CastleRenderer.Components
                 if (matdef.ParameterSet.Parameters.TryGetValue(mapping.ParameterName, out val) && val != null)
                     SetOnParameterSet(matpset, mapping.TargetName, val);
             }
+
+            // Setup resources and sampler states
+            foreach (var pair in matdef.Group.Resources)
+                material.SetResource(pair.Key, pair.Value);
+            foreach (var pair in matdef.Group.SamplerStates)
+                material.SetSamplerState(pair.Key, pair.Value);
+            foreach (var pair in matdef.Resources)
+                material.SetResource(pair.Key, pair.Value);
+            foreach (var pair in matdef.SamplerStates)
+                material.SetSamplerState(pair.Key, pair.Value);
             
 
             // Check the file exists

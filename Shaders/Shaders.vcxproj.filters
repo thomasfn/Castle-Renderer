@@ -39,6 +39,9 @@
     <FxCompile Include="Vertex_Transform_TexturedNormal.hlsl">
       <Filter>Vertex</Filter>
     </FxCompile>
+    <FxCompile Include="Vertex_Skybox.hlsl">
+      <Filter>Vertex</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common.hlsli" />

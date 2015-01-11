@@ -48,30 +48,25 @@ namespace CastleRenderer.Components
             // Base attach
             base.OnAttach();
 
-            // Hook transform change
-            Transform transform = Owner.GetComponent<Transform>();
-            transform.OnTransformChange += transform_OnTransformChange;
-
             // Initialise parameter blocks
+            Transform transform = Owner.GetComponent<Transform>();
             var ctxt = Owner.Root.GetComponent<Renderer>().Device.ImmediateContext;
             CameraParameterBlock = new MaterialParameterStruct<CBuffer_Camera>(ctxt, new CBuffer_Camera { CameraPosition = transform.Position, CameraForward = transform.Forward });
             CameraTransformParameterBlock = new MaterialParameterStruct<CBuffer_CameraTransform>(ctxt, new CBuffer_CameraTransform { ProjectionMatrix = Projection, ViewMatrix = transform.WorldToObject });
         }
 
-        public override void OnDetach()
+        protected override void UpdateMaterialParameterBlocks()
         {
-            // Base detach
-            base.OnDetach();
+            base.UpdateMaterialParameterBlocks();
 
-            // Unhook transform change
             Transform transform = Owner.GetComponent<Transform>();
-            transform.OnTransformChange -= transform_OnTransformChange;
-        }
+            CameraParameterBlock.Value = new CBuffer_Camera { CameraPosition = transform.Position, CameraForward = transform.Forward };
 
-        private void transform_OnTransformChange(Transform sender)
-        {
-            CameraParameterBlock.Value = new CBuffer_Camera { CameraPosition = sender.Position, CameraForward = sender.Forward };
-            CameraTransformParameterBlock.Value = new CBuffer_CameraTransform { ProjectionMatrix = Projection, ViewMatrix = sender.WorldToObject };
+            var view = transform.WorldToObject;
+            view.Invert();
+            view = Matrix.Transpose(view);
+
+            CameraTransformParameterBlock.Value = new CBuffer_CameraTransform { ProjectionMatrix = Projection, ViewMatrix = transform.WorldToObject, ViewMatrixInvTrans = view };
         }
     }
 }

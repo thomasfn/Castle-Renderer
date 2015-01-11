@@ -330,6 +330,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
                 binding.CurrentBlock = block;
                 if (IsActive) binding.Shader.SetConstantBuffer(Context, binding.Slot, binding.CurrentBlock != null ? binding.CurrentBlock.Buffer : null);
             }
+            if (IsActive && block != null) block.Update();
         }
 
         /// <summary>
@@ -379,7 +380,10 @@ namespace CastleRenderer.Graphics.MaterialSystem
             // Make all constant buffers active
             // TODO: Optimise by keeping track of a Buffer[] for each shader and batch setting the whole array instead of one binding at a time
             foreach (ConstantBufferBinding binding in cbufferbindings)
+            {
                 binding.Shader.SetConstantBuffer(Context, binding.Slot, binding.CurrentBlock != null ? binding.CurrentBlock.Buffer : null);
+                if (binding.CurrentBlock != null) binding.CurrentBlock.Update();
+            }
 
             // Make all resources active
             foreach (ResourceBinding binding in resourcebindings)

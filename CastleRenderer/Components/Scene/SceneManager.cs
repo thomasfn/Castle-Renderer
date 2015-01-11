@@ -136,7 +136,7 @@ namespace CastleRenderer.Components
 
             // Setup meshes
             mesh_fs = MeshBuilder.BuildFullscreenQuad(true, true);
-            mesh_skybox = MeshBuilder.BuildCube(Matrix.Translation(-0.5f, -0.5f, -0.5f));
+            mesh_skybox = MeshBuilder.BuildCube(Matrix.Translation(-0.5f, -0.5f, -0.5f) * Matrix.Scaling(2.0f, 2.0f, 2.0f));
         }
 
         /// <summary>
@@ -291,7 +291,7 @@ namespace CastleRenderer.Components
                     renderer.SetActiveMaterial(item.Material);
                     var desiredculling =
                         item.Material.CullingMode == MaterialCullingMode.Backface ? renderer.Culling_Backface :
-                        item.Material.CullingMode == MaterialCullingMode.Forwardface ? renderer.Culling_Frontface :
+                        item.Material.CullingMode == MaterialCullingMode.Frontface ? renderer.Culling_Frontface :
                         null;
                     if (renderer.Culling != desiredculling) renderer.Culling = desiredculling;
 
@@ -360,6 +360,7 @@ namespace CastleRenderer.Components
                 }
 
                 // Setup blit state
+                swapA.Clear();
                 swapA.Bind();
                 renderer.Blend = renderer.Blend_Alpha;
                 renderer.Depth = renderer.Depth_Disabled;
@@ -369,7 +370,7 @@ namespace CastleRenderer.Components
                 {
                     if (cam.Skybox != null)
                     {
-                        renderer.SetActiveMaterial(cam.Skybox);
+                        renderer.SetActiveMaterial(cam.Skybox, false, true);
                         renderer.DrawImmediate(mesh_skybox, 0, cam.CameraTransformParameterBlock, cam.ObjectTransformParameterBlock);
                     }
                 }

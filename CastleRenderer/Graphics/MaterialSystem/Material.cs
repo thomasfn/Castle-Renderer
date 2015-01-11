@@ -5,7 +5,7 @@ using SlimDX.Direct3D11;
 
 namespace CastleRenderer.Graphics.MaterialSystem
 {
-    public enum MaterialCullingMode { None, Forwardface, Backface }
+    public enum MaterialCullingMode { None, Frontface, Backface }
 
     /// <summary>
     /// Represents a material

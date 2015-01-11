@@ -20,10 +20,14 @@ BasicOutputPixel main(TexturedNormalOutputVertex vertex) : SV_TARGET
 	float3 forwardsample = ForwardTexture.Sample(SkyboxSampler, vertex.TexCoord).xyz;
 	float3 backsample = BackTexture.Sample(SkyboxSampler, vertex.TexCoord).xyz;
 
-	float3 colour =
+	output.Colour = float4(
 		vertex.WorldNormal.x > 0.5 ? rightsample : vertex.WorldNormal.x < -0.5 ? leftsample :
 		vertex.WorldNormal.y > 0.5 ? upsample : vertex.WorldNormal.y < -0.5 ? downsample :
-		vertex.WorldNormal.z > 0.5 ? forwardsample : backsample;
+		vertex.WorldNormal.z > 0.5 ? forwardsample : backsample,
+		//1.0,
+		//1.0,
+		//1.0,
+		1.0);
 
 	return output;
 }

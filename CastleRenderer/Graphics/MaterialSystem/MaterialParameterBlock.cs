@@ -69,7 +69,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
                     BindFlags = BindFlags.ConstantBuffer
                 };
                 Buffer = new Buffer(Context.Device, ds, desc);
-                Buffer.DebugName = string.Format("MaterialParameterBlock ({0})", this);
+                Buffer.DebugName = ToString();
             }
             else
                 Context.UpdateSubresource(new DataBox(0, 0, ds), Buffer, 0);

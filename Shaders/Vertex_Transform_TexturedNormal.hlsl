@@ -7,12 +7,14 @@ TexturedNormalOutputVertex main(TexturedNormalInputVertex vertex)
 {
 	TexturedNormalOutputVertex output = (TexturedNormalOutputVertex)0;
 
-	float4x4 projview = mul(ProjectionMatrix, ViewMatrix);
+	float4x4 projview = mul(ViewMatrix, ProjectionMatrix);
 
-	output.WorldPosition = mul(float4(vertex.Position, 1.0), ModelMatrix);
+	float4 worldpos = mul(float4(vertex.Position, 1.0), ModelMatrix);
+
+	output.WorldPosition = worldpos.xyz;
 	output.WorldNormal = vertex.Normal; // TODO: Transform normal
 
-	output.Position = mul(output.WorldPosition, projview);
+	output.Position = mul(worldpos, projview);
 	output.TexCoord = vertex.TexCoord;
 
 	return output;

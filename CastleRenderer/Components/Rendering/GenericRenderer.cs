@@ -46,7 +46,13 @@ namespace CastleRenderer.Components
 
         private void transform_OnTransformChange(Transform sender)
         {
-            ObjectTransformParameterBlock.Value = new CBuffer_ObjectTransform { ModelMatrix = sender.ObjectToWorld };
+            UpdateMaterialParameterBlocks();
+        }
+
+        protected virtual void UpdateMaterialParameterBlocks()
+        {
+            Transform transform = Owner.GetComponent<Transform>();
+            ObjectTransformParameterBlock.Value = new CBuffer_ObjectTransform { ModelMatrix = transform.ObjectToWorld };
         }
 
     }

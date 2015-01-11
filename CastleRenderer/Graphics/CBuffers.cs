@@ -37,10 +37,11 @@ namespace CastleRenderer.Graphics
     /// <summary>
     /// CBuffer that represents camera state
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 128)]
+    [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 192)]
     public struct CBuffer_CameraTransform
     {
         public Matrix ProjectionMatrix;
         public Matrix ViewMatrix;
+        public Matrix ViewMatrixInvTrans;
     }
 }

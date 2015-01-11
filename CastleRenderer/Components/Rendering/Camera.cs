@@ -95,6 +95,9 @@ namespace CastleRenderer.Components
                 Projection = Matrix.OrthoLH(1.0f, 1.0f, NearZ, FarZ);
             else if (ProjectionType == CameraType.Perspective)
                 Projection = Matrix.PerspectiveFovLH(FoV, Viewport.Width / Viewport.Height, NearZ, FarZ);
+
+            // Update material parameter blocks
+            UpdateMaterialParameterBlocks();
         }
 
         /// <summary>

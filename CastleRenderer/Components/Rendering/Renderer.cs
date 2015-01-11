@@ -159,9 +159,12 @@ namespace CastleRenderer.Components
                 return;
             }
             Device = tmp;
+            Device.DebugName = "Device";
             context = Device.ImmediateContext;
+            context.DebugName = "Context";
             using (var factory = swapchain.GetParent<Factory>())
                 factory.SetWindowAssociation(window.Handle, WindowAssociationFlags.IgnoreAltEnter);
+            swapchain.DebugName = "Swapchain";
 
             // Check AA stuff
             int q = Device.CheckMultisampleQualityLevels(Format.R8G8B8A8_UNorm, 8);
@@ -175,6 +178,7 @@ namespace CastleRenderer.Components
             // Setup the backbuffer
             using (var resource = Resource.FromSwapChain<Texture2D>(swapchain, 0))
                 rtBackbuffer = new RenderTargetView(Device, resource);
+            rtBackbuffer.DebugName = "Backbuffer";
 
             // Setup depth for backbuffer
             {
@@ -192,6 +196,7 @@ namespace CastleRenderer.Components
                     Usage = ResourceUsage.Default
                 };
                 texDepthBuffer = new Texture2D(Device, texdesc);
+                texDepthBuffer.DebugName = "Backbuffer.DepthBuffer";
                 DepthStencilViewDescription viewdesc = new DepthStencilViewDescription()
                 {
                     ArraySize = 0,
@@ -202,6 +207,7 @@ namespace CastleRenderer.Components
                     FirstArraySlice = 0
                 };
                 vwDepthBuffer = new DepthStencilView(Device, texDepthBuffer, viewdesc);
+                vwDepthBuffer.DebugName = "-> Backbuffer.DepthBuffer";
             }
 
             // Setup states
@@ -216,6 +222,7 @@ namespace CastleRenderer.Components
                     DepthComparison = Comparison.Less
                 };
                 Depth_Enabled = DepthStencilState.FromDescription(Device, desc);
+                Depth_Enabled.DebugName = "Depth_Enabled";
             }
             {
                 DepthStencilStateDescription desc = new DepthStencilStateDescription()
@@ -226,6 +233,7 @@ namespace CastleRenderer.Components
                     DepthComparison = Comparison.Less
                 };
                 Depth_Disabled = DepthStencilState.FromDescription(Device, desc);
+                Depth_Disabled.DebugName = "Depth_Disabled";
             }
             {
                 DepthStencilStateDescription desc = new DepthStencilStateDescription()
@@ -236,6 +244,7 @@ namespace CastleRenderer.Components
                     DepthComparison = Comparison.Less
                 };
                 Depth_ReadOnly = DepthStencilState.FromDescription(Device, desc);
+                Depth_ReadOnly.DebugName = "Depth_ReadOnly";
             }
             #endregion
             #region Sampler States
@@ -249,6 +258,7 @@ namespace CastleRenderer.Components
                 MaximumLod = float.MaxValue,
                 MaximumAnisotropy = 16
             });
+            Sampler_Clamp.DebugName = "Sampler_Clamp";
             Sampler_Clamp_Point = SamplerState.FromDescription(Device, new SamplerDescription()
             {
                 AddressU = TextureAddressMode.Clamp,
@@ -256,6 +266,7 @@ namespace CastleRenderer.Components
                 AddressW = TextureAddressMode.Clamp,
                 Filter = Filter.MinMagMipPoint
             });
+            Sampler_Clamp_Point.DebugName = "Sampler_Clamp_Point";
             Sampler_Clamp_Linear = SamplerState.FromDescription(Device, new SamplerDescription()
             {
                 AddressU = TextureAddressMode.Clamp,
@@ -263,6 +274,7 @@ namespace CastleRenderer.Components
                 AddressW = TextureAddressMode.Clamp,
                 Filter = Filter.MinMagMipLinear
             });
+            Sampler_Clamp_Linear.DebugName = "Sampler_Clamp_Linear";
             Sampler_Wrap = SamplerState.FromDescription(Device, new SamplerDescription()
             {
                 AddressU = TextureAddressMode.Wrap,
@@ -273,6 +285,7 @@ namespace CastleRenderer.Components
                 MaximumLod = float.MaxValue,
                 MaximumAnisotropy = 16
             });
+            Sampler_Wrap.DebugName = "Sampler_Wrap";
             #endregion
             #region Rasterizer States
             Culling_Backface = RasterizerState.FromDescription(Device, new RasterizerStateDescription()
@@ -288,6 +301,7 @@ namespace CastleRenderer.Components
                 IsScissorEnabled = false,
                 SlopeScaledDepthBias = 0.0f
             });
+            Culling_Backface.DebugName = "Culling_Backface";
             Culling_Frontface = RasterizerState.FromDescription(Device, new RasterizerStateDescription()
             {
                 CullMode = CullMode.Front,
@@ -301,6 +315,7 @@ namespace CastleRenderer.Components
                 IsScissorEnabled = false,
                 SlopeScaledDepthBias = 0.0f
             });
+            Culling_Frontface.DebugName = "Culling_Frontface";
             Culling_None = RasterizerState.FromDescription(Device, new RasterizerStateDescription()
             {
                 CullMode = CullMode.None,
@@ -314,6 +329,7 @@ namespace CastleRenderer.Components
                 IsScissorEnabled = false,
                 SlopeScaledDepthBias = 0.0f
             });
+            Culling_None.DebugName = "Culling_None";
             #endregion
             #region Blend States
             {
@@ -327,6 +343,7 @@ namespace CastleRenderer.Components
                 desc.RenderTargets[0].DestinationBlendAlpha = BlendOption.Zero;
                 desc.RenderTargets[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
                 Blend_Opaque = BlendState.FromDescription(Device, desc);
+                Blend_Opaque.DebugName = "Blend_Opaque";
             }
             {
                 BlendStateDescription desc = new BlendStateDescription();
@@ -339,6 +356,7 @@ namespace CastleRenderer.Components
                 desc.RenderTargets[0].DestinationBlendAlpha = BlendOption.Zero;
                 desc.RenderTargets[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
                 Blend_Alpha = BlendState.FromDescription(Device, desc);
+                Blend_Alpha.DebugName = "Blend_Alpha";
             }
             {
                 BlendStateDescription desc = new BlendStateDescription();
@@ -351,6 +369,7 @@ namespace CastleRenderer.Components
                 desc.RenderTargets[0].DestinationBlendAlpha = BlendOption.Zero;
                 desc.RenderTargets[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
                 Blend_Add = BlendState.FromDescription(Device, desc);
+                Blend_Add.DebugName = "Blend_Add";
             }
             {
                 BlendStateDescription desc = new BlendStateDescription();
@@ -363,6 +382,7 @@ namespace CastleRenderer.Components
                 desc.RenderTargets[0].DestinationBlendAlpha = BlendOption.Zero;
                 desc.RenderTargets[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
                 Blend_Multiply = BlendState.FromDescription(Device, desc);
+                Blend_Multiply.DebugName = "Blend_Multiply";
             }
             #endregion
 
@@ -454,8 +474,9 @@ namespace CastleRenderer.Components
                     activematerialshadow = false;
                     return;
                 }
-                pipeline.Activate(true);
                 if (!noapply) material.Apply();
+                pipeline.Activate(true);
+                SetCullingMode(material.CullingMode);
                 frame_materialswitches++;
                 frame_shaderswitches++;
                 return;
@@ -473,18 +494,20 @@ namespace CastleRenderer.Components
                     activematerialshadow = false;
                     return;
                 }
-                if (oldpipeline != newpipeline)
-                {
-                    // Activate new shader
-                    newpipeline.Activate();
-                    frame_shaderswitches++;
-                }
 
                 // Apply
                 activematerial = material;
                 activematerialshadow = shadow;
                 if (!noapply) material.Apply();
+                SetCullingMode(material.CullingMode);
                 frame_materialswitches++;
+
+                // Activate new shader
+                if (oldpipeline != newpipeline)
+                {
+                    newpipeline.Activate(true);
+                    frame_shaderswitches++;
+                }
             }
         }
 
@@ -533,6 +556,26 @@ namespace CastleRenderer.Components
             {
                 mesh.Upload(Device, context);
                 mesh.Render(activematerial.Pipeline, submesh);
+            }
+        }
+
+        /// <summary>
+        /// Sets the culling mode
+        /// </summary>
+        /// <param name="cullingmode"></param>
+        public void SetCullingMode(MaterialCullingMode cullingmode)
+        {
+            switch (cullingmode)
+            {
+                case MaterialCullingMode.None:
+                    Culling = Culling_None;
+                    break;
+                case MaterialCullingMode.Frontface:
+                    Culling = Culling_Frontface;
+                    break;
+                case MaterialCullingMode.Backface:
+                    Culling = Culling_Backface;
+                    break;
             }
         }
 
@@ -600,6 +643,7 @@ namespace CastleRenderer.Components
 
             // Create it
             view = new ShaderResourceView(Device, resource);
+            view.DebugName = string.Format("-> {0}", resource.DebugName);
             shaderresourcemap.Add(resource, view);
 
             // Return it

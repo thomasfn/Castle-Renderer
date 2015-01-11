@@ -53,8 +53,8 @@ PShaderOutput PShader( VShaderOutput input )
 		input.Normal.y > 0.5 ? upsample : input.Normal.y < -0.5 ? downsample :
 		input.Normal.z > 0.5 ? forwardsample : backsample;
 	
-	output.Colour = float4( colour, 1.0 );
-	//output.Colour = float4( input.TexCoord.xy, 0.0, 1.0 );
+	//output.Colour = float4( colour, 1.0 );
+	output.Colour = float4( input.TexCoord.xy, 0.0, 1.0 );
 	
 	return output;
 }

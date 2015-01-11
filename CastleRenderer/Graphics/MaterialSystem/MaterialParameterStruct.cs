@@ -48,8 +48,8 @@ namespace CastleRenderer.Graphics.MaterialSystem
         public MaterialParameterStruct(DeviceContext context, T initialvalue)
             : base(context)
         {
-            state = initialvalue;
             Update();
+            Value = initialvalue;
         }
 
         /// <summary>
@@ -59,6 +59,11 @@ namespace CastleRenderer.Graphics.MaterialSystem
         public MaterialParameterStruct<T> Clone()
         {
             return new MaterialParameterStruct<T>(Context, state);
+        }
+
+        public override string ToString()
+        {
+            return typeof(T).Name;
         }
     }
 }

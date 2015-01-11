@@ -158,5 +158,10 @@ namespace CastleRenderer.Graphics.MaterialSystem
             MakeDirty();
         }
 
+        public override string ToString()
+        {
+            return cbuffer.Description.Name;
+        }
+
     }
 }
