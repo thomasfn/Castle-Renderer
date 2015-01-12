@@ -35,6 +35,17 @@ namespace CastleRenderer.Graphics.Shaders
         /// </summary>
         public ShaderSignature Signature { get; private set; }
 
+        private static Buffer[] currentconstantbuffers;
+        private static ShaderResourceView[] currentresourceviews;
+        private static SamplerState[] currentsamplerstates;
+
+        static VertexShader()
+        {
+            currentconstantbuffers = new Buffer[16];
+            currentresourceviews = new ShaderResourceView[16];
+            currentsamplerstates = new SamplerState[16];
+        }
+
         // The actual shader object
         private d3dVertexShader shader;
 
@@ -96,7 +107,17 @@ namespace CastleRenderer.Graphics.Shaders
         }
 
         /// <summary>
-        /// Sets a resource on this shader
+        /// Sets all constant buffers on this shader
+        /// </summary>
+        /// <param name="slot"></param>
+        /// <param name="buffer"></param>
+        public void SetConstantBuffers(DeviceContext context, Buffer[] buffers)
+        {
+            context.VertexShader.SetConstantBuffers(buffers, 0, buffers.Length);
+        }
+
+        /// <summary>
+        /// Sets a resource view on this shader
         /// </summary>
         /// <param name="context"></param>
         /// <param name="slot"></param>
@@ -107,14 +128,36 @@ namespace CastleRenderer.Graphics.Shaders
         }
 
         /// <summary>
+        /// Sets all resource views on this shader
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="slot"></param>
+        /// <param name="resource"></param>
+        public void SetResources(DeviceContext context, ShaderResourceView[] resources)
+        {
+            context.VertexShader.SetShaderResources(resources, 0, resources.Length);
+        }
+
+        /// <summary>
         /// Sets a sampler state on this shader
         /// </summary>
         /// <param name="context"></param>
         /// <param name="slot"></param>
-        /// <param name="samplerstate"></param>
+        /// <param name="resource"></param>
         public void SetSamplerState(DeviceContext context, int slot, SamplerState samplerstate)
         {
             context.VertexShader.SetSampler(samplerstate, slot);
+        }
+
+        /// <summary>
+        /// Sets all sampler states on this shader
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="slot"></param>
+        /// <param name="resource"></param>
+        public void SetSamplerStates(DeviceContext context, SamplerState[] samplerstates)
+        {
+            context.VertexShader.SetSamplers(samplerstates, 0, samplerstates.Length);
         }
     }
 }

@@ -154,8 +154,8 @@
 		},
 		"sponza_flagpole_diff":
 		{
-			"Roughness": 0.75,
-			"Reflectivity": 0.5,
+			"Roughness": 0.15,
+			"Reflectivity": 0.4,
 			"Height": 0.5,
 			"Resources.DiffuseTexture": "Texture:sponza/sponza_flagpole_diff.png",
 			"Resources.NormalTexture": "Texture:sponza/sponza_flagpole_ddn.png"

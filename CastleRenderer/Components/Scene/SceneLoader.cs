@@ -434,7 +434,32 @@ namespace CastleRenderer.Components
                             return null;
                         }
                     }
-                    return model.Meshes[meshindex].Mesh;
+                    int subdiv = 0;
+                    if (args.Length >= 4)
+                    {
+                        if (!int.TryParse(args[3], out subdiv))
+                        {
+                            Console.WriteLine("Failed to parse mesh '{0}' (bad argument #3 '{1}')!", name, args[3]);
+                            return null;
+                        }
+                    }
+                    float minarea = 0.0f;
+                    if (args.Length >= 5)
+                    {
+                        if (!float.TryParse(args[4], out minarea))
+                        {
+                            Console.WriteLine("Failed to parse mesh '{0}' (bad argument #4 '{1}')!", name, args[4]);
+                            return null;
+                        }
+                    }
+                    Mesh themesh = model.Meshes[meshindex].Mesh;
+                    while (subdiv-- > 0)
+                    {
+                        MeshBuilder builder = new MeshBuilder(themesh);
+                        builder.Subdivide(minarea);
+                        themesh = builder.Build();
+                    }
+                    return themesh;
                 default:
                     Console.WriteLine("Failed to parse mesh '{0}' (unknown mesh type '{1}')!", name, cmd);
                     return null;

@@ -13,13 +13,13 @@ namespace CastleRenderer.Graphics.MaterialSystem
     public class Material
     {
         // All parameter sets
-        protected Dictionary<string, MaterialParameterBlock> parameterblocks;
+        protected Dictionary<int, MaterialParameterBlock> parameterblocks;
 
         // All resources (textures etc)
-        protected Dictionary<string, ShaderResourceView> resources;
+        protected Dictionary<int, ShaderResourceView> resources;
 
         // All sampler states
-        protected Dictionary<string, SamplerState> samplerstates;
+        protected Dictionary<int, SamplerState> samplerstates;
 
         /// <summary>
         /// Gets the material pipeline associated with this material
@@ -51,9 +51,9 @@ namespace CastleRenderer.Graphics.MaterialSystem
             Pipeline = pipeline;
 
             // Initialise
-            parameterblocks = new Dictionary<string, MaterialParameterBlock>();
-            resources = new Dictionary<string, ShaderResourceView>();
-            samplerstates = new Dictionary<string, SamplerState>();
+            parameterblocks = new Dictionary<int, MaterialParameterBlock>();
+            resources = new Dictionary<int, ShaderResourceView>();
+            samplerstates = new Dictionary<int, SamplerState>();
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
         /// <param name="set"></param>
         public void SetParameterBlock(string name, MaterialParameterBlock set)
         {
-            parameterblocks[name] = set;
+            parameterblocks[Pipeline.LookupMaterialParameterBlockIndex(name)] = set;
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
         public MaterialParameterBlock GetParameterBlock(string name)
         {
             MaterialParameterBlock set;
-            if (parameterblocks.TryGetValue(name, out set)) return set;
+            if (parameterblocks.TryGetValue(Pipeline.LookupMaterialParameterBlockIndex(name), out set)) return set;
             return null;
         }
 
@@ -98,7 +98,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
         /// <param name="resource"></param>
         public void SetResource(string name, ShaderResourceView resource)
         {
-            resources[name] = resource;
+            resources[Pipeline.LookupResourceIndex(name)] = resource;
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
         public ShaderResourceView GetResource(string name)
         {
             ShaderResourceView resource;
-            if (!resources.TryGetValue(name, out resource)) return resource;
+            if (!resources.TryGetValue(Pipeline.LookupResourceIndex(name), out resource)) return resource;
             return null;
         }
 
@@ -120,7 +120,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
         /// <param name="samplerstate"></param>
         public void SetSamplerState(string name, SamplerState samplerstate)
         {
-            samplerstates[name] = samplerstate;
+            samplerstates[Pipeline.LookupSamplerStateIndex(name)] = samplerstate;
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace CastleRenderer.Graphics.MaterialSystem
         public SamplerState GetSamplerState(string name)
         {
             SamplerState samplerstate;
-            if (!samplerstates.TryGetValue(name, out samplerstate)) return samplerstate;
+            if (!samplerstates.TryGetValue(Pipeline.LookupSamplerStateIndex(name), out samplerstate)) return samplerstate;
             return null;
         }
     }

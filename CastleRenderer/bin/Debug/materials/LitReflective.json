@@ -32,10 +32,10 @@
 	},
 	"Materials":
 	{
-		"LightGrayShinyReflective":
+		"DarkGrayShinyReflective":
 		{
-			"Colour": [ 0.75, 0.75, 0.75, 1.0 ],
-			"Roughness": 0.2,
+			"Colour": [ 0.2, 0.2, 0.2, 1.0 ],
+			"Roughness": 0.12,
 			"Reflectivity": 0.2
 		}
 	}

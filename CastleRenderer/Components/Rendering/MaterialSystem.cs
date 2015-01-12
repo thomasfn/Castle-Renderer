@@ -309,6 +309,7 @@ namespace CastleRenderer.Components
         {
             lock (syncroot)
             {
+                System.Threading.Thread.Sleep(100);
                 reloadqueue.Enqueue(e.FullPath);
             }
         }

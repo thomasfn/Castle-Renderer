@@ -13,6 +13,12 @@
     <Filter Include="Pixel\PostProcess">
       <UniqueIdentifier>{28578fa1-fcfd-4357-9249-ef051fe9aa20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Hull">
+      <UniqueIdentifier>{9ed60d6b-be52-495b-a06d-d159950a2867}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Domain">
+      <UniqueIdentifier>{88720f60-39dc-4a5f-8f05-230eed130678}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Vertex_Passthrough.hlsl">
@@ -65,6 +71,15 @@
     </FxCompile>
     <FxCompile Include="Pixel_Physical_Reflective.hlsl">
       <Filter>Pixel</Filter>
+    </FxCompile>
+    <FxCompile Include="Hull_Passthrough.hlsl">
+      <Filter>Hull</Filter>
+    </FxCompile>
+    <FxCompile Include="Domain_Passthrough.hlsl">
+      <Filter>Domain</Filter>
+    </FxCompile>
+    <FxCompile Include="Pixel_Light_Point.hlsl">
+      <Filter>Pixel\Lights</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

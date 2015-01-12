@@ -2,40 +2,30 @@
 	"Actors":
 	[
 		{
-			"Name": "Ocean",
-			"Components":
-			{
-				"Transform":
-				{
-					"LocalPosition": [ -500.0, 7.0, -500.0 ],
-					"LocalScale": [ 1000.0, 1.0, 1000.0 ]
-				},
-				"MeshRenderer":
-				{
-					"Mesh": "Primitive:Plane",
-					"Materials": [ "water" ]
-				}
-			}
-		},
-		
-		{
 			"Name": "ReflectSphere",
 			"Components":
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 0.0, 0.0, 0.0 ]
+					"LocalPosition": [ 0.0, 1.0, 0.0 ],
+					"LocalScale": [ 0.5, 0.5, 0.5 ]
 				},
 				"MeshRenderer":
 				{
 					"Mesh": "Primitive:Sphere:6",
-					"Materials": [ "LightGrayShinyReflective" ]
+					"Materials": [ "DarkGrayShinyReflective" ]
 				},
 				"ReflectionProbe":
 				{
 					"Resolution": 512,
 					"MainCamera": "Main Camera"
-				}
+				},
+				"PathFollower":
+				{
+					"Enabled": false,
+					"Nodes": [ "MoveNode9", "MoveNode10" ],
+					"Speed": 0.2
+				},
 			}
 		},
 		
@@ -50,7 +40,7 @@
 				},
 				"MeshRenderer":
 				{
-					"Mesh": "Model:models/sponza.sbm",
+					"Mesh": "Model:models/sponza.sbm:0:6:5",
 					"Materials": "Model:models/sponza.sbm"
 				}
 			}

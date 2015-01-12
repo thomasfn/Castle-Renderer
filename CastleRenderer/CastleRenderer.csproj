@@ -44,6 +44,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\PathFollower.cs" />
     <Compile Include="Components\Rendering\Camera.cs" />
     <Compile Include="Components\Particles\CPUParticleSystem.cs" />
     <Compile Include="Components\Particles\GPUParticleSystem.cs" />

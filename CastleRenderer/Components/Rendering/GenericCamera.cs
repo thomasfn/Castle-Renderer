@@ -94,7 +94,7 @@ namespace CastleRenderer.Components
                 Paraboloid = Paraboloid ? 1.0f : 0.0f,
                 PBFar = FarZ,
                 PBNear = NearZ,
-                PBDir = 1.0f
+                PBDir = ParaboloidDirection
             };
         }
     }

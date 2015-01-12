@@ -35,6 +35,23 @@ namespace CastleRenderer.Graphics
             lstIndices = new List<List<uint>>();
         }
 
+        public MeshBuilder(Mesh mesh)
+        {
+            UseNormals = mesh.Normals != null;
+            UseTexCoords = mesh.TextureCoordinates != null;
+            UseTangents = mesh.Tangents != null;
+            lstPositions = new List<Vector3>(mesh.Positions);
+            lstNormals = new List<Vector3>(mesh.Normals);
+            lstTexCoords = new List<Vector2>(mesh.TextureCoordinates);
+            lstTangents = new List<Vector3>(mesh.Tangents);
+            lstColours = new List<Color4>();
+            lstIndices = new List<List<uint>>();
+            for (int i = 0; i < mesh.Submeshes.Length; i++)
+            {
+                lstIndices.Add(new List<uint>(mesh.Submeshes[i]));
+            }
+        }
+
         public void AddPosition(Vector3 position)
         {
             lstPositions.Add(position);
@@ -179,6 +196,86 @@ namespace CastleRenderer.Graphics
                 norm *= -1.0f;
                 lstNormals.Add(norm);
             }
+        }
+
+        public void Subdivide(float minarea = 0.0f)
+        {
+            int splitcount = 0;
+            float lowestarea = float.MaxValue;
+            float highestarea = float.MinValue;
+            for (int i = 0; i < lstIndices.Count; i++)
+            {
+                List<uint> indices = lstIndices[i];
+                List<uint> newindices = new List<uint>(indices.Count * 4);
+                for (int j = 0; j < indices.Count; j += 3)
+                {
+                    int i0 = (int)indices[j];
+                    int i1 = (int)indices[j + 1];
+                    int i2 = (int)indices[j + 2];
+
+                    Vector3 v0 = lstPositions[i0];
+                    Vector3 v1 = lstPositions[i1];
+                    Vector3 v2 = lstPositions[i2];
+
+                    bool shouldsplit = false;
+
+                    // Compute area
+                    float e0 = (v1 - v0).Length();
+                    float e1 = (v2 - v1).Length();
+                    float e2 = (v0 - v2).Length();
+                    float s = (e0 + e1 + e2) * 0.5f;
+                    float area = (float)Math.Sqrt(s * (s - e0) * (s - e1) * (s - e2));
+
+                    lowestarea = Math.Min(area, lowestarea);
+                    highestarea = Math.Max(area, highestarea);
+
+                    // Should we split?
+                    if (area > minarea)
+                    {
+
+                        // Add vertex 3
+                        int i3 = CurrentVertexCount;
+                        AddPosition(Vector3.Lerp(v0, v2, 0.5f));
+                        if (UseTexCoords) AddTextureCoord(Vector2.Lerp(lstTexCoords[i0], lstTexCoords[i2], 0.5f));
+                        if (UseNormals) AddNormal(Vector3.Lerp(lstNormals[i0], lstNormals[i2], 0.5f));
+                        if (UseTangents) AddTangent(Vector3.Lerp(lstTangents[i0], lstTangents[i2], 0.5f));
+
+                        // Add vertex 4
+                        int i4 = CurrentVertexCount;
+                        AddPosition(Vector3.Lerp(v0, v1, 0.5f));
+                        if (UseTexCoords) AddTextureCoord(Vector2.Lerp(lstTexCoords[i0], lstTexCoords[i1], 0.5f));
+                        if (UseNormals) AddNormal(Vector3.Lerp(lstNormals[i0], lstNormals[i1], 0.5f));
+                        if (UseTangents) AddTangent(Vector3.Lerp(lstTangents[i0], lstTangents[i1], 0.5f));
+
+                        // Add vertex 5
+                        int i5 = CurrentVertexCount;
+                        AddPosition(Vector3.Lerp(v1, v2, 0.5f));
+                        if (UseTexCoords) AddTextureCoord(Vector2.Lerp(lstTexCoords[i1], lstTexCoords[i2], 0.5f));
+                        if (UseNormals) AddNormal(Vector3.Lerp(lstNormals[i1], lstNormals[i2], 0.5f));
+                        if (UseTangents) AddTangent(Vector3.Lerp(lstTangents[i1], lstTangents[i2], 0.5f));
+
+                        // Add new indices
+                        newindices.Add((uint)i0); newindices.Add((uint)i4); newindices.Add((uint)i3);
+                        newindices.Add((uint)i4); newindices.Add((uint)i1); newindices.Add((uint)i5);
+                        newindices.Add((uint)i4); newindices.Add((uint)i5); newindices.Add((uint)i3);
+                        newindices.Add((uint)i3); newindices.Add((uint)i5); newindices.Add((uint)i2);
+
+                        splitcount++;
+                    }
+
+                    else
+                    {
+                        newindices.Add((uint)i0);
+                        newindices.Add((uint)i1);
+                        newindices.Add((uint)i2);
+                    }
+                }
+
+                lstIndices[i] = newindices;
+            }
+
+            Console.WriteLine("Subdivision process split {0} triangles.", splitcount);
+            Console.WriteLine("The triangle with the lowest area had an area of {0} and the highest {1}.", lowestarea, highestarea);
         }
 
         public Mesh Build()

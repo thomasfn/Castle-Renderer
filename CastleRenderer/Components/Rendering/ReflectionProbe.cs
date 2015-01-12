@@ -51,12 +51,14 @@ namespace CastleRenderer.Components.Rendering
 
             // Create the RTs
             var renderer = Owner.Root.GetComponent<Renderer>();
-            FrontTarget = renderer.CreateRenderTarget(1, Resolution, Resolution, string.Format("RT_{0}_Front_{1}", Owner.Name, 0));
+            //FrontTarget = renderer.CreateRenderTarget(1, Resolution, Resolution, string.Format("RT_{0}_Front_{1}", Owner.Name, 0));
+            FrontTarget = renderer.CreateRenderTarget(1, string.Format("RT_{0}_Front_{1}", Owner.Name, 0));
             FrontTarget.AddTextureComponent();
-            FrontTarget.AddDepthComponent();
-            BackTarget = renderer.CreateRenderTarget(1, Resolution, Resolution, string.Format("RT_{0}_Back_{1}", Owner.Name, 0));
+            FrontTarget.Finish();
+            //BackTarget = renderer.CreateRenderTarget(1, Resolution, Resolution, string.Format("RT_{0}_Back_{1}", Owner.Name, 0));
+            BackTarget = renderer.CreateRenderTarget(1, string.Format("RT_{0}_Back_{1}", Owner.Name, 0));
             BackTarget.AddTextureComponent();
-            BackTarget.AddDepthComponent();
+            BackTarget.Finish();
 
             // Get the main camera
             Camera maincam = MainCamera.GetComponent<Camera>();
@@ -77,10 +79,12 @@ namespace CastleRenderer.Components.Rendering
             camera.Paraboloid = true;
             camera.ParaboloidDirection = 1.0f;
             camera.Target = FrontTarget;
+            frontcamera.Init();
 
             backcamera = new Actor(Owner.MessagePool);
             backcamera.Parent = Owner;
-            backcamera.AddComponent<Transform>();
+            var backtrans = backcamera.AddComponent<Transform>();
+            backtrans.LocalRotation = Quaternion.RotationAxis(Vector3.UnitY, 3.141592653f);
             camera = backcamera.AddComponent<Camera>();
             camera.Enabled = true;
             camera.ProjectionType = CameraType.Orthographic;
@@ -90,10 +94,14 @@ namespace CastleRenderer.Components.Rendering
             camera.Skybox = maincam.Skybox;
             camera.Viewport = new Viewport(0.0f, 0.0f, Resolution, Resolution);
             camera.Paraboloid = true;
-            camera.ParaboloidDirection = -1.0f;
+            camera.ParaboloidDirection = 1.0f;
             camera.Target = BackTarget;
+            backcamera.Init();
 
-            matpset_reflinfo = new MaterialParameterStruct<CBuffer_ReflectionInfo>(renderer.Device.ImmediateContext, new CBuffer_ReflectionInfo { ReflViewMatrix = Owner.GetComponent<Transform>().WorldToObject });
+            matpset_reflinfo = new MaterialParameterStruct<CBuffer_ReflectionInfo>(renderer.Device.ImmediateContext, new CBuffer_ReflectionInfo
+            {
+                ReflViewMatrix = Owner.GetComponent<Transform>().WorldToObject
+            });
 
             // Add us to the mesh renderer
             MeshRenderer meshrenderer = Owner.GetComponent<MeshRenderer>();

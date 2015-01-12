@@ -14,6 +14,7 @@
 				{
 					"Enabled": true,
 					"Priority": 0,
+					"RenderPriority": 10,
 			
 					"ProjectionType": "Perspective",
 					"FoV": 0.78,

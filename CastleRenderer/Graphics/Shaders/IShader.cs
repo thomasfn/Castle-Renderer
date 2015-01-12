@@ -49,6 +49,13 @@ namespace CastleRenderer.Graphics.Shaders
         void SetConstantBuffer(DeviceContext context, int slot, Buffer buffer);
 
         /// <summary>
+        /// Sets all constant buffers on this shader
+        /// </summary>
+        /// <param name="slot"></param>
+        /// <param name="buffer"></param>
+        void SetConstantBuffers(DeviceContext context, Buffer[] buffers);
+
+        /// <summary>
         /// Sets a resource view on this shader
         /// </summary>
         /// <param name="context"></param>
@@ -57,12 +64,27 @@ namespace CastleRenderer.Graphics.Shaders
         void SetResource(DeviceContext context, int slot, ShaderResourceView resource);
 
         /// <summary>
-        /// Sets a resource view on this shader
+        /// Sets all resource views on this shader
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="slot"></param>
+        /// <param name="resource"></param>
+        void SetResources(DeviceContext context, ShaderResourceView[] resources);
+
+        /// <summary>
+        /// Sets a sampler state on this shader
         /// </summary>
         /// <param name="context"></param>
         /// <param name="slot"></param>
         /// <param name="resource"></param>
         void SetSamplerState(DeviceContext context, int slot, SamplerState samplerstate);
 
+        /// <summary>
+        /// Sets all sampler states on this shader
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="slot"></param>
+        /// <param name="resource"></param>
+        void SetSamplerStates(DeviceContext context, SamplerState[] samplerstates);
     }
 }

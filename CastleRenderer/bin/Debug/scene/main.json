@@ -3,6 +3,7 @@
 	[
 		"scene/player.json",
 		"scene/sun.json",
+		"scene/moving.json",
 		"scene/world.json"
 	]
 }

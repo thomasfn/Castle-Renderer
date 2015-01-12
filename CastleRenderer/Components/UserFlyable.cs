@@ -187,6 +187,13 @@ namespace CastleRenderer.Components
                         Console.WriteLine("dspeed = {0}", dspeed);
                     }
                     break;
+                case Keys.T:
+                    if (msg.Depressed)
+                    {
+                        Vector3 pos = Owner.GetComponent<Transform>().Position;
+                        System.IO.File.WriteAllText("debug.txt", string.Format("X={0}, Y={1}, Z={2}", pos.X, pos.Y, pos.Z));
+                    }
+                    break;
             }
         }
 

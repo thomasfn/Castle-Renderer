@@ -37,6 +37,24 @@
 			"Colour": [ 0.75, 0.75, 0.75, 1.0 ],
 			"Roughness": 0.2,
 			"Reflectivity": 0.2
+		},
+		"RedShiny":
+		{
+			"Colour": [ 0.8, 0.2, 0.2, 1.0 ],
+			"Roughness": 0.2,
+			"Reflectivity": 0.2
+		},
+		"GreenShiny":
+		{
+			"Colour": [ 0.2, 0.8, 0.2, 1.0 ],
+			"Roughness": 0.2,
+			"Reflectivity": 0.2
+		},
+		"BlueShiny":
+		{
+			"Colour": [ 0.2, 0.2, 0.8, 1.0 ],
+			"Roughness": 0.2,
+			"Reflectivity": 0.2
 		}
 	}
 }

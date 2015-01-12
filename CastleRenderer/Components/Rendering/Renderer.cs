@@ -116,6 +116,8 @@ namespace CastleRenderer.Components
         private const int MaxPixelShaderResourceViewSlots = 16;
         private ShaderResourceViewData[] resourceviewslots;
 
+        private const FillMode fillmode = FillMode.Wireframe;
+
         /// <summary>
         /// Called when the initialise message has been received
         /// </summary>
@@ -453,7 +455,7 @@ namespace CastleRenderer.Components
         /// Sets the current active material, returns true if a material switch occured
         /// </summary>
         /// <param name="material"></param>
-        public void SetActiveMaterial(Material material, bool shadow = false, bool forceswitch = false, bool noapply = false)
+        public void SetActiveMaterial(Material material, bool shadow = false, bool forceswitch = false, bool noapply = false, bool invertculling = false)
         {
             // Null check
             if (material == null)
@@ -476,7 +478,7 @@ namespace CastleRenderer.Components
                 }
                 if (!noapply) material.Apply();
                 pipeline.Activate(true);
-                SetCullingMode(material.CullingMode);
+                SetCullingMode(material.CullingMode, invertculling);
                 frame_materialswitches++;
                 frame_shaderswitches++;
                 return;
@@ -499,7 +501,7 @@ namespace CastleRenderer.Components
                 activematerial = material;
                 activematerialshadow = shadow;
                 if (!noapply) material.Apply();
-                SetCullingMode(material.CullingMode);
+                SetCullingMode(material.CullingMode, invertculling);
                 frame_materialswitches++;
 
                 // Activate new shader
@@ -529,7 +531,8 @@ namespace CastleRenderer.Components
             pipeline.SetMaterialParameterBlock("CameraTransform", cameratransform);
             pipeline.SetMaterialParameterBlock("ObjectTransform", objecttransform);
 
-            // Setup the mesh
+            // Render
+            pipeline.Use();
             if (!mesh.Render(pipeline, submesh))
             {
                 mesh.Upload(Device, context);
@@ -551,7 +554,8 @@ namespace CastleRenderer.Components
             // Setup the material
             //activematerial.Shader.Effect.GetTechniqueByIndex(0).GetPassByIndex(0).Apply(context);
 
-            // Setup the mesh
+            // Render
+            activematerial.Pipeline.Use();
             if (!mesh.Render(activematerial.Pipeline, submesh))
             {
                 mesh.Upload(Device, context);
@@ -563,7 +567,7 @@ namespace CastleRenderer.Components
         /// Sets the culling mode
         /// </summary>
         /// <param name="cullingmode"></param>
-        public void SetCullingMode(MaterialCullingMode cullingmode)
+        public void SetCullingMode(MaterialCullingMode cullingmode, bool invert = false)
         {
             switch (cullingmode)
             {
@@ -571,10 +575,16 @@ namespace CastleRenderer.Components
                     Culling = Culling_None;
                     break;
                 case MaterialCullingMode.Frontface:
-                    Culling = Culling_Frontface;
+                    if (invert)
+                        Culling = Culling_Backface;
+                    else
+                        Culling = Culling_Frontface;
                     break;
                 case MaterialCullingMode.Backface:
-                    Culling = Culling_Backface;
+                    if (invert)
+                        Culling = Culling_Frontface;
+                    else
+                        Culling = Culling_Backface;
                     break;
             }
         }

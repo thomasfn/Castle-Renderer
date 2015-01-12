@@ -28,7 +28,7 @@ namespace CastleRenderer.Components
         private PopulateParticleSystemList psysmsg;
 
         private RenderTarget gbuffer;
-        private int gbuffer_colour, gbuffer_position, gbuffer_normal, gbuffer_material;
+        private int gbuffer_colour, gbuffer_position, gbuffer_normal, gbuffer_material, gbuffer_reflection;
 
         private RenderTarget lightaccum;
         private int lightaccum_diffuse, lightaccum_specular;
@@ -86,6 +86,7 @@ namespace CastleRenderer.Components
             gbuffer_position = gbuffer.AddTextureComponent(SlimDX.DXGI.Format.R32G32B32A32_Float);
             gbuffer_normal = gbuffer.AddTextureComponent(SlimDX.DXGI.Format.R32G32B32A32_Float);
             gbuffer_material = gbuffer.AddTextureComponent(SlimDX.DXGI.Format.R32G32B32A32_Float);
+            gbuffer_reflection = gbuffer.AddTextureComponent(SlimDX.DXGI.Format.R32G32B32A32_Float);
             gbuffer.Finish();
 
             // Setup light accumulation buffer
@@ -120,6 +121,7 @@ namespace CastleRenderer.Components
             mat_blitlight = matsys.CreateMaterial("BlitLight", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_BlitLight"));
             mat_blitlight.SetSamplerState("BlitSampler", renderer.Sampler_Clamp);
             mat_blitlight.SetResource("ColourTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_colour)));
+            mat_blitlight.SetResource("ReflectionTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_reflection)));
             mat_blitlight.SetResource("DiffuseTexture", renderer.AcquireResourceView(lightaccum.GetTexture(lightaccum_diffuse)));
             mat_blitlight.SetResource("SpecularTexture", renderer.AcquireResourceView(lightaccum.GetTexture(lightaccum_specular)));
 
@@ -127,18 +129,25 @@ namespace CastleRenderer.Components
             mat_lights = new Dictionary<LightType, Material>();
             mat_lights.Add(LightType.Ambient, matsys.CreateMaterial("AmbientLight", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_Light_Ambient")));
             mat_lights.Add(LightType.Directional, matsys.CreateMaterial("DirectionalLight", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_Light_Directional")));
-            //mat_lights.Add(LightType.Point, matsys.CreateMaterial("light_point", "light_point"));
+            mat_lights.Add(LightType.Point, matsys.CreateMaterial("PointLight", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_Light_Point")));
             foreach (Material mat in mat_lights.Values)
             {
                 mat.SetResource("PositionTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_position)));
                 mat.SetResource("NormalTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_normal)));
                 mat.SetResource("MaterialTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_material)));
+                mat.SetResource("ReflectionTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_reflection)));
                 mat.SetSamplerState("GBufferSampler", renderer.Sampler_Clamp);
             }
 
             // Setup meshes
             mesh_fs = MeshBuilder.BuildFullscreenQuad(true, true);
             mesh_skybox = MeshBuilder.BuildCube(Matrix.Translation(-0.5f, -0.5f, -0.5f) * Matrix.Scaling(2.0f, 2.0f, 2.0f));
+            for (int i = 0; i < 3; i++)
+            {
+                MeshBuilder tmp = new MeshBuilder(mesh_skybox);
+                tmp.Subdivide();
+                mesh_skybox = tmp.Build();
+            }
         }
 
         /// <summary>
@@ -290,7 +299,8 @@ namespace CastleRenderer.Components
                     else
                         matpset_clip.Value = new CBuffer_Clip { ClipEnabled = 0.0f, ClipPlane = clip };
                     item.Material.SetParameterBlock("Clip", matpset_clip);
-                    renderer.SetActiveMaterial(item.Material);
+                    item.Material.SetParameterBlock("Camera", cam.CameraParameterBlock);
+                    renderer.SetActiveMaterial(item.Material, false, false, false, cam.ParaboloidDirection < 0.0f);
 
                     // Draw it
                     renderer.DrawImmediate(item.Mesh, item.SubmeshIndex, cam.CameraTransformParameterBlock, item.ObjectTransformParameterBlock);

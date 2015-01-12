@@ -93,6 +93,7 @@ struct GBufferOutputPixel
 	float4 Position : SV_TARGET1;
 	float4 Normal : SV_TARGET2;
 	float4 Material : SV_TARGET3;
+	float4 Reflection : SV_TARGET4;
 };
 
 // Helper methods

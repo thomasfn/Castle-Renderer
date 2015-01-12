@@ -1,8 +1,9 @@
 #include "Common.hlsli"
 
 Texture2D ColourTexture : register(t0);
-Texture2D DiffuseTexture : register(t1);
-Texture2D SpecularTexture : register(t2);
+Texture2D ReflectionTexture : register(t1);
+Texture2D DiffuseTexture : register(t2);
+Texture2D SpecularTexture : register(t3);
 
 SamplerState BlitSampler : register(s0);
 
@@ -13,7 +14,7 @@ BasicOutputPixel main(TexturedOutputVertex vertex) : SV_TARGET
 	float4 colour = pow( ColourTexture.Sample(BlitSampler, vertex.TexCoord), 2.2 );
 	// NOTE: We're doubling the colour here to compensate for halfing it in the light shaders. This is to allow "overlighting".
 	float4 diffuse = DiffuseTexture.Sample(BlitSampler, vertex.TexCoord) * 2.0;
-	float4 specular = SpecularTexture.Sample(BlitSampler, vertex.TexCoord);
+	float4 specular = float4(SpecularTexture.Sample(BlitSampler, vertex.TexCoord).xyz + ReflectionTexture.Sample(BlitSampler, vertex.TexCoord).xyz, 1.0);
 
 
 

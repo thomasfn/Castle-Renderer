@@ -183,8 +183,9 @@ namespace CastleRenderer.Graphics
 
         private InputLayout GetInputLayout(MaterialPipeline pipeline)
         {
-            if (pipelinemap.ContainsKey(pipeline)) return pipelinemap[pipeline];
-            var layout = pipeline.CreateLayout(inputelements);
+            InputLayout layout;
+            if (pipelinemap.TryGetValue(pipeline, out layout)) return layout;
+            layout = pipeline.CreateLayout(inputelements);
             pipelinemap.Add(pipeline, layout);
             return layout;
         }
