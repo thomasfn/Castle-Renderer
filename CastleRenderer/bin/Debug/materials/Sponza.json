@@ -21,7 +21,10 @@
 			"BumpHeight": 1.0
 		}
 	},
-	"Resources": {},
+	"Resources":
+	{
+		"SpecularMaskTexture": "Texture:white.png"
+	},
 	"SamplerStates":
 	{
 		"TextureSampler": "Wrap"
@@ -45,24 +48,24 @@
 		},
 		"sponza_thorn_diff":
 		{
-			"Roughness": 0.75,
-			"Reflectivity": 0.5,
-			"Height": 0.5,
-			"Resources.DiffuseTexture": "Texture:sponza/sponza_thorn_diff.png",
+			"Roughness": 0.15,
+			"Reflectivity": 0.1,
+			"Height": 0.2,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_thorn_diff_mask.png",
 			"Resources.NormalTexture": "Texture:sponza/sponza_thorn_ddn.png"
 		},
 		"chain_texture":
 		{
-			"Roughness": 0.75,
+			"Roughness": 0.25,
 			"Reflectivity": 0.5,
 			"Height": 0.5,
-			"Resources.DiffuseTexture": "Texture:sponza/chain_texture.png",
+			"Resources.DiffuseTexture": "Texture:sponza/chain_texture_diff_mask.png",
 			"Resources.NormalTexture": "Texture:sponza/chain_texture_ddn.png"
 		},
 		"vase_hanging":
 		{
-			"Roughness": 0.75,
-			"Reflectivity": 0.5,
+			"Roughness": 0.25,
+			"Reflectivity": 0.75,
 			"Height": 0.5,
 			"Resources.DiffuseTexture": "Texture:sponza/vase_hanging.png",
 			"Resources.NormalTexture": "Texture:sponza/vase_hanging_ddn.png"
@@ -85,11 +88,12 @@
 		},
 		"spnza_bricks_a_diff":
 		{
-			"Roughness": 0.75,
-			"Reflectivity": 0.5,
-			"Height": 0.5,
+			"Roughness": 0.3,
+			"Reflectivity": 0.4,
+			"Height": 1.0,
 			"Resources.DiffuseTexture": "Texture:sponza/spnza_bricks_a_diff.png",
-			"Resources.NormalTexture": "Texture:sponza/spnza_bricks_a_ddn.png"
+			"Resources.NormalTexture": "Texture:sponza/spnza_bricks_a_ddn.png",
+			"Resources.SpecularMaskTexture": "Texture:sponza/spnza_bricks_a_spec.png"
 		},
 		"sponza_column_a_diff":
 		{
@@ -107,20 +111,12 @@
 			"Resources.DiffuseTexture": "Texture:sponza/sponza_ceiling_a_diff.png",
 			"Resources.NormalTexture": "Texture:sponza/sponza_ceiling_a_ddn.png"
 		},
-		"sponza_column_b_diff":
-		{
-			"Roughness": 0.75,
-			"Reflectivity": 0.5,
-			"Height": 0.5,
-			"Resources.DiffuseTexture": "Texture:sponza/sponza_column_b_diff.png",
-			"Resources.NormalTexture": "Texture:sponza/sponza_column_b_ddn.png"
-		},
 		"vase_plant":
 		{
-			"Roughness": 0.75,
-			"Reflectivity": 0.5,
-			"Height": 0.5,
-			"Resources.DiffuseTexture": "Texture:sponza/vase_plant.png",
+			"Roughness": 0.1,
+			"Reflectivity": 0.1,
+			"Height": 0.2,
+			"Resources.DiffuseTexture": "Texture:sponza/vase_plant_diff_mask.png",
 			"Resources.NormalTexture": "Texture:sponza/vase_plant_ddn.png"
 		},
 		"vase_round":
@@ -145,13 +141,14 @@
 			"Reflectivity": 0.5,
 			"Height": 0.5,
 			"Resources.DiffuseTexture": "Texture:sponza/sponza_arch_diff.png",
-			"Resources.NormalTexture": "Texture:sponza/sponza_arch_ddn.png"
+			"Resources.NormalTexture": "Texture:sponza/sponza_arch_ddn.png",
+			"Resources.SpecularMaskTexture": "Texture:sponza/sponza_arch_spec.png"
 		},
 		"sponza_floor_a_diff":
 		{
 			"Roughness": 0.75,
 			"Reflectivity": 0.5,
-			"Height": 0.5,
+			"Height": 1.0,
 			"Resources.DiffuseTexture": "Texture:sponza/sponza_floor_a_diff.png",
 			"Resources.NormalTexture": "Texture:sponza/sponza_floor_a_ddn.png"
 		},
@@ -181,48 +178,48 @@
 		},
 		"sponza_curtain_blue_diff":
 		{
-			"Roughness": 0.75,
-			"Reflectivity": 0.5,
+			"Roughness": 0.2,
+			"Reflectivity": 0.1,
 			"Height": 0.5,
 			"Resources.DiffuseTexture": "Texture:sponza/sponza_curtain_blue_diff.png",
 			"Resources.NormalTexture": "Texture:sponza/sponza_curtain_blue_ddn.png"
 		},
 		"sponza_curtain_diff":
 		{
-			"Roughness": 0.75,
-			"Reflectivity": 0.5,
+			"Roughness": 0.2,
+			"Reflectivity": 0.1,
 			"Height": 0.5,
 			"Resources.DiffuseTexture": "Texture:sponza/sponza_curtain_diff.png",
 			"Resources.NormalTexture": "Texture:sponza/sponza_curtain_ddn.png"
 		},
 		"sponza_fabric_diff":
 		{
-			"Roughness": 0.75,
-			"Reflectivity": 0.5,
+			"Roughness": 0.2,
+			"Reflectivity": 0.2,
 			"Height": 0.5,
 			"Resources.DiffuseTexture": "Texture:sponza/sponza_fabric_diff.png",
 			"Resources.NormalTexture": "Texture:sponza/sponza_fabric_ddn.png"
 		},
 		"sponza_fabric_green_diff":
 		{
-			"Roughness": 0.75,
-			"Reflectivity": 0.5,
+			"Roughness": 0.2,
+			"Reflectivity": 0.2,
 			"Height": 0.5,
 			"Resources.DiffuseTexture": "Texture:sponza/sponza_fabric_green_diff.png",
 			"Resources.NormalTexture": "Texture:sponza/sponza_fabric_green_ddn.png"
 		},
 		"sponza_fabric_blue_diff":
 		{
-			"Roughness": 0.75,
-			"Reflectivity": 0.5,
+			"Roughness": 0.2,
+			"Reflectivity": 0.2,
 			"Height": 0.5,
 			"Resources.DiffuseTexture": "Texture:sponza/sponza_fabric_blue_diff.png",
 			"Resources.NormalTexture": "Texture:sponza/sponza_fabric_blue_ddn.png"
 		},
 		"sponza_curtain_green_diff":
 		{
-			"Roughness": 0.75,
-			"Reflectivity": 0.5,
+			"Roughness": 0.2,
+			"Reflectivity": 0.1,
 			"Height": 0.5,
 			"Resources.DiffuseTexture": "Texture:sponza/sponza_curtain_green_diff.png",
 			"Resources.NormalTexture": "Texture:sponza/sponza_curtain_green_ddn.png"

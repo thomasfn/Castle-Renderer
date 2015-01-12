@@ -29,6 +29,11 @@ namespace CastleRenderer.Components
         private Dictionary<string, Texture2D> texturemap;
         private Dictionary<string, MaterialDefinition> definitionmap;
 
+        private FileSystemWatcher materialwatcher;
+
+        private object syncroot;
+        private Queue<string> reloadqueue;
+
         private class ParameterSet
         {
             public Dictionary<string, object> Parameters { get; set; }
@@ -90,182 +95,221 @@ namespace CastleRenderer.Components
             texturemap = new Dictionary<string, Texture2D>();
             definitionmap = new Dictionary<string, MaterialDefinition>();
 
+            // Initialise watcher
+            materialwatcher = new FileSystemWatcher("materials", "*.json");
+            materialwatcher.Changed += materialwatcher_Changed;
+            materialwatcher.EnableRaisingEvents = true;
+            syncroot = new object();
+            reloadqueue = new Queue<string>();
+
             // Load all material groups
             foreach (string filename in Directory.GetFiles("materials").Where((f) => Path.GetExtension(f) == ".json"))
             {
-                // Load text
-                string matgrpname = Path.GetFileNameWithoutExtension(filename);
-                string src = File.ReadAllText(filename);
-                JObject root = JObject.Parse(src);
+                LoadMaterialGroup(filename);
+            }
+        }
 
-                // Verify
-                if (root["Shaders"] == null)
-                {
-                    Console.WriteLine("Missing shaders for material group '{0}'", matgrpname);
-                    continue;
-                }
-                if (root["ParameterSets"] == null)
-                {
-                    Console.WriteLine("Missing parameter sets for material group '{0}'", matgrpname);
-                    continue;
-                }
-                if (root["Resources"] == null)
-                {
-                    Console.WriteLine("Missing resources for material group '{0}'", matgrpname);
-                    continue;
-                }
-                if (root["SamplerStates"] == null)
-                {
-                    Console.WriteLine("Missing sampler states for material group '{0}'", matgrpname);
-                    continue;
-                }
-                if (root["Mappings"] == null)
-                {
-                    Console.WriteLine("Missing mappings for material group '{0}'", matgrpname);
-                    continue;
-                }
-                if (root["Materials"] == null)
-                {
-                    Console.WriteLine("Missing materials for material group '{0}'", matgrpname);
-                    continue;
-                }
-                JArray jshaders = root["Shaders"] as JArray;
-                JObject jpsets = root["ParameterSets"] as JObject;
-                JObject jresources = root["Resources"] as JObject;
-                JObject jsamplerstates = root["SamplerStates"] as JObject;
-                JObject jmappings = root["Mappings"] as JObject;
-                JObject jmaterials = root["Materials"] as JObject;
+        private void LoadMaterialGroup(string filename)
+        {
+            Console.WriteLine("Loading material group {0}...", Path.GetFileNameWithoutExtension(filename));
 
-                // Create group
-                MaterialGroup matgrp = new MaterialGroup();
-                matgrp.Name = matgrpname;
-                string[] shaders = new string[jshaders.Count];
-                int i;
-                for (i = 0; i < jshaders.Count; i++)
+            // Load text
+            string matgrpname = Path.GetFileNameWithoutExtension(filename);
+            string src = File.ReadAllText(filename);
+            JObject root = JObject.Parse(src);
+
+            // Verify
+            if (root["Shaders"] == null)
+            {
+                Console.WriteLine("Missing shaders for material group '{0}'", matgrpname);
+                return;
+            }
+            if (root["ParameterSets"] == null)
+            {
+                Console.WriteLine("Missing parameter sets for material group '{0}'", matgrpname);
+                return;
+            }
+            if (root["Resources"] == null)
+            {
+                Console.WriteLine("Missing resources for material group '{0}'", matgrpname);
+                return;
+            }
+            if (root["SamplerStates"] == null)
+            {
+                Console.WriteLine("Missing sampler states for material group '{0}'", matgrpname);
+                return;
+            }
+            if (root["Mappings"] == null)
+            {
+                Console.WriteLine("Missing mappings for material group '{0}'", matgrpname);
+                return;
+            }
+            if (root["Materials"] == null)
+            {
+                Console.WriteLine("Missing materials for material group '{0}'", matgrpname);
+                return;
+            }
+            JArray jshaders = root["Shaders"] as JArray;
+            JObject jpsets = root["ParameterSets"] as JObject;
+            JObject jresources = root["Resources"] as JObject;
+            JObject jsamplerstates = root["SamplerStates"] as JObject;
+            JObject jmappings = root["Mappings"] as JObject;
+            JObject jmaterials = root["Materials"] as JObject;
+
+            // Create group
+            MaterialGroup matgrp = new MaterialGroup();
+            matgrp.Name = matgrpname;
+            string[] shaders = new string[jshaders.Count];
+            int i;
+            for (i = 0; i < jshaders.Count; i++)
+            {
+                shaders[i] = (string)jshaders[i];
+            }
+            matgrp.Shaders = shaders;
+            ParameterMapping[] mappings = new ParameterMapping[jmappings.Count];
+            i = 0;
+            foreach (var pair in jmappings)
+            {
+                string[] spl = ((string)pair.Value).Split('.');
+                mappings[i++] = new ParameterMapping { ParameterName = (string)pair.Key, TargetName = spl[1], TargetSet = spl[0] };
+            }
+            matgrp.Mappings = mappings;
+            Dictionary<string, ParameterSet> psets = new Dictionary<string, ParameterSet>();
+            foreach (var pair in jpsets)
+            {
+                ParameterSet set = new ParameterSet();
+                foreach (var pair2 in pair.Value as JObject)
                 {
-                    shaders[i] = (string)jshaders[i];
+                    object val = TranslateJsonType(pair2.Value);
+                    if (val == null)
+                        Console.WriteLine("Unable to translate Json token '{0}' to a .NET type! ({1})", pair2.Value, matgrpname);
+                    else
+                        set.Parameters.Add((string)pair2.Key, val);
                 }
-                matgrp.Shaders = shaders;
-                ParameterMapping[] mappings = new ParameterMapping[jmappings.Count];
-                i = 0;
-                foreach (var pair in jmappings)
+                psets.Add((string)pair.Key, set);
+            }
+            matgrp.ParameterSets = psets;
+            Dictionary<string, ShaderResourceView> resources = new Dictionary<string, ShaderResourceView>();
+            foreach (var pair in jresources)
+            {
+                ShaderResourceView resource = ParseResource(pair.Value);
+                if (resource != null) resources.Add((string)pair.Key, resource);
+            }
+            matgrp.Resources = resources;
+            Dictionary<string, SamplerState> samplerstates = new Dictionary<string, SamplerState>();
+            foreach (var pair in jsamplerstates)
+            {
+                SamplerState samplerstate = ParseSamplerState(pair.Value);
+                if (samplerstate != null) samplerstates.Add((string)pair.Key, samplerstate);
+            }
+            matgrp.SamplerStates = samplerstates;
+            MaterialDefinition[] definitions = new MaterialDefinition[jmaterials.Count];
+            i = 0;
+            foreach (var pair in jmaterials)
+            {
+                MaterialDefinition matdef = new MaterialDefinition();
+                matdef.Name = (string)pair.Key;
+                matdef.Group = matgrp;
+                matdef.ParameterSet = new ParameterSet();
+                matdef.Resources = new Dictionary<string, ShaderResourceView>();
+                matdef.SamplerStates = new Dictionary<string, SamplerState>();
+                foreach (var pair2 in pair.Value as JObject)
                 {
-                    string[] spl = ((string)pair.Value).Split('.');
-                    mappings[i++] = new ParameterMapping { ParameterName = (string)pair.Key, TargetName = spl[1], TargetSet = spl[0] };
-                }
-                matgrp.Mappings = mappings;
-                Dictionary<string, ParameterSet> psets = new Dictionary<string, ParameterSet>();
-                foreach (var pair in jpsets)
-                {
-                    ParameterSet set = new ParameterSet();
-                    foreach (var pair2 in pair.Value as JObject)
+                    string key = (string)pair2.Key;
+                    string keylower = key.ToLowerInvariant();
+                    if (keylower.StartsWith("resources."))
+                    {
+                        ShaderResourceView resource = ParseResource(pair2.Value);
+                        if (resource != null) matdef.Resources.Add(key.Substring(10), resource);
+                    }
+                    else if (keylower.StartsWith("samplerstates."))
+                    {
+                        SamplerState samplerstate = ParseSamplerState(pair2.Value);
+                        if (samplerstate != null) matdef.SamplerStates.Add(key.Substring(14), samplerstate);
+                    }
+                    else
                     {
                         object val = TranslateJsonType(pair2.Value);
                         if (val == null)
                             Console.WriteLine("Unable to translate Json token '{0}' to a .NET type! ({1})", pair2.Value, matgrpname);
                         else
-                            set.Parameters.Add((string)pair2.Key, val);
+                            matdef.ParameterSet.Parameters.Add(key, val);
                     }
-                    psets.Add((string)pair.Key, set);
                 }
-                matgrp.ParameterSets = psets;
-                Dictionary<string, ShaderResourceView> resources = new Dictionary<string, ShaderResourceView>();
-                foreach (var pair in jresources)
+                definitions[i++] = matdef;
+                MaterialDefinition oldmatdef;
+                if (definitionmap.TryGetValue(matdef.Name, out oldmatdef))
                 {
-                    ShaderResourceView resource = ParseResource(pair.Value);
-                    if (resource != null) resources.Add((string)pair.Key, resource);
-                }
-                matgrp.Resources = resources;
-                Dictionary<string, SamplerState> samplerstates = new Dictionary<string, SamplerState>();
-                foreach (var pair in jsamplerstates)
-                {
-                    SamplerState samplerstate = ParseSamplerState(pair.Value);
-                    if (samplerstate != null) samplerstates.Add((string)pair.Key, samplerstate);
-                }
-                matgrp.SamplerStates = samplerstates;
-                MaterialDefinition[] definitions = new MaterialDefinition[jmaterials.Count];
-                i = 0;
-                foreach (var pair in jmaterials)
-                {
-                    MaterialDefinition matdef = new MaterialDefinition();
-                    matdef.Name = (string)pair.Key;
-                    matdef.Group = matgrp;
-                    matdef.ParameterSet = new ParameterSet();
-                    matdef.Resources = new Dictionary<string, ShaderResourceView>();
-                    matdef.SamplerStates = new Dictionary<string, SamplerState>();
-                    foreach (var pair2 in pair.Value as JObject)
-                    {
-                        string key = (string)pair2.Key;
-                        string keylower = key.ToLowerInvariant();
-                        if (keylower.StartsWith("resources."))
-                        {
-                            ShaderResourceView resource = ParseResource(pair2.Value);
-                            if (resource != null) matdef.Resources.Add(key.Substring(10), resource);
-                        }
-                        else if (keylower.StartsWith("samplerstates."))
-                        {
-                            SamplerState samplerstate = ParseSamplerState(pair2.Value);
-                            if (samplerstate != null) matdef.SamplerStates.Add(key.Substring(14), samplerstate);
-                        }
-                        else
-                        {
-                            object val = TranslateJsonType(pair2.Value);
-                            if (val == null)
-                                Console.WriteLine("Unable to translate Json token '{0}' to a .NET type! ({1})", pair2.Value, matgrpname);
-                            else
-                                matdef.ParameterSet.Parameters.Add(key, val);
-                        }
-                    }
-                    definitions[i++] = matdef;
-                    if (definitionmap.ContainsKey(matdef.Name))
+                    if (oldmatdef.Group.Name != matgrp.Name)
                         Console.WriteLine("Material definition '{0}' in group {1} conflicts with definition of the same name from group {2}", matdef.Name, matgrpname, definitionmap[matdef.Name].Group.Name);
                     else
-                        definitionmap.Add(matdef.Name, matdef);
-                }
-                matgrp.Definitions = definitions;
-
-                if (root["CullingMode"] != null)
-                {
-                    string cullingmode = (string)root["CullingMode"];
-                    switch (cullingmode.ToLowerInvariant())
-                    {
-                        case "frontface":
-                        case "forwardface":
-                            matgrp.CullingMode = MaterialCullingMode.Frontface;
-                            break;
-                        case "backface":
-                        case "backwardface":
-                            matgrp.CullingMode = MaterialCullingMode.Backface;
-                            break;
-                        case "none":
-                            matgrp.CullingMode = MaterialCullingMode.None;
-                            break;
-                        default:
-                            Console.WriteLine("Unknown culling mode '{0}' in group {1}!", cullingmode, matgrp.Name);
-                            break;
-                    }
+                        ReloadMaterial(oldmatdef, matdef);
                 }
                 else
-                    matgrp.CullingMode = MaterialCullingMode.None;
+                    definitionmap.Add(matdef.Name, matdef);
+            }
+            matgrp.Definitions = definitions;
 
-                // Create pipeline
-                MaterialPipeline pipeline = new MaterialPipeline(Owner.GetComponent<Renderer>().Device.ImmediateContext);
-                foreach (string shadername in matgrp.Shaders)
+            if (root["CullingMode"] != null)
+            {
+                string cullingmode = (string)root["CullingMode"];
+                switch (cullingmode.ToLowerInvariant())
                 {
-                    IShader shader = GetShader(shadername);
-                    if (shader != null)
-                    {
-                        if (!pipeline.AddShader(shader))
-                            Console.WriteLine("Failed to add shader '{0}' to pipeline in group {1}. Are there multiple shaders of the same type in the shaders list?", shadername, matgrp.Name);
-                    }
+                    case "frontface":
+                    case "forwardface":
+                        matgrp.CullingMode = MaterialCullingMode.Frontface;
+                        break;
+                    case "backface":
+                    case "backwardface":
+                        matgrp.CullingMode = MaterialCullingMode.Backface;
+                        break;
+                    case "none":
+                        matgrp.CullingMode = MaterialCullingMode.None;
+                        break;
+                    default:
+                        Console.WriteLine("Unknown culling mode '{0}' in group {1}!", cullingmode, matgrp.Name);
+                        break;
                 }
-                string err;
-                if (!pipeline.Link(out err))
+            }
+            else
+                matgrp.CullingMode = MaterialCullingMode.None;
+
+            // Create pipeline
+            MaterialPipeline pipeline = new MaterialPipeline(Owner.GetComponent<Renderer>().Device.ImmediateContext);
+            foreach (string shadername in matgrp.Shaders)
+            {
+                IShader shader = GetShader(shadername);
+                if (shader != null)
                 {
-                    Console.WriteLine("Failed to create pipeline for material group '{0}' ({1})", matgrp.Name, err);
+                    if (!pipeline.AddShader(shader))
+                        Console.WriteLine("Failed to add shader '{0}' to pipeline in group {1}. Are there multiple shaders of the same type in the shaders list?", shadername, matgrp.Name);
                 }
-                else
-                    matgrp.Pipeline = pipeline;
+            }
+            string err;
+            if (!pipeline.Link(out err))
+            {
+                Console.WriteLine("Failed to create pipeline for material group '{0}' ({1})", matgrp.Name, err);
+            }
+            else
+                matgrp.Pipeline = pipeline;
+        }
+
+        private void ReloadMaterial(MaterialDefinition oldmatdef, MaterialDefinition newmatdef)
+        {
+            Material mat;
+            if (materialmap.TryGetValue(oldmatdef.Name, out mat))
+            {
+                // Reapply
+                ApplyMaterial(newmatdef, mat);
+            }
+            definitionmap[oldmatdef.Name] = newmatdef;
+        }
+
+        private void materialwatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            lock (syncroot)
+            {
+                reloadqueue.Enqueue(e.FullPath);
             }
         }
 
@@ -506,6 +550,50 @@ namespace CastleRenderer.Components
                 Console.WriteLine("Warning - Unhandled parameter type in MaterialSystem.SetOnParameterSet! ({0})", val.GetType());
         }
 
+        private void ApplyMaterial(MaterialDefinition matdef, Material material)
+        {
+            material.CullingMode = matdef.Group.CullingMode;
+
+            // Setup the parameter sets
+            foreach (var pair in matdef.Group.ParameterSets)
+            {
+                MaterialParameterSet matpset = material.GetParameterBlock(pair.Key) as MaterialParameterSet;
+                if (matpset == null)
+                {
+                    matpset = material.Pipeline.CreateParameterSet(pair.Key);
+                    material.SetParameterBlock(pair.Key, matpset);
+                }
+                if (matpset != null)
+                    foreach (var pair2 in pair.Value.Parameters)
+                        SetOnParameterSet(matpset, pair2.Key, pair2.Value);
+            }
+            foreach (var mapping in matdef.Group.Mappings)
+            {
+                MaterialParameterSet matpset = material.GetParameterBlock(mapping.TargetSet) as MaterialParameterSet;
+                if (matpset == null)
+                {
+                    matpset = material.Pipeline.CreateParameterSet(mapping.TargetSet);
+                    material.SetParameterBlock(mapping.TargetSet, matpset);
+                }
+                if (matpset != null)
+                {
+                    object val;
+                    if (matdef.ParameterSet.Parameters.TryGetValue(mapping.ParameterName, out val) && val != null)
+                        SetOnParameterSet(matpset, mapping.TargetName, val);
+                }
+            }
+
+            // Setup resources and sampler states
+            foreach (var pair in matdef.Group.Resources)
+                material.SetResource(pair.Key, pair.Value);
+            foreach (var pair in matdef.Group.SamplerStates)
+                material.SetSamplerState(pair.Key, pair.Value);
+            foreach (var pair in matdef.Resources)
+                material.SetResource(pair.Key, pair.Value);
+            foreach (var pair in matdef.SamplerStates)
+                material.SetSamplerState(pair.Key, pair.Value);
+        }
+
         private Material LoadMaterial(string name)
         {
             // Check for a definition
@@ -518,42 +606,9 @@ namespace CastleRenderer.Components
 
             // Create the material
             Material material = new Material(name, matdef.Group.Pipeline);
-            material.CullingMode = matdef.Group.CullingMode;
-
-            // Setup the parameter sets
-            foreach (var pair in matdef.Group.ParameterSets)
-            {
-                MaterialParameterSet matpset = material.GetParameterBlock(pair.Key) as MaterialParameterSet;
-                if (matpset == null)
-                {
-                    matpset = material.Pipeline.CreateParameterSet(pair.Key);
-                    material.SetParameterBlock(pair.Key, matpset);
-                }
-                foreach (var pair2 in pair.Value.Parameters)
-                    SetOnParameterSet(matpset, pair2.Key, pair2.Value);
-            }
-            foreach (var mapping in matdef.Group.Mappings)
-            {
-                MaterialParameterSet matpset = material.GetParameterBlock(mapping.TargetSet) as MaterialParameterSet;
-                if (matpset == null)
-                {
-                    matpset = material.Pipeline.CreateParameterSet(mapping.TargetSet);
-                    material.SetParameterBlock(mapping.TargetSet, matpset);
-                }
-                object val;
-                if (matdef.ParameterSet.Parameters.TryGetValue(mapping.ParameterName, out val) && val != null)
-                    SetOnParameterSet(matpset, mapping.TargetName, val);
-            }
-
-            // Setup resources and sampler states
-            foreach (var pair in matdef.Group.Resources)
-                material.SetResource(pair.Key, pair.Value);
-            foreach (var pair in matdef.Group.SamplerStates)
-                material.SetSamplerState(pair.Key, pair.Value);
-            foreach (var pair in matdef.Resources)
-                material.SetResource(pair.Key, pair.Value);
-            foreach (var pair in matdef.SamplerStates)
-                material.SetSamplerState(pair.Key, pair.Value);
+            
+            // Apply
+            ApplyMaterial(matdef, material);
             
 
             // Check the file exists
@@ -734,6 +789,16 @@ namespace CastleRenderer.Components
             Texture2D tex = Texture2D.FromFile(Owner.GetComponent<Renderer>().Device, filename);
             tex.DebugName = name;
             return tex;
+        }
+
+        [MessageHandler(typeof(UpdateMessage))]
+        public void OnUpdate(UpdateMessage msg)
+        {
+            lock (syncroot)
+            {
+                while (reloadqueue.Count > 0)
+                    LoadMaterialGroup(reloadqueue.Dequeue());
+            }
         }
 
 

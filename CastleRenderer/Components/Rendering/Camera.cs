@@ -41,16 +41,6 @@ namespace CastleRenderer.Components
         public Viewport Viewport { get; set; }
 
         /// <summary>
-        /// The near z plane
-        /// </summary>
-        public float NearZ { get; set; }
-
-        /// <summary>
-        /// The far z plane
-        /// </summary>
-        public float FarZ { get; set; }
-
-        /// <summary>
         /// The vertical field of view (if applicable) of this camera
         /// </summary>
         public float FoV { get; set; }

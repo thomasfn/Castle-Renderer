@@ -14,7 +14,7 @@ namespace CastleRenderer
     /// </summary>
     public static class Program
     {
-        public const int DesiredFPS = 60;
+        public const int DesiredFPS = 120;
         public const float DesiredFrametime = 1.0f / DesiredFPS;
 
         /// <summary>

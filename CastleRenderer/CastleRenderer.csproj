@@ -55,6 +55,7 @@
     <Compile Include="Components\Rendering\MeshRenderer.cs" />
     <Compile Include="Components\Particles\ParticleSystem.cs" />
     <Compile Include="Components\Rendering\PostProcessEffect.cs" />
+    <Compile Include="Components\Rendering\ReflectionProbe.cs" />
     <Compile Include="Components\Rendering\Renderer.cs" />
     <Compile Include="Components\Scene\SceneLoader.cs" />
     <Compile Include="Components\Scene\SceneManager.cs" />

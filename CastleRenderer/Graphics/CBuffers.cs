@@ -37,11 +37,31 @@ namespace CastleRenderer.Graphics
     /// <summary>
     /// CBuffer that represents camera state
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 192)]
+    [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 208)]
     public struct CBuffer_CameraTransform
     {
         public Matrix ProjectionMatrix;
         public Matrix ViewMatrix;
         public Matrix ViewMatrixRotOnly;
+        public float Paraboloid;
+        public float PBFar, PBNear, PBDir;
+    }
+
+    /// <summary>
+    /// CBuffer that represents post-process effect info
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 16)]
+    public struct CBuffer_PPEffectInfo
+    {
+        public Vector2 ImageSize;
+    }
+
+    /// <summary>
+    /// CBuffer that represents reflection info
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 64)]
+    public struct CBuffer_ReflectionInfo
+    {
+        public Matrix ReflViewMatrix;
     }
 }

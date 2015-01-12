@@ -4,11 +4,11 @@ CBUFFER_CAMERA_TRANSFORM(b0);
 CBUFFER_OBJECT_TRANSFORM(b1);
 CBUFFER_TEXTURE_TRANSFORM(b2);
 
+#include "CommonTransform.hlsli"
+
 FullOutputVertex main(FullInputVertex vertex)
 {
 	FullOutputVertex output = (FullOutputVertex)0;
-
-	float4x4 projview = mul(ViewMatrix, ProjectionMatrix);
 
 	float4 worldpos = mul(float4(vertex.Position, 1.0), ModelMatrix);
 	float3x3 modelmatrixrot = (float3x3)ModelMatrix;
@@ -18,7 +18,7 @@ FullOutputVertex main(FullInputVertex vertex)
 	output.WorldTangent = normalize(mul(float4(vertex.Tangent, 1.0), modelmatrixrot).xyz);
 	output.WorldBinormal = normalize(mul(float4(vertex.Binormal, 1.0), modelmatrixrot).xyz);
 
-	output.Position = mul(worldpos, projview);
+	output.Position = PROJECT(worldpos, output.ClipDepth);
 	output.TexCoord = TextureOffset + TextureScale * vertex.TexCoord;
 
 	return output;

@@ -30,6 +30,11 @@
 					"Acceleration": 1.0,
 					"Resistance": 10.0,
 					"Sensitivity": 0.002
+				},
+				"PostProcessEffect":
+				{
+					"Material": "FXAA3",
+					"Passes": 2
 				}
 			}
 		}

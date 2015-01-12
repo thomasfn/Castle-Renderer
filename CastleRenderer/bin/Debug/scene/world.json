@@ -19,7 +19,7 @@
 		},
 		
 		{
-			"Name": "DebugSphere",
+			"Name": "ReflectSphere",
 			"Components":
 			{
 				"Transform":
@@ -29,7 +29,12 @@
 				"MeshRenderer":
 				{
 					"Mesh": "Primitive:Sphere:6",
-					"Materials": [ "Concrete01" ]
+					"Materials": [ "LightGrayShinyReflective" ]
+				},
+				"ReflectionProbe":
+				{
+					"Resolution": 512,
+					"MainCamera": "Main Camera"
 				}
 			}
 		},

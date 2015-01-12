@@ -10,6 +10,9 @@
     <Filter Include="Pixel\Lights">
       <UniqueIdentifier>{82d63d33-8e3f-4141-97ee-8bf7515f023e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Pixel\PostProcess">
+      <UniqueIdentifier>{28578fa1-fcfd-4357-9249-ef051fe9aa20}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Vertex_Passthrough.hlsl">
@@ -57,6 +60,12 @@
     <FxCompile Include="Pixel_Physical_BumpTextured.hlsl">
       <Filter>Pixel</Filter>
     </FxCompile>
+    <FxCompile Include="Pixel_FXAA3.hlsl">
+      <Filter>Pixel\PostProcess</Filter>
+    </FxCompile>
+    <FxCompile Include="Pixel_Physical_Reflective.hlsl">
+      <Filter>Pixel</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common.hlsli" />
@@ -67,5 +76,7 @@
     <None Include="LightingModels.hlsli">
       <Filter>Pixel\Lights</Filter>
     </None>
+    <None Include="CommonTransform.hlsli" />
+    <None Include="Paraboloid.hlsli" />
   </ItemGroup>
 </Project>

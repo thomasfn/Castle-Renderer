@@ -1,0 +1,19 @@
+{
+	"Shaders":
+	[
+		"Vertex_Passthrough_Textured",
+		"Pixel_FXAA3"
+	],
+	"ParameterSets": {},
+	"Resources": {},
+	"SamplerStates":
+	{
+		"SourceSampler": "Clamp"
+	},
+	"CullingMode": "None",
+	"Mappings": {},
+	"Materials":
+	{
+		"FXAA3": {}
+	}
+}

@@ -11,6 +11,7 @@ struct BasicInputVertex
 struct BasicOutputVertex
 {
 	float4 Position : SV_POSITION;
+	float ClipDepth : TEXCOORD0;
 };
 
 // TexturedVertex
@@ -25,6 +26,7 @@ struct TexturedOutputVertex
 {
 	float4 Position : SV_POSITION;
 	float2 TexCoord : TEXCOORD0;
+	float ClipDepth : TEXCOORD1;
 };
 
 // TexturedNormalVertex
@@ -47,6 +49,7 @@ struct TexturedNormalOutputVertex
 	float3 WorldNormal : NORMAL;
 
 	float2 TexCoord : TEXCOORD0;
+	float ClipDepth : TEXCOORD1;
 };
 
 // FullVertex
@@ -72,6 +75,7 @@ struct FullOutputVertex
 	float3 WorldBinormal : BINORMAL;
 
 	float2 TexCoord : TEXCOORD0;
+	float ClipDepth : TEXCOORD1;
 };
 
 // BasicPixel

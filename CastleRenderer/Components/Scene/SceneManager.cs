@@ -49,6 +49,7 @@ namespace CastleRenderer.Components
         private Mesh mesh_skybox;
 
         private MaterialParameterStruct<CBuffer_Clip> matpset_clip;
+        private MaterialParameterStruct<CBuffer_PPEffectInfo> matpset_ppeffectinfo;
 
         /// <summary>
         /// Called when the initialise message has been received
@@ -109,7 +110,8 @@ namespace CastleRenderer.Components
             swapB.Finish();
 
             // Initialise struct-based parameter blocks
-            matpset_clip = new MaterialParameterStruct<CBuffer_Clip>(renderer.Device.ImmediateContext, new CBuffer_Clip { ClipEnabled = 0.0f });
+            matpset_clip = new MaterialParameterStruct<CBuffer_Clip>(renderer.Device.ImmediateContext, default(CBuffer_Clip));
+            matpset_ppeffectinfo = new MaterialParameterStruct<CBuffer_PPEffectInfo>(renderer.Device.ImmediateContext, new CBuffer_PPEffectInfo { ImageSize = new Vector2(swapA.Width, swapA.Height) });
 
             // Setup materials
             MaterialSystem matsys = Owner.GetComponent<MaterialSystem>();
@@ -252,11 +254,11 @@ namespace CastleRenderer.Components
                 Vector4 clip = new Vector4(cam.ClipPlane.Normal, cam.ClipPlane.D);
 
                 // Setup initial state
+                gbuffer.Bind();
+                gbuffer.Clear();
                 renderer.Depth = renderer.Depth_Enabled;
                 renderer.Blend = renderer.Blend_Opaque;
                 renderer.Culling = renderer.Culling_Backface;
-                gbuffer.Bind();
-                gbuffer.Clear();
 
                 // TODO (IN THIS ORDER)
                 // Note: The amount of RTs in use here is quite ridiculous
@@ -399,8 +401,8 @@ namespace CastleRenderer.Components
                         pp_target.Bind();
 
                         // Apply material
-                        //effect.Material.SetParameter("texImage", pp_source.GetTexture(0));
-                        //effect.Material.SetParameter("imagesize", new Vector2(pp_source.Width, pp_source.Height));
+                        effect.Material.SetResource("SourceTexture", renderer.AcquireResourceView(pp_source.GetTexture(0)));
+                        effect.Material.SetParameterBlock("PPEffectInfo", matpset_ppeffectinfo);
                         renderer.SetActiveMaterial(effect.Material, false, true);
 
                         // Blit

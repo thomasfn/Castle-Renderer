@@ -13,6 +13,8 @@ BasicOutputPixel main(TexturedNormalOutputVertex vertex) : SV_TARGET
 {
 	BasicOutputPixel output = (BasicOutputPixel)0;
 
+	clip(vertex.ClipDepth);
+
 	float3 upsample = UpTexture.Sample(SkyboxSampler, vertex.TexCoord).xyz;
 	float3 downsample = DownTexture.Sample(SkyboxSampler, vertex.TexCoord).xyz;
 	float3 leftsample = LeftTexture.Sample(SkyboxSampler, vertex.TexCoord).xyz;

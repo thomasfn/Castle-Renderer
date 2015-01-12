@@ -21,6 +21,8 @@
 	row_major float4x4 ProjectionMatrix; \
 	row_major float4x4 ViewMatrix; \
 	row_major float4x4 ViewMatrixRotOnly; \
+	float Paraboloid; \
+	float PBFar, PBNear, PBDir; \
 }
 
 #define CBUFFER_PHYSICAL_PROPERTIES(_reg_) cbuffer PhysicalProperties : register(_reg_) \
@@ -33,4 +35,14 @@
 { \
 	float2 TextureOffset; \
 	float2 TextureScale; \
+}
+
+#define CBUFFER_PPEFFECT_INFO(_reg_) cbuffer PPEffectInfo : register(_reg_) \
+{ \
+	float2 ImageSize; \
+}
+
+#define CBUFFER_REFLECTION_INFO(_reg_) cbuffer ReflectionInfo : register(_reg_) \
+{ \
+	row_major float4x4 ReflViewMatrix; \
 }

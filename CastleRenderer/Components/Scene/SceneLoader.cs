@@ -56,6 +56,9 @@ namespace CastleRenderer.Components
             {
                 componenttypes.Add(type.Name, type);
             }
+
+            // Initialise
+            sceneactors = new Dictionary<string, Actor>();
         }
 
         /// <summary>
@@ -89,10 +92,11 @@ namespace CastleRenderer.Components
             if (root["Include"] != null)
             {
                 // Loop each item
-                foreach (var item in root["Include"])
+                JArray jinclude = root["Include"] as JArray;
+                for (int i = 0; i < jinclude.Count; i++)
                 {
                     // Include it
-                    string name = item.ToString();
+                    string name = (string)jinclude[i];
                     if (!LoadSceneFromFile(name))
                     {
                         Console.WriteLine("Failed to load include scene file '{0}'.", name);
@@ -105,7 +109,6 @@ namespace CastleRenderer.Components
             if (root["Actors"] == null) return true;
             JToken actors = root["Actors"];
             int cnt = 0;
-            sceneactors = new Dictionary<string, Actor>();
             sceneactors["Root"] = Owner;
             models = new Dictionary<string, Model>();
             foreach (var item in actors)
@@ -258,6 +261,12 @@ namespace CastleRenderer.Components
                         return Enum.Parse(desiredtype, (string)token);
                     else if (typeof(Material).IsAssignableFrom(desiredtype))
                         return GetMaterial((string)token);
+                    else if (typeof(Actor).IsAssignableFrom(desiredtype))
+                    {
+                        Actor theactor;
+                        if (!sceneactors.TryGetValue((string)token, out theactor)) return null;
+                        return theactor;
+                    }
                     else if (desiredtype == typeof(Material[]))
                     {
                         string name = (string)token;

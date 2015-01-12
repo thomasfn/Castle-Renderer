@@ -13,6 +13,7 @@ namespace CastleRenderer.Components
     /// Renders a mesh with a set of materials
     /// </summary>
     [RequiresComponent(typeof(Transform))]
+    [ComponentPriority(5)]
     public class MeshRenderer : GenericRenderer
     {
         /// <summary>
