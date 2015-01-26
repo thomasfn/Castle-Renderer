@@ -477,7 +477,7 @@ namespace CastleRenderer.Components
                     activematerialshadow = false;
                     return;
                 }
-                if (!noapply) material.Apply();
+                if (!noapply) material.Apply(ptype);
                 pipeline.Activate(true);
                 SetCullingMode(material.CullingMode, invertculling);
                 frame_materialswitches++;
@@ -502,7 +502,7 @@ namespace CastleRenderer.Components
                 // Apply
                 activematerial = material;
                 activematerialshadow = shadow;
-                if (!noapply) material.Apply();
+                if (!noapply) material.Apply(ptype);
                 SetCullingMode(material.CullingMode, invertculling);
                 frame_materialswitches++;
 

@@ -126,6 +126,13 @@ namespace CastleRenderer.Graphics.MaterialSystem
                             return typeof(Vector4);
                     }
                     break;
+                case ShaderVariableClass.MatrixRows:
+                    switch (desc.Columns * desc.Rows)
+                    {
+                        case 16:
+                            return typeof(Matrix);
+                    }
+                    break;
             }
             return null;
         }

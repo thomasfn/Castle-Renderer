@@ -15,6 +15,7 @@ namespace CastleRenderer.Graphics
         public Mesh Mesh { get; set; }
         public int SubmeshIndex { get; set; }
         public Material Material { get; set; }
+        public BoundingBox WorldBBox { get; set; }
         public MaterialParameterStruct<CBuffer_ObjectTransform> ObjectTransformParameterBlock { get; set; }
     }
 

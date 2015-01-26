@@ -19,13 +19,18 @@
 			{
 				"Transform":
 				{
-					"LocalPosition": [ -15.0, 50.0, 10.0 ],
-					"LocalForward": [ 0.8, -1.0, -0.4 ]
+					"LocalPosition": [ -5.0, 22.0, 6.0 ],
+					"LocalForward": [ 0.8, -1.0, -0.4 ] 
 				},
 				"Light":
 				{
 					"Type": "Directional",
 					"Colour": [ 0.9, 0.8, 0.7 ]
+				},
+				"ShadowCaster":
+				{
+					"Resolution": 1024,
+					"AutoComputePosition": true
 				}
 			}
 		},
@@ -42,6 +47,11 @@
 				{
 					"Type": "Directional",
 					"Colour": [ 0.4, 0.4, 0.3 ]
+				},
+				"ShadowCaster":
+				{
+					"Resolution": 1024,
+					"AutoComputePosition": true
 				}
 			}
 		}

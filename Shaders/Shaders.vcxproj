@@ -109,7 +109,7 @@
     <FxCompile Include="Pixel_Light_Directional.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DisableOptimizations>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DisableOptimizations>
     </FxCompile>
     <FxCompile Include="Pixel_Light_Point.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -183,6 +183,7 @@
     <None Include="DeferredLight.hlsli" />
     <None Include="LightingModels.hlsli" />
     <None Include="Paraboloid.hlsli" />
+    <None Include="VarianceShadowMapping.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -137,6 +137,7 @@ namespace CastleRenderer.Components
                 mat.SetResource("MaterialTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_material)));
                 mat.SetResource("ReflectionTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_reflection)));
                 mat.SetSamplerState("GBufferSampler", renderer.Sampler_Clamp);
+                mat.SetSamplerState("ShadowMapSampler", renderer.Sampler_Clamp);
             }
 
             // Setup meshes
@@ -157,13 +158,14 @@ namespace CastleRenderer.Components
         /// <param name="submesh"></param>
         /// <param name="material"></param>
         /// <param name="transform"></param>
-        public void QueueDraw(Mesh mesh, int submesh, Material material, MaterialParameterStruct<CBuffer_ObjectTransform> transformparameterblock)
+        public void QueueDraw(Mesh mesh, int submesh, Material material, BoundingBox worldbbox, MaterialParameterStruct<CBuffer_ObjectTransform> transformparameterblock)
         {
             // Create the work item
             RenderWorkItem item = workitempool.Request();
             item.Mesh = mesh;
             item.SubmeshIndex = submesh;
             item.Material = material;
+            item.WorldBBox = worldbbox;
             item.ObjectTransformParameterBlock = transformparameterblock;
 
             // Add to queue
@@ -178,6 +180,30 @@ namespace CastleRenderer.Components
         {
             // Add to queue
             effectqueue.Add(effect);
+        }
+
+        /// <summary>
+        /// Computes the scene bounding box (slow)
+        /// </summary>
+        /// <returns></returns>
+        public BoundingBox ComputeSceneBBox()
+        {
+            // Gather all items in the scene
+            ClearRenderQueue();
+            Owner.MessagePool.SendMessage(queuemsg);
+
+            // Empty case
+            if (renderqueue.Count == 0) return new BoundingBox(Vector3.Zero, Vector3.Zero);
+
+            // Construct world bbox
+            BoundingBox cbbox = renderqueue[0].WorldBBox;
+            for (int i = 1; i < renderqueue.Count; i++)
+            {
+                cbbox = BoundingBox.Merge(cbbox, renderqueue[i].WorldBBox);
+            }
+
+            // Return
+            return cbbox;
         }
 
         /// <summary>
@@ -238,17 +264,22 @@ namespace CastleRenderer.Components
                 Material activematerial = null;
                 foreach (RenderWorkItem item in renderqueue)
                 {
-                    // Set the material
-                    if (activematerial != item.Material)
+                    // Check it has a shadow pipeline
+                    if (item.Material.Pipelines[(int)PipelineType.ShadowMapping] != null)
                     {
-                        activematerial = item.Material;
-                        //if (activematerial.ShadowPipeline != null)
+                        // Set the material
+                        if (activematerial != item.Material)
+                        {
+                            activematerial = item.Material;
+                            activematerial.SetParameterBlock("Camera", caster.CameraParameterBlock);
+                            //if (activematerial.ShadowPipeline != null)
                             //activematerial.ShadowShader.SetVariable("light_position", position);
-                        renderer.SetActiveMaterial(activematerial, true);
-                    }
+                            renderer.SetActiveMaterial(activematerial, true, false, false, true);
+                        }
 
-                    // Draw it
-                    renderer.DrawImmediate(item.Mesh, item.SubmeshIndex, caster.CameraTransformParameterBlock, item.ObjectTransformParameterBlock);
+                        // Draw it
+                        renderer.DrawImmediate(item.Mesh, item.SubmeshIndex, caster.CameraTransformParameterBlock, item.ObjectTransformParameterBlock);
+                    }
                 }
             }
 

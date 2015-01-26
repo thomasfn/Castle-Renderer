@@ -99,5 +99,8 @@
     </None>
     <None Include="CommonTransform.hlsli" />
     <None Include="Paraboloid.hlsli" />
+    <None Include="VarianceShadowMapping.hlsli">
+      <Filter>Pixel\Lights</Filter>
+    </None>
   </ItemGroup>
 </Project>

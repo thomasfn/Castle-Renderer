@@ -406,6 +406,14 @@ namespace CastleRenderer.Graphics.MaterialSystem
             return -1;
         }
 
+        public int MaterialParameterBlockCount
+        {
+            get
+            {
+                return cbuffers.Count;
+            }
+        }
+
         /// <summary>
         /// Binds the specified parameter block to a CBuffer by the specified name on this pipeline
         /// </summary>
@@ -418,7 +426,10 @@ namespace CastleRenderer.Graphics.MaterialSystem
             foreach (var binding in data.Bindings)
             {
                 binding.CurrentBlock = block;
-                bindingcache[binding.ShaderIndex].ConstantBuffers[binding.Slot] = block.Buffer;
+                if (block != null)
+                    bindingcache[binding.ShaderIndex].ConstantBuffers[binding.Slot] = block.Buffer;
+                else
+                    bindingcache[binding.ShaderIndex].ConstantBuffers[binding.Slot] = null;
                 //if (IsActive) binding.Shader.SetConstantBuffer(Context, binding.Slot, binding.CurrentBlock != null ? binding.CurrentBlock.Buffer : null);
             }
             if (IsActive)
@@ -455,6 +466,14 @@ namespace CastleRenderer.Graphics.MaterialSystem
                     return i;
             }
             return -1;
+        }
+
+        public int ResourceCount
+        {
+            get
+            {
+                return resources.Count;
+            }
         }
 
         /// <summary>
@@ -502,6 +521,14 @@ namespace CastleRenderer.Graphics.MaterialSystem
                     return i;
             }
             return -1;
+        }
+
+        public int SamplerStateCount
+        {
+            get
+            {
+                return samplerstates.Count;
+            }
         }
 
         /// <summary>

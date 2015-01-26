@@ -31,7 +31,8 @@ namespace CastleRenderer.Components
 
             // Initialise parameter blocks
             var ctxt = Owner.Root.GetComponent<Renderer>().Device.ImmediateContext;
-            ObjectTransformParameterBlock = new MaterialParameterStruct<CBuffer_ObjectTransform>(ctxt, new CBuffer_ObjectTransform { ModelMatrix = transform.ObjectToWorld });
+            ObjectTransformParameterBlock = new MaterialParameterStruct<CBuffer_ObjectTransform>(ctxt, default(CBuffer_ObjectTransform));
+            UpdateMaterialParameterBlocks();
         }
 
         public override void OnDetach()

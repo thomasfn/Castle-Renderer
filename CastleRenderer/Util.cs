@@ -22,6 +22,19 @@ namespace CastleRenderer
             return new Vector3(vec.X, vec.Y, vec.Z);
         }
 
+        private static Vector3[] corners_temp = new Vector3[8];
+        public static BoundingBox BoundingBoxTransform(BoundingBox bbox, Matrix matrix)
+        {
+            Vector3[] corners = bbox.GetCorners();
+            for (int i = 0; i < 8; i++)
+            {
+                Vector4 vec;
+                Vector3.Transform(ref corners[i], ref matrix, out vec);
+                corners[i] = new Vector3(vec.X, vec.Y, vec.Z);
+            }
+            return BoundingBox.FromPoints(corners);
+        }
+
         public static string ReadNullTerminatedString(this System.IO.BinaryReader rdr)
         {
             StringBuilder sb = new StringBuilder();

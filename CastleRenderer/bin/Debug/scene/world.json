@@ -85,6 +85,38 @@
 					"Materials": [ "BrickWall01" ]
 				}
 			}
+		},
+		{
+			"Name": "InnerLight1",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 15.0, 9.0, 0.5 ]
+				},
+				"Light":
+				{
+					"Type": "Point",
+					"Colour": [ 0.8, 0.7, 0.6 ],
+					"Range": 5.0
+				}
+			}
+		},
+		{
+			"Name": "InnerLight2",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 5.0, 9.0, 0.5 ]
+				},
+				"Light":
+				{
+					"Type": "Point",
+					"Colour": [ 0.8, 0.7, 0.6 ],
+					"Range": 5.0
+				}
+			}
 		}
 	]
 }

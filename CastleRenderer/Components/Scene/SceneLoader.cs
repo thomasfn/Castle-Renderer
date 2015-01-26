@@ -32,6 +32,8 @@ namespace CastleRenderer.Components
         private string rootscene;
         private HashSet<string> loadedscenes;
 
+        private int postloadmessagepending;
+
         private struct ModelMesh
         {
             public Mesh Mesh;
@@ -137,18 +139,26 @@ namespace CastleRenderer.Components
             }
 
             // Locate the actors array
-            if (root["Actors"] == null) return true;
-            JToken actors = root["Actors"];
-            int cnt = 0;
-            sceneactors["Root"] = Owner;
-            models = new Dictionary<string, Model>();
-            foreach (var item in actors)
+            if (root["Actors"] != null)
             {
-                if (LoadActor(item))
-                    cnt++;
+                JToken actors = root["Actors"];
+                int cnt = 0;
+                sceneactors["Root"] = Owner;
+                models = new Dictionary<string, Model>();
+                foreach (var item in actors)
+                {
+                    if (LoadActor(item))
+                        cnt++;
+                }
+                actors = null;
+                Console.WriteLine("Loaded {0} actors from scene file '{1}'.", cnt, filename);
             }
-            actors = null;
-            Console.WriteLine("Loaded {0} actors from scene file '{1}'.", cnt, filename);
+
+            // Scene loaded
+            if (isrootscene)
+            {
+                postloadmessagepending = 2;
+            }
 
             // Success
             return true;
@@ -597,6 +607,14 @@ namespace CastleRenderer.Components
             {
                 while (reloadqueue.Count > 0)
                     ReloadSceneIfLoaded(reloadqueue.Dequeue());
+            }
+            if (postloadmessagepending > 0)
+            {
+                postloadmessagepending--;
+                if (postloadmessagepending == 0)
+                {
+                    Owner.MessagePool.SendMessage(new PostSceneLoadedMessage());
+                }
             }
         }
     }

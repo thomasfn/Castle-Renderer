@@ -127,7 +127,8 @@ namespace CastleRenderer.Structures
             iterating--;
 
             // Handle any sub requests
-            ProcessSubRequests();
+            if (iterating == 0)
+                ProcessSubRequests();
         }
 
         /// <summary>

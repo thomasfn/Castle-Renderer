@@ -43,7 +43,7 @@ namespace CastleRenderer.Components
         /// </summary>
         public float Range { get; set; }
 
-        // The parameter set for this light
+        // The parameter sets for this light
         private MaterialParameterSet lightpset;
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace CastleRenderer.Components
         /// <param name="material"></param>
         public void ApplyLightSettings(Material material)
         {
-            // Initialise the parameter set if needed
+            // Initialise the parameter sets if needed
             if (lightpset == null)
             {
                 lightpset = material.MainPipeline.CreateParameterSet(Type.ToString());
@@ -65,9 +65,13 @@ namespace CastleRenderer.Components
             ShadowCaster caster = Owner.GetComponent<ShadowCaster>();
             if (caster != null)
             {
-                // TODO: This
-                //material.SetParameter("shadowmap", caster.ShadowTexture);
                 lightpset.SetParameter("ShadowMatrix", caster.ProjectionView);
+                lightpset.SetParameter("UseShadowMapping", 1.0f);
+                material.SetResource("ShadowMapTexture", Owner.Root.GetComponent<Renderer>().AcquireResourceView(caster.ShadowTexture));
+            }
+            else
+            {
+                lightpset.SetParameter("UseShadowMapping", 0.0f);
             }
 
             // All lights have colour

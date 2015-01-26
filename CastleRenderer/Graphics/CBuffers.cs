@@ -64,4 +64,14 @@ namespace CastleRenderer.Graphics
     {
         public Matrix ReflViewMatrix;
     }
+
+    /// <summary>
+    /// CBuffer that represents shadow info
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 80)]
+    public struct CBuffer_ShadowInfo
+    {
+        public Matrix ShadowMatrix;
+        public float UseShadowMapping;
+    }
 }

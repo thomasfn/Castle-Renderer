@@ -17,14 +17,19 @@ namespace CastleRenderer.Components
     public class MeshRenderer : GenericRenderer
     {
         /// <summary>
-        /// The mesh to render
+        /// Gets or sets the mesh to render
         /// </summary>
         public Mesh Mesh { get; set; }
 
         /// <summary>
-        /// The materials to use
+        /// Gets or sets the materials to use
         /// </summary>
         public Material[] Materials { get; set; }
+
+        /// <summary>
+        /// Gets the bounding box of this mesh in world space
+        /// </summary>
+        public BoundingBox AABB { get; private set; }
 
         /// <summary>
         /// Called when it's time to populate the render queue
@@ -43,7 +48,16 @@ namespace CastleRenderer.Components
             // Render all submeshes
             for (int i = 0; i < Materials.Length; i++)
                 if (Materials[i] != null)
-                    msg.SceneManager.QueueDraw(Mesh, i, Materials[i], ObjectTransformParameterBlock);
+                    msg.SceneManager.QueueDraw(Mesh, i, Materials[i], AABB, ObjectTransformParameterBlock);
+        }
+
+        protected override void UpdateMaterialParameterBlocks()
+        {
+            // Call base
+            base.UpdateMaterialParameterBlocks();
+
+            // Update bounding box
+            AABB = Util.BoundingBoxTransform(Mesh.AABB, Owner.GetComponent<Transform>().ObjectToWorld);
         }
 
     }

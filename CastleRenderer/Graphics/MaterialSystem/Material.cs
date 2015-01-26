@@ -15,13 +15,13 @@ namespace CastleRenderer.Graphics.MaterialSystem
     public class Material
     {
         // All parameter sets
-        protected Dictionary<int, MaterialParameterBlock> parameterblocks;
+        protected MaterialParameterBlock[][] parameterblocks;
 
         // All resources (textures etc)
-        protected Dictionary<int, ShaderResourceView> resources;
+        protected ShaderResourceView[][] resources;
 
         // All sampler states
-        protected Dictionary<int, SamplerState> samplerstates;
+        protected SamplerState[][] samplerstates;
 
         /// <summary>
         /// Gets the material pipelines associated with this material
@@ -53,9 +53,19 @@ namespace CastleRenderer.Graphics.MaterialSystem
             Pipelines = pipelines;
 
             // Initialise
-            parameterblocks = new Dictionary<int, MaterialParameterBlock>();
-            resources = new Dictionary<int, ShaderResourceView>();
-            samplerstates = new Dictionary<int, SamplerState>();
+            parameterblocks = new MaterialParameterBlock[(int)PipelineType._last][];
+            resources = new ShaderResourceView[(int)PipelineType._last][];
+            samplerstates = new SamplerState[(int)PipelineType._last][];
+            for (int i = 0; i < (int)PipelineType._last; i++)
+            {
+                MaterialPipeline pipeline = pipelines[i];
+                if (pipeline != null)
+                {
+                    parameterblocks[i] = new MaterialParameterBlock[pipeline.MaterialParameterBlockCount];
+                    resources[i] = new ShaderResourceView[pipeline.ResourceCount];
+                    samplerstates[i] = new SamplerState[pipeline.SamplerStateCount];
+                }
+            }
         }
 
         /// <summary>
@@ -63,22 +73,52 @@ namespace CastleRenderer.Graphics.MaterialSystem
         /// </summary>
         public void Apply()
         {
-            foreach (var pair in parameterblocks)
-                MainPipeline.SetMaterialParameterBlock(pair.Key, pair.Value);
-            foreach (var pair in resources)
-                MainPipeline.SetResource(pair.Key, pair.Value);
-            foreach (var pair in samplerstates)
-                MainPipeline.SetSamplerState(pair.Key, pair.Value);
+            Apply(PipelineType.Main);
+        }
+
+        /// <summary>
+        /// Applies this material to the specified pipeline
+        /// </summary>
+        public void Apply(PipelineType pipelinetype)
+        {
+            MaterialPipeline pipeline = Pipelines[(int)pipelinetype];
+            MaterialParameterBlock[] pblocks = parameterblocks[(int)pipelinetype];
+            ShaderResourceView[] resviews = resources[(int)pipelinetype];
+            SamplerState[] sstates = samplerstates[(int)pipelinetype];
+            for (int i = 0; i < pblocks.Length; i++)
+            {
+                MaterialParameterBlock pblock = pblocks[i];
+                if (pblock != null)
+                    pipeline.SetMaterialParameterBlock(i, pblock);
+            }
+            for (int i = 0; i < resviews.Length; i++)
+            {
+                ShaderResourceView resview = resviews[i];
+                if (resview != null)
+                    pipeline.SetResource(i, resviews[i]);
+            }
+            for (int i = 0; i < sstates.Length; i++)
+            {
+                pipeline.SetSamplerState(i, sstates[i]);
+            }
         }
 
         /// <summary>
         /// Sets a parameter block on this material
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="set"></param>
-        public void SetParameterBlock(string name, MaterialParameterBlock set)
+        /// <param name="pblock"></param>
+        public void SetParameterBlock(string name, MaterialParameterBlock pblock)
         {
-            parameterblocks[MainPipeline.LookupMaterialParameterBlockIndex(name)] = set;
+            for (int i = 0; i < Pipelines.Length; i++)
+            {
+                MaterialPipeline pipeline = Pipelines[i];
+                if (pipeline != null)
+                {
+                    int idx = pipeline.LookupMaterialParameterBlockIndex(name);
+                    if (idx != -1) parameterblocks[i][idx] = pblock;
+                }
+            }
         }
 
         /// <summary>
@@ -88,8 +128,15 @@ namespace CastleRenderer.Graphics.MaterialSystem
         /// <returns></returns>
         public MaterialParameterBlock GetParameterBlock(string name)
         {
-            MaterialParameterBlock set;
-            if (parameterblocks.TryGetValue(MainPipeline.LookupMaterialParameterBlockIndex(name), out set)) return set;
+            for (int i = 0; i < Pipelines.Length; i++)
+			{
+                MaterialPipeline pipeline = Pipelines[i];
+                if (pipeline != null)
+                {
+                    int idx = pipeline.LookupMaterialParameterBlockIndex(name);
+                    if (idx != -1) return parameterblocks[i][idx];
+                }
+			}
             return null;
         }
 
@@ -100,7 +147,15 @@ namespace CastleRenderer.Graphics.MaterialSystem
         /// <param name="resource"></param>
         public void SetResource(string name, ShaderResourceView resource)
         {
-            resources[MainPipeline.LookupResourceIndex(name)] = resource;
+            for (int i = 0; i < Pipelines.Length; i++)
+            {
+                MaterialPipeline pipeline = Pipelines[i];
+                if (pipeline != null)
+                {
+                    int idx = pipeline.LookupResourceIndex(name);
+                    if (idx != -1) resources[i][idx] = resource;
+                }
+            }
         }
 
         /// <summary>
@@ -110,8 +165,15 @@ namespace CastleRenderer.Graphics.MaterialSystem
         /// <returns></returns>
         public ShaderResourceView GetResource(string name)
         {
-            ShaderResourceView resource;
-            if (!resources.TryGetValue(MainPipeline.LookupResourceIndex(name), out resource)) return resource;
+            for (int i = 0; i < Pipelines.Length; i++)
+            {
+                MaterialPipeline pipeline = Pipelines[i];
+                if (pipeline != null)
+                {
+                    int idx = pipeline.LookupResourceIndex(name);
+                    if (idx != -1) return resources[i][idx];
+                }
+            }
             return null;
         }
 
@@ -122,7 +184,15 @@ namespace CastleRenderer.Graphics.MaterialSystem
         /// <param name="samplerstate"></param>
         public void SetSamplerState(string name, SamplerState samplerstate)
         {
-            samplerstates[MainPipeline.LookupSamplerStateIndex(name)] = samplerstate;
+            for (int i = 0; i < Pipelines.Length; i++)
+            {
+                MaterialPipeline pipeline = Pipelines[i];
+                if (pipeline != null)
+                {
+                    int idx = pipeline.LookupSamplerStateIndex(name);
+                    if (idx != -1) samplerstates[i][idx] = samplerstate;
+                }
+            }
         }
 
         /// <summary>
@@ -132,8 +202,15 @@ namespace CastleRenderer.Graphics.MaterialSystem
         /// <param name="samplerstate"></param>
         public SamplerState GetSamplerState(string name)
         {
-            SamplerState samplerstate;
-            if (!samplerstates.TryGetValue(MainPipeline.LookupSamplerStateIndex(name), out samplerstate)) return samplerstate;
+            for (int i = 0; i < Pipelines.Length; i++)
+            {
+                MaterialPipeline pipeline = Pipelines[i];
+                if (pipeline != null)
+                {
+                    int idx = pipeline.LookupSamplerStateIndex(name);
+                    if (idx != -1) return samplerstates[i][idx];
+                }
+            }
             return null;
         }
     }

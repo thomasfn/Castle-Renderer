@@ -65,14 +65,14 @@ namespace CastleRenderer.Components
 
         public override void OnAttach()
         {
-            // Base attach
-            base.OnAttach();
-
             // Initialise parameter blocks
             Transform transform = Owner.GetComponent<Transform>();
             var ctxt = Owner.Root.GetComponent<Renderer>().Device.ImmediateContext;
             CameraParameterBlock = new MaterialParameterStruct<CBuffer_Camera>(ctxt, default(CBuffer_Camera));
             CameraTransformParameterBlock = new MaterialParameterStruct<CBuffer_CameraTransform>(ctxt, default(CBuffer_CameraTransform));
+
+            // Base attach
+            base.OnAttach();
         }
 
         protected override void UpdateMaterialParameterBlocks()
