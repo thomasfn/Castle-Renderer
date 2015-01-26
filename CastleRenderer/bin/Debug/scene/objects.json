@@ -1,0 +1,22 @@
+ {
+	"Actors":
+	[
+		{
+			"Name": "Sphere1",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 5.0, 5.0, 2.0 ],
+					"LocalRotation": [ 0.0, 0.0, 0.0 ],
+					"LocalScale": [ 0.5, 0.5, 0.5 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Sphere:6",
+					"Materials": [ "LightGrayShiny" ]
+				}
+			}
+		}
+	]
+}

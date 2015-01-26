@@ -2,46 +2,87 @@
 	"Actors":
 	[
 		{
-			"Name": "ReflectSphere",
-			"Components":
-			{
-				"Transform":
-				{
-					"LocalPosition": [ 0.0, 1.0, 0.0 ],
-					"LocalScale": [ 0.5, 0.5, 0.5 ]
-				},
-				"MeshRenderer":
-				{
-					"Mesh": "Primitive:Sphere:6",
-					"Materials": [ "DarkGrayShinyReflective" ]
-				},
-				"ReflectionProbe":
-				{
-					"Resolution": 512,
-					"MainCamera": "Main Camera"
-				},
-				"PathFollower":
-				{
-					"Enabled": false,
-					"Nodes": [ "MoveNode9", "MoveNode10" ],
-					"Speed": 0.2
-				},
-			}
-		},
-		
-		{
-			"Name": "Sponza",
+			"Name": "Floor",
 			"Components":
 			{
 				"Transform":
 				{
 					"LocalPosition": [ 0.0, 0.0, 0.0 ],
-					"LocalScale": [ 1.0, 1.0, 1.0 ]
+					"LocalRotation": [ 0.0, 0.0, 0.0 ],
+					"LocalScale": [ 20.0, 0.5, 2.0 ]
 				},
 				"MeshRenderer":
 				{
-					"Mesh": "Model:models/sponza.sbm:0:6:5",
-					"Materials": "Model:models/sponza.sbm"
+					"Mesh": "Primitive:Cube",
+					"Materials": [ "DarkGrayShiny" ]
+				}
+			}
+		},
+		{
+			"Name": "Ceiling",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 0.0, 10.0, 0.0 ],
+					"LocalRotation": [ 0.0, 0.0, 0.0 ],
+					"LocalScale": [ 20.0, 0.5, 2.0 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Cube",
+					"Materials": [ "DarkGrayShiny" ]
+				}
+			}
+		},
+		{
+			"Name": "LeftWall",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 0.0, 0.0, 0.0 ],
+					"LocalRotation": [ 0.0, 0.0, 0.0 ],
+					"LocalScale": [ 0.5, 10.0, 2.0 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Cube",
+					"Materials": [ "DarkGrayShiny" ]
+				}
+			}
+		},
+		{
+			"Name": "RightWall",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 19.5, 0.0, 0.0 ],
+					"LocalRotation": [ 0.0, 0.0, 0.0 ],
+					"LocalScale": [ 0.5, 10.0, 2.0 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Cube",
+					"Materials": [ "DarkGrayShiny" ]
+				}
+			}
+		},
+		{
+			"Name": "BackWall",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 0.0, 0.0, -0.5 ],
+					"LocalRotation": [ 0.0, 0.0, 0.0 ],
+					"LocalScale": [ 20.0, 10.0, 0.5 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Cube",
+					"Materials": [ "DarkGrayShiny" ]
 				}
 			}
 		}
