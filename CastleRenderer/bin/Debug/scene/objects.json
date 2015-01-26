@@ -15,6 +15,11 @@
 				{
 					"Mesh": "Primitive:Sphere:7",
 					"Materials": [ "Ball01" ]
+				},
+				"RigidBody2D":
+				{
+					"World": "Phys2D",
+					"MoveType": "Dynamic"
 				}
 			}
 		}

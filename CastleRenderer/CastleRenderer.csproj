@@ -45,6 +45,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\PathFollower.cs" />
+    <Compile Include="Components\Physics\PhysicsWorld2D.cs" />
+    <Compile Include="Components\Physics\RigidBody2D.cs" />
     <Compile Include="Components\Rendering\Camera.cs" />
     <Compile Include="Components\Particles\CPUParticleSystem.cs" />
     <Compile Include="Components\Particles\GPUParticleSystem.cs" />
@@ -84,6 +86,11 @@
     <Compile Include="Messages\PopulateParticleSystemList.cs" />
     <Compile Include="Messages\PostSceneLoadedMessage.cs" />
     <Compile Include="Messages\UpdateMessage.cs" />
+    <Compile Include="Physics2D\IIntegrator2D.cs" />
+    <Compile Include="Physics2D\Integrators\EulerIntegrator2D.cs" />
+    <Compile Include="Physics2D\PhysicsMaterial.cs" />
+    <Compile Include="Physics2D\Shape2D.cs" />
+    <Compile Include="Physics2D\Shapes\CircleShape.cs" />
     <Compile Include="Structures\OrderedList.cs">
       <SubType>Code</SubType>
     </Compile>

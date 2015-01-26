@@ -378,6 +378,60 @@ namespace CastleRenderer.Components
                         }
                         return actor;
                     }
+                    else if (typeof(BaseComponent).IsAssignableFrom(desiredtype))
+                    {
+                        Actor actor;
+                        if (!sceneactors.TryGetValue((string)token, out actor))
+                        {
+                            return null;
+                        }
+                        return actor.GetComponent(desiredtype);
+                    }
+                    else if (!desiredtype.IsValueType)
+                    {
+                        string name = (string)token;
+                        string[] args = name.Split(':');
+                        if (args.Length < 1)
+                        {
+                            Console.WriteLine("Failed to parse generic object assignment '{0}'!", name);
+                            return null;
+                        }
+                        string cmd = args[0].Trim().ToLowerInvariant();
+                        switch (cmd)
+                        {
+                            case "new":
+                                if (args.Length < 2)
+                                {
+                                    Console.WriteLine("Failed to parse generic object assignment '{0}' (missing argument #1)!", cmd);
+                                    return null;
+                                }
+                                string typename = args[1];
+                                Type thetype =
+                                    AppDomain.CurrentDomain.GetAssemblies()
+                                    .SelectMany((a) => a.GetTypes())
+                                    .Where((t) => desiredtype.IsAssignableFrom(t) && t.Name.Equals(typename, StringComparison.InvariantCultureIgnoreCase))
+                                    .SingleOrDefault();
+                                if (thetype == null)
+                                {
+                                    Console.WriteLine("Failed to parse generic object assignment '{0}' (argument #1 referenced unknown type '{1}')!", cmd, typename);
+                                    return null;
+                                }
+                                object obj;
+                                try
+                                {
+                                    obj = Activator.CreateInstance(thetype);
+                                }
+                                catch (Exception)
+                                {
+                                    Console.WriteLine("Failed to parse generic object assignment '{0}' (exception occured while allocating type at argument #1 '{1}')!", cmd, typename);
+                                    return null;
+                                }
+                                return obj;
+                            default:
+                                Console.WriteLine("Failed to parse generic object assignment '{0}' (unknown commandlet '{1}')!", name, cmd);
+                                return null;
+                        }
+                    }
                     else
                         return null;
                 case JTokenType.Boolean:

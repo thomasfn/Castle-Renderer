@@ -36,6 +36,22 @@ namespace CastleRenderer.Components
         }
 
         /// <summary>
+        /// The position of this transform in local 2D space
+        /// </summary>
+        public Vector2 LocalPosition2D
+        {
+            get
+            {
+                return new Vector2(localposition.X, localposition.Y);
+            }
+            set
+            {
+                localposition = new Vector3(value.X, value.Y, localposition.Z);
+                if (OnTransformChange != null) OnTransformChange(this);
+            }
+        }
+
+        /// <summary>
         /// The rotation of this transform in local space
         /// </summary>
         public Quaternion LocalRotation

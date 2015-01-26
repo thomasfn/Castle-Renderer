@@ -2,6 +2,17 @@
 	"Actors":
 	[
 		{
+			"Name": "Phys2D",
+			"Components":
+			{
+				"Transform": {},
+				"PhysicsWorld2D":
+				{
+					"Integrator": "new:EulerIntegrator2D"
+				}
+			}
+		},
+		{
 			"Name": "Floor",
 			"Components":
 			{
