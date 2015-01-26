@@ -1,9 +1,12 @@
 {
-	"Shaders":
-	[
-		"Vertex_Transform_Full",
-		"Pixel_Physical_Reflective"
-	],
+	"Pipelines":
+	{
+		"Main":
+		[
+			"Vertex_Transform_Full",
+			"Pixel_Physical_Reflective"
+		]
+	},
 	"ParameterSets":
 	{
 		"TextureTransform":

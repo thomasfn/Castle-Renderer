@@ -1,0 +1,85 @@
+{
+	"Pipelines":
+	{
+		"Main":
+		[
+			"Vertex_Transform_Full",
+			"Pixel_Physical_BumpTextured"
+		],
+		"ShadowMapping":
+		[
+			"Vertex_Transform_Full",
+			"Pixel_Shadow_VSM"
+		]
+	},
+	"ParameterSets":
+	{
+		"TextureTransform":
+		{
+			"TextureOffset": [ 0.0, 1.0 ],
+			"TextureScale": [ 1.0, -1.0 ]
+		},
+		"PhysicalProperties":
+		{
+			"Roughness": 0.5,
+			"Reflectivity": 0.5,
+			"IndexOfRefraction": 0.5
+		},
+		"BumpmapProperties":
+		{
+			"BumpHeight": 1.0
+		}
+	},
+	"Resources":
+	{
+		"AmbientOcclusionTexture": "Texture:white.png"
+	},
+	"SamplerStates":
+	{
+		"TextureSampler": "Wrap"
+	},
+	"CullingMode": "Backface",
+	"Mappings":
+	{
+		"Roughness": "PhysicalProperties.Roughness",
+		"Reflectivity": "PhysicalProperties.Reflectivity",
+		"IndexOfRefraction": "PhysicalProperties.IndexOfRefraction",
+		"Height": "BumpmapProperties.BumpHeight"
+	},
+	"Materials":
+	{
+		"MossyStone01":
+		{
+			"Roughness": 0.25,
+			"Reflectivity": 0.5,
+			"IndexOfRefraction": 0.4,
+			"Height": 0.5,
+			"Resources.DiffuseTexture": "Texture:env/mossystone01_d.png",
+			"Resources.NormalTexture": "Texture:env/mossystone01_n.png",
+			"Resources.SpecularMaskTexture": "Texture:env/mossystone01_s.png",
+			"Resources.AmbientOcclusionTexture": "Texture:env/mossystone01_ao.png"
+		},
+		"BrickWall01":
+		{
+			"Roughness": 0.5,
+			"Reflectivity": 0.75,
+			"IndexOfRefraction": 0.8,
+			"Height": 1.0,
+			"Resources.DiffuseTexture": "Texture:env/brickwall01_d.png",
+			"Resources.NormalTexture": "Texture:env/brickwall01_n.png",
+			"Resources.SpecularMaskTexture": "Texture:white.png",
+			"Resources.AmbientOcclusionTexture": "Texture:env/brickwall01_ao.png"
+		},
+		"BrickWall02":
+		{
+			"Roughness": 0.75,
+			"Reflectivity": 0.75,
+			"IndexOfRefraction": 0.5,
+			"Height": 0.75,
+			"Resources.DiffuseTexture": "Texture:env/brickwall02_d.png",
+			"Resources.NormalTexture": "Texture:env/brickwall02_n.png",
+			"Resources.SpecularMaskTexture": "Texture:white.png",
+			"Resources.AmbientOcclusionTexture": "Texture:env/brickwall02_ao.png"
+		}
+	}
+}

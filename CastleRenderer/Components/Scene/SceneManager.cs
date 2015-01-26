@@ -318,7 +318,7 @@ namespace CastleRenderer.Components
                 {
                     //lightmat.SetParameter("camera_position", position);
                     //lightmat.SetParameter("camera_forward", forward);
-                    lightmat.Pipeline.SetMaterialParameterBlock("Camera", cam.CameraParameterBlock);
+                    lightmat.MainPipeline.SetMaterialParameterBlock("Camera", cam.CameraParameterBlock);
                 }
 
                 // Draw all lights

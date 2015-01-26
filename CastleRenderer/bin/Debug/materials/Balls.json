@@ -1,0 +1,56 @@
+{
+	"Pipelines":
+	{
+		"Main":
+		[
+			"Vertex_Transform_Full",
+			"Pixel_Physical_AdvTextured"
+		],
+		"ShadowMapping":
+		[
+			"Vertex_Transform_Full",
+			"Pixel_Shadow_VSM"
+		]
+	},
+	"ParameterSets":
+	{
+		"TextureTransform":
+		{
+			"TextureOffset": [ 0.0, 1.0 ],
+			"TextureScale": [ 1.0, -1.0 ]
+		},
+		"PhysicalProperties":
+		{
+			"Roughness": 0.5,
+			"Reflectivity": 0.75,
+			"IndexOfRefraction": 0.5
+		},
+		"BumpmapProperties":
+		{
+			"BumpHeight": 1.0
+		}
+	},
+	"Resources": {},
+	"SamplerStates":
+	{
+		"TextureSampler": "Wrap"
+	},
+	"CullingMode": "Backface",
+	"Mappings":
+	{
+		"Roughness": "PhysicalProperties.Roughness",
+		"Reflectivity": "PhysicalProperties.Reflectivity",
+		"IndexOfRefraction": "PhysicalProperties.IndexOfRefraction",
+		"Height": "BumpmapProperties.BumpHeight"
+	},
+	"Materials":
+	{
+		"Ball01":
+		{
+			"Height": 1.0,
+			"Resources.DiffuseTexture": "Texture:balls/ball01_d.png",
+			"Resources.NormalTexture": "Texture:balls/ball01_n.png",
+			"Resources.MaterialTexture": "Texture:balls/ball01_m.png"
+		}
+	}
+}

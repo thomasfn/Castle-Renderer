@@ -1,9 +1,0 @@
-{
-	"shader": "particle",
-	
-	"texturesampler": "@clamp_linear",
-	"textureoffset": [ 0.0, 0.0 ],
-	"texturescale": [ 1.0, 1.0 ],
-	
-	"diffuse": "$fire.png"
-}

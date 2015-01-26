@@ -55,7 +55,7 @@ namespace CastleRenderer.Components
             // Initialise the parameter set if needed
             if (lightpset == null)
             {
-                lightpset = material.Pipeline.CreateParameterSet(Type.ToString());
+                lightpset = material.MainPipeline.CreateParameterSet(Type.ToString());
             }
 
             // Cache the transform

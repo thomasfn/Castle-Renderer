@@ -9,12 +9,12 @@
 				{
 					"LocalPosition": [ 0.0, 0.0, 0.0 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
-					"LocalScale": [ 20.0, 0.5, 2.0 ]
+					"LocalScale": [ 20.0, 1.0, 4.0 ]
 				},
 				"MeshRenderer":
 				{
-					"Mesh": "Primitive:Cube",
-					"Materials": [ "DarkGrayShiny" ]
+					"Mesh": "Primitive:Cube:5.0:0.25:1.0",
+					"Materials": [ "MossyStone01" ]
 				}
 			}
 		},
@@ -26,12 +26,12 @@
 				{
 					"LocalPosition": [ 0.0, 10.0, 0.0 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
-					"LocalScale": [ 20.0, 0.5, 2.0 ]
+					"LocalScale": [ 20.0, 1.0, 2.0 ]
 				},
 				"MeshRenderer":
 				{
-					"Mesh": "Primitive:Cube",
-					"Materials": [ "DarkGrayShiny" ]
+					"Mesh": "Primitive:Cube:10.0:0.5:1.0",
+					"Materials": [ "BrickWall02" ]
 				}
 			}
 		},
@@ -41,14 +41,14 @@
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 0.0, 0.0, 0.0 ],
+					"LocalPosition": [ 0.0, 1.0, 0.0 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
-					"LocalScale": [ 0.5, 10.0, 2.0 ]
+					"LocalScale": [ 1.0, 9.0, 2.0 ]
 				},
 				"MeshRenderer":
 				{
-					"Mesh": "Primitive:Cube",
-					"Materials": [ "DarkGrayShiny" ]
+					"Mesh": "Primitive:Cube:0.5:4.5:1.0",
+					"Materials": [ "BrickWall02" ]
 				}
 			}
 		},
@@ -58,14 +58,14 @@
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 19.5, 0.0, 0.0 ],
+					"LocalPosition": [ 19.0, 1.0, 0.0 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
-					"LocalScale": [ 0.5, 10.0, 2.0 ]
+					"LocalScale": [ 1.0, 9.0, 2.0 ]
 				},
 				"MeshRenderer":
 				{
-					"Mesh": "Primitive:Cube",
-					"Materials": [ "DarkGrayShiny" ]
+					"Mesh": "Primitive:Cube:0.5:4.5:1.0",
+					"Materials": [ "BrickWall02" ]
 				}
 			}
 		},
@@ -75,14 +75,14 @@
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 0.0, 0.0, -0.5 ],
+					"LocalPosition": [ 0.0, 0.0, -1.0 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
-					"LocalScale": [ 20.0, 10.0, 0.5 ]
+					"LocalScale": [ 20.0, 11.0, 1.0 ]
 				},
 				"MeshRenderer":
 				{
-					"Mesh": "Primitive:Cube",
-					"Materials": [ "DarkGrayShiny" ]
+					"Mesh": "Primitive:Cube:10.0:5.5:0.5",
+					"Materials": [ "BrickWall01" ]
 				}
 			}
 		}

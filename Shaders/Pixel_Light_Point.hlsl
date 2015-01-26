@@ -28,7 +28,7 @@ DeferredLightOutputPixel main(TexturedOutputVertex vertex) : SV_TARGET
 	float f = dist / Range;
 	float falloff = 1.0 - saturate(f * f);
 
-	cook_torrance(normal.xyz, position.xyz, lightvec, material.x, material.y, 0.8, diffuseterm, specularterm);
+	cook_torrance(normal.xyz, position.xyz, lightvec, material.x, material.y, material.z, diffuseterm, specularterm);
 
 	// NOTE: We're halfing the colour here and compensating by doubling it in the light blit shader. This is to allow "overlighting".
 	output.Diffuse = float4(Colour * diffuseterm * 0.5 * falloff, 1.0);

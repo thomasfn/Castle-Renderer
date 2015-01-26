@@ -29,6 +29,7 @@
 { \
 	float Roughness; \
 	float Reflectivity; \
+	float IndexOfRefraction; \
 }
 
 #define CBUFFER_TEXTURE_TRANSFORM(_reg_) cbuffer TextureTransform : register(_reg_) \

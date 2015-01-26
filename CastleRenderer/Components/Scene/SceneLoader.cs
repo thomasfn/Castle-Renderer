@@ -25,6 +25,13 @@ namespace CastleRenderer.Components
 
         private Dictionary<string, Type> componenttypes;
 
+        private FileSystemWatcher scenewatcher;
+        private object syncroot;
+        private Queue<string> reloadqueue;
+
+        private string rootscene;
+        private HashSet<string> loadedscenes;
+
         private struct ModelMesh
         {
             public Mesh Mesh;
@@ -59,6 +66,22 @@ namespace CastleRenderer.Components
 
             // Initialise
             sceneactors = new Dictionary<string, Actor>();
+
+            // Initialise watcher
+            scenewatcher = new FileSystemWatcher("scene", "*.json");
+            scenewatcher.Changed += scenewatcher_Changed;
+            scenewatcher.EnableRaisingEvents = true;
+            syncroot = new object();
+            reloadqueue = new Queue<string>();
+        }
+
+        private void scenewatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            lock (syncroot)
+            {
+                System.Threading.Thread.Sleep(100);
+                reloadqueue.Enqueue(e.FullPath);
+            }
         }
 
         /// <summary>
@@ -77,10 +100,18 @@ namespace CastleRenderer.Components
         /// Loads a scene from the specified file
         /// </summary>
         /// <param name="filename"></param>
-        public bool LoadSceneFromFile(string filename)
+        public bool LoadSceneFromFile(string filename, bool isrootscene)
         {
             // Check file exists
             if (!File.Exists(filename)) return false;
+
+            // Set root
+            if (isrootscene)
+            {
+                rootscene = filename;
+                loadedscenes = new HashSet<string>();
+            }
+            loadedscenes.Add(Path.GetFileNameWithoutExtension(filename));
 
             // Load it
             string content = File.ReadAllText(filename);
@@ -97,7 +128,7 @@ namespace CastleRenderer.Components
                 {
                     // Include it
                     string name = (string)jinclude[i];
-                    if (!LoadSceneFromFile(name))
+                    if (!LoadSceneFromFile(name, false))
                     {
                         Console.WriteLine("Failed to load include scene file '{0}'.", name);
                         return false;
@@ -121,6 +152,24 @@ namespace CastleRenderer.Components
 
             // Success
             return true;
+        }
+
+        private void ReloadSceneIfLoaded(string filename)
+        {
+            // Check if the scene is loaded
+            if (loadedscenes != null && loadedscenes.Contains(Path.GetFileNameWithoutExtension(filename)))
+            {
+                // Wipe all old actors
+                foreach (var actor in sceneactors.Values)
+                {
+                    if (actor != Owner.Root)
+                        actor.Destroy(true);
+                }
+                sceneactors.Clear();
+
+                // Load new scene
+                LoadSceneFromFile(rootscene, true);
+            }
         }
 
         private bool LoadActor(JToken source)
@@ -404,7 +453,28 @@ namespace CastleRenderer.Components
                     switch (arg)
                     {
                         case "cube":
-                            return MeshBuilder.BuildCube(Matrix.Identity);
+                            if (args.Length >= 5)
+                            {
+                                Vector3 texturescale;
+                                if (!float.TryParse(args[2], out texturescale.X))
+                                {
+                                    Console.WriteLine("Failed to parse mesh '{0}' (bad argument #2 '{1}')!", name, args[2]);
+                                    return null;
+                                }
+                                if (!float.TryParse(args[3], out texturescale.Y))
+                                {
+                                    Console.WriteLine("Failed to parse mesh '{0}' (bad argument #3 '{1}')!", name, args[3]);
+                                    return null;
+                                }
+                                if (!float.TryParse(args[4], out texturescale.Z))
+                                {
+                                    Console.WriteLine("Failed to parse mesh '{0}' (bad argument #4 '{1}')!", name, args[4]);
+                                    return null;
+                                }
+                                return MeshBuilder.BuildCube(Matrix.Identity, texturescale);
+                            }
+                            else
+                                return MeshBuilder.BuildCube(Matrix.Identity);
                         case "sphere":
                             int divs = 8;
                             if (args.Length >= 3)
@@ -518,6 +588,16 @@ namespace CastleRenderer.Components
         private static Color4 ParseColor4(JToken source)
         {
             return new Color4((float)source[3], (float)source[0], (float)source[1], (float)source[2]);
+        }
+
+        [MessageHandler(typeof(UpdateMessage))]
+        public void OnUpdate(UpdateMessage msg)
+        {
+            lock (syncroot)
+            {
+                while (reloadqueue.Count > 0)
+                    ReloadSceneIfLoaded(reloadqueue.Dequeue());
+            }
         }
     }
 }

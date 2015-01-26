@@ -1,5 +1,0 @@
-{
-	"shader": "fxaa3",
-	
-	"smpTexture": "@clamp_linear"
-}

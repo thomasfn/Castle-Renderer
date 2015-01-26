@@ -469,7 +469,8 @@ namespace CastleRenderer.Components
             if (activematerial == null || forceswitch)
             {
                 activematerial = material;
-                MaterialPipeline pipeline = shadow ? material.ShadowPipeline : material.Pipeline;
+                PipelineType ptype = shadow ? PipelineType.ShadowMapping : PipelineType.Main;
+                MaterialPipeline pipeline = material.Pipelines[(int)ptype];
                 if (pipeline == null)
                 {
                     activematerial = null;
@@ -488,8 +489,9 @@ namespace CastleRenderer.Components
             if (material != activematerial)
             {
                 // Did the shader change?
-                MaterialPipeline oldpipeline = shadow ? activematerial.ShadowPipeline : activematerial.Pipeline;
-                MaterialPipeline newpipeline = shadow ? material.ShadowPipeline : material.Pipeline;
+                PipelineType ptype = shadow ? PipelineType.ShadowMapping : PipelineType.Main;
+                MaterialPipeline oldpipeline = activematerial.Pipelines[(int)ptype];
+                MaterialPipeline newpipeline = material.Pipelines[(int)ptype];
                 if (newpipeline == null)
                 {
                     activematerial = null;
@@ -526,7 +528,8 @@ namespace CastleRenderer.Components
             if (activematerial == null) return;
 
             // Setup the material
-            MaterialPipeline pipeline = activematerialshadow ? activematerial.ShadowPipeline : activematerial.Pipeline;
+            PipelineType ptype = activematerialshadow ? PipelineType.ShadowMapping : PipelineType.Main;
+            MaterialPipeline pipeline = activematerial.Pipelines[(int)ptype];
             if (pipeline == null) return;
             pipeline.SetMaterialParameterBlock("CameraTransform", cameratransform);
             pipeline.SetMaterialParameterBlock("ObjectTransform", objecttransform);
@@ -555,11 +558,11 @@ namespace CastleRenderer.Components
             //activematerial.Shader.Effect.GetTechniqueByIndex(0).GetPassByIndex(0).Apply(context);
 
             // Render
-            activematerial.Pipeline.Use();
-            if (!mesh.Render(activematerial.Pipeline, submesh))
+            activematerial.MainPipeline.Use();
+            if (!mesh.Render(activematerial.MainPipeline, submesh))
             {
                 mesh.Upload(Device, context);
-                mesh.Render(activematerial.Pipeline, submesh);
+                mesh.Render(activematerial.MainPipeline, submesh);
             }
         }
 

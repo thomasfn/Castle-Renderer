@@ -1,9 +1,12 @@
 {
-	"Shaders":
-	[
-		"Vertex_Skybox",
-		"Pixel_Skybox"
-	],
+	"Pipelines":
+	{
+		"Main":
+		[
+			"Vertex_Skybox",
+			"Pixel_Skybox"
+		]
+	},
 	"ParameterSets": {},
 	"Resources": {},
 	"SamplerStates":

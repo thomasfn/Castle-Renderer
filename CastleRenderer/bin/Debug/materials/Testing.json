@@ -1,9 +1,12 @@
 {
-	"Shaders":
-	[
-		"Vertex_Transform_Full",
-		"Pixel_Physical_BumpTextured"
-	],
+	"Pipelines":
+	{
+		"Main":
+		[
+			"Vertex_Transform_Full",
+			"Pixel_Physical_BumpTextured"
+		]
+	},
 	"ParameterSets":
 	{
 		"TextureTransform":

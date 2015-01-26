@@ -7,14 +7,14 @@
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 5.0, 5.0, 2.0 ],
+					"LocalPosition": [ 10.0, 5.0, 1.0 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
 					"LocalScale": [ 0.5, 0.5, 0.5 ]
 				},
 				"MeshRenderer":
 				{
-					"Mesh": "Primitive:Sphere:6",
-					"Materials": [ "LightGrayShiny" ]
+					"Mesh": "Primitive:Sphere:7",
+					"Materials": [ "Ball01" ]
 				}
 			}
 		}

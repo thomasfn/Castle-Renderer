@@ -1,9 +1,12 @@
 {
-	"Shaders":
-	[
-		"Vertex_Passthrough_Textured",
-		"Pixel_FXAA3"
-	],
+	"Pipelines":
+	{
+		"Main":
+		[
+			"Vertex_Passthrough_Textured",
+			"Pixel_FXAA3"
+		]
+	},
 	"ParameterSets": {},
 	"Resources": {},
 	"SamplerStates":

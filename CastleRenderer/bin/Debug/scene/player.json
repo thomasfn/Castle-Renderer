@@ -7,7 +7,7 @@
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 10.0, 5.0, 16.0 ],
+					"LocalPosition": [ 9.875, 5.0, 16.0 ],
 					"LocalRotation": [ 0.0, 3.141, 0.0 ]
 				},
 				"Camera":

@@ -765,6 +765,11 @@ namespace CastleRenderer.Graphics
 
         public static Mesh BuildCube(Matrix transform)
         {
+            return BuildCube(transform, new Vector3(1.0f, 1.0f, 1.0f));
+        }
+
+        public static Mesh BuildCube(Matrix transform, Vector3 texturescale)
+        {
             // Create mesh builder
             MeshBuilder builder = new MeshBuilder();
             builder.UseTexCoords = true;
@@ -772,21 +777,21 @@ namespace CastleRenderer.Graphics
 
             // X facing sides
             builder.AddQuad(new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.0f, 0.0f, 1.0f), new Vector3(0.0f, 1.0f, 1.0f), new Vector3(0.0f, 1.0f, 0.0f),
-                new Vector2(1.0f, 1.0f), new Vector2(0.0f, 1.0f), new Vector2(0.0f, 0.0f), new Vector2(1.0f, 0.0f), false);
+                new Vector2(texturescale.Z, texturescale.Y), new Vector2(0.0f, texturescale.Y), new Vector2(0.0f, 0.0f), new Vector2(texturescale.Z, 0.0f), false);
             builder.AddQuad(new Vector3(1.0f, 0.0f, 0.0f), new Vector3(1.0f, 0.0f, 1.0f), new Vector3(1.0f, 1.0f, 1.0f), new Vector3(1.0f, 1.0f, 0.0f),
-                new Vector2(0.0f, 1.0f), new Vector2(1.0f, 1.0f), new Vector2(1.0f, 0.0f), new Vector2(0.0f, 0.0f), true);
+                new Vector2(0.0f, texturescale.Y), new Vector2(texturescale.Z, texturescale.Y), new Vector2(texturescale.Z, 0.0f), new Vector2(0.0f, 0.0f), true);
 
             // Y facing sides
             builder.AddQuad(new Vector3(0.0f, 0.0f, 0.0f), new Vector3(1.0f, 0.0f, 0.0f), new Vector3(1.0f, 0.0f, 1.0f), new Vector3(0.0f, 0.0f, 1.0f),
-                new Vector2(0.0f, 0.0f), new Vector2(1.0f, 0.0f), new Vector2(1.0f, 1.0f), new Vector2(0.0f, 1.0f), false);
+                new Vector2(0.0f, 0.0f), new Vector2(texturescale.X, 0.0f), new Vector2(texturescale.X, texturescale.Z), new Vector2(0.0f, texturescale.Z), false);
             builder.AddQuad(new Vector3(0.0f, 1.0f, 0.0f), new Vector3(1.0f, 1.0f, 0.0f), new Vector3(1.0f, 1.0f, 1.0f), new Vector3(0.0f, 1.0f, 1.0f),
-                new Vector2(1.0f, 0.0f), new Vector2(0.0f, 0.0f), new Vector2(0.0f, 1.0f), new Vector2(1.0f, 1.0f), true);
+                new Vector2(texturescale.X, 0.0f), new Vector2(0.0f, 0.0f), new Vector2(0.0f, texturescale.Z), new Vector2(texturescale.X, texturescale.Z), true);
 
             // Z facing sides
             builder.AddQuad(new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.0f, 1.0f, 0.0f), new Vector3(1.0f, 1.0f, 0.0f), new Vector3(1.0f, 0.0f, 0.0f),
-                new Vector2(0.0f, 1.0f), new Vector2(0.0f, 0.0f), new Vector2(1.0f, 0.0f), new Vector2(1.0f, 1.0f), false);
+                new Vector2(0.0f, texturescale.Y), new Vector2(0.0f, 0.0f), new Vector2(texturescale.X, 0.0f), new Vector2(texturescale.X, texturescale.Y), false);
             builder.AddQuad(new Vector3(0.0f, 0.0f, 1.0f), new Vector3(0.0f, 1.0f, 1.0f), new Vector3(1.0f, 1.0f, 1.0f), new Vector3(1.0f, 0.0f, 1.0f),
-                new Vector2(1.0f, 1.0f), new Vector2(1.0f, 0.0f), new Vector2(0.0f, 0.0f), new Vector2(0.0f, 1.0f), true);
+                new Vector2(texturescale.X, texturescale.Y), new Vector2(texturescale.X, 0.0f), new Vector2(0.0f, 0.0f), new Vector2(0.0f, texturescale.Y), true);
 
             // Tangents
             builder.CalculateTangents();

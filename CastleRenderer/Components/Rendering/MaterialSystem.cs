@@ -30,7 +30,6 @@ namespace CastleRenderer.Components
         private Dictionary<string, MaterialDefinition> definitionmap;
 
         private FileSystemWatcher materialwatcher;
-
         private object syncroot;
         private Queue<string> reloadqueue;
 
@@ -69,10 +68,10 @@ namespace CastleRenderer.Components
         private class MaterialGroup
         {
             public string Name { get; set; }
-            public string[] Shaders { get; set; }
+            public string[][] PipelineShaders { get; set; }
             public ParameterMapping[] Mappings { get; set; }
             public MaterialDefinition[] Definitions { get; set; }
-            public MaterialPipeline Pipeline { get; set; }
+            public MaterialPipeline[] Pipelines { get; set; }
             public Dictionary<string, ParameterSet> ParameterSets { get; set; }
             public Dictionary<string, ShaderResourceView> Resources { get; set; }
             public Dictionary<string, SamplerState> SamplerStates { get; set; }
@@ -119,9 +118,9 @@ namespace CastleRenderer.Components
             JObject root = JObject.Parse(src);
 
             // Verify
-            if (root["Shaders"] == null)
+            if (root["Pipelines"] == null)
             {
-                Console.WriteLine("Missing shaders for material group '{0}'", matgrpname);
+                Console.WriteLine("Missing pipelines for material group '{0}'", matgrpname);
                 return;
             }
             if (root["ParameterSets"] == null)
@@ -149,23 +148,63 @@ namespace CastleRenderer.Components
                 Console.WriteLine("Missing materials for material group '{0}'", matgrpname);
                 return;
             }
-            JArray jshaders = root["Shaders"] as JArray;
+            JObject jpipelines = root["Pipelines"] as JObject;
             JObject jpsets = root["ParameterSets"] as JObject;
             JObject jresources = root["Resources"] as JObject;
             JObject jsamplerstates = root["SamplerStates"] as JObject;
             JObject jmappings = root["Mappings"] as JObject;
             JObject jmaterials = root["Materials"] as JObject;
 
-            // Create group
+            // Pipelines
             MaterialGroup matgrp = new MaterialGroup();
             matgrp.Name = matgrpname;
-            string[] shaders = new string[jshaders.Count];
+            string[][] pipelineshaders = new string[(int)PipelineType._last][];
             int i;
-            for (i = 0; i < jshaders.Count; i++)
+            foreach (var pair in jpipelines)
             {
-                shaders[i] = (string)jshaders[i];
+                PipelineType ptype;
+                if (!Enum.TryParse<PipelineType>(pair.Key, out ptype))
+                {
+                    Console.WriteLine("Unknown pipeline type '{1}' for material group '{0}'", matgrpname, pair.Key);
+                    return;
+                }
+                
+                JArray jarr = pair.Value as JArray;
+                string[] shaders = new string[jarr.Count];
+                for (i = 0; i < jarr.Count; i++)
+                {
+                    shaders[i] = (string)jarr[i];
+                }
+                pipelineshaders[(int)ptype] = shaders;
             }
-            matgrp.Shaders = shaders;
+            matgrp.PipelineShaders = pipelineshaders;
+
+            // Culling mode
+            if (root["CullingMode"] != null)
+            {
+                string cullingmode = (string)root["CullingMode"];
+                switch (cullingmode.ToLowerInvariant())
+                {
+                    case "frontface":
+                    case "forwardface":
+                        matgrp.CullingMode = MaterialCullingMode.Frontface;
+                        break;
+                    case "backface":
+                    case "backwardface":
+                        matgrp.CullingMode = MaterialCullingMode.Backface;
+                        break;
+                    case "none":
+                        matgrp.CullingMode = MaterialCullingMode.None;
+                        break;
+                    default:
+                        Console.WriteLine("Unknown culling mode '{0}' in group {1}!", cullingmode, matgrp.Name);
+                        break;
+                }
+            }
+            else
+                matgrp.CullingMode = MaterialCullingMode.None;
+
+            // Parameter mappings
             ParameterMapping[] mappings = new ParameterMapping[jmappings.Count];
             i = 0;
             foreach (var pair in jmappings)
@@ -174,6 +213,8 @@ namespace CastleRenderer.Components
                 mappings[i++] = new ParameterMapping { ParameterName = (string)pair.Key, TargetName = spl[1], TargetSet = spl[0] };
             }
             matgrp.Mappings = mappings;
+
+            // Parameter sets
             Dictionary<string, ParameterSet> psets = new Dictionary<string, ParameterSet>();
             foreach (var pair in jpsets)
             {
@@ -189,6 +230,8 @@ namespace CastleRenderer.Components
                 psets.Add((string)pair.Key, set);
             }
             matgrp.ParameterSets = psets;
+
+            // Resources
             Dictionary<string, ShaderResourceView> resources = new Dictionary<string, ShaderResourceView>();
             foreach (var pair in jresources)
             {
@@ -196,6 +239,8 @@ namespace CastleRenderer.Components
                 if (resource != null) resources.Add((string)pair.Key, resource);
             }
             matgrp.Resources = resources;
+
+            // Sampler states
             Dictionary<string, SamplerState> samplerstates = new Dictionary<string, SamplerState>();
             foreach (var pair in jsamplerstates)
             {
@@ -203,6 +248,8 @@ namespace CastleRenderer.Components
                 if (samplerstate != null) samplerstates.Add((string)pair.Key, samplerstate);
             }
             matgrp.SamplerStates = samplerstates;
+
+            // Material definitions
             MaterialDefinition[] definitions = new MaterialDefinition[jmaterials.Count];
             i = 0;
             foreach (var pair in jmaterials)
@@ -250,48 +297,38 @@ namespace CastleRenderer.Components
             }
             matgrp.Definitions = definitions;
 
-            if (root["CullingMode"] != null)
+            // Create pipelines
+            MaterialPipeline[] pipelines = new MaterialPipeline[(int)PipelineType._last];
+            for (i = 0; i < (int)PipelineType._last; i++)
             {
-                string cullingmode = (string)root["CullingMode"];
-                switch (cullingmode.ToLowerInvariant())
-                {
-                    case "frontface":
-                    case "forwardface":
-                        matgrp.CullingMode = MaterialCullingMode.Frontface;
-                        break;
-                    case "backface":
-                    case "backwardface":
-                        matgrp.CullingMode = MaterialCullingMode.Backface;
-                        break;
-                    case "none":
-                        matgrp.CullingMode = MaterialCullingMode.None;
-                        break;
-                    default:
-                        Console.WriteLine("Unknown culling mode '{0}' in group {1}!", cullingmode, matgrp.Name);
-                        break;
-                }
+                string[] shaders = matgrp.PipelineShaders[i];
+                if (shaders != null)
+                    pipelines[i] = CreatePipeline(shaders, matgrp.Name);
             }
-            else
-                matgrp.CullingMode = MaterialCullingMode.None;
+            
+            matgrp.Pipelines = pipelines;
+        }
 
-            // Create pipeline
+        private MaterialPipeline CreatePipeline(string[] shaders, string grp)
+        {
             MaterialPipeline pipeline = new MaterialPipeline(Owner.GetComponent<Renderer>().Device.ImmediateContext);
-            foreach (string shadername in matgrp.Shaders)
+            foreach (string shadername in shaders)
             {
                 IShader shader = GetShader(shadername);
                 if (shader != null)
                 {
                     if (!pipeline.AddShader(shader))
-                        Console.WriteLine("Failed to add shader '{0}' to pipeline in group {1}. Are there multiple shaders of the same type in the shaders list?", shadername, matgrp.Name);
+                        Console.WriteLine("Failed to add shader '{0}' to pipeline in group {1}. Are there multiple shaders of the same type in the shaders list?", shadername, grp);
                 }
             }
             string err;
             if (!pipeline.Link(out err))
             {
-                Console.WriteLine("Failed to create pipeline for material group '{0}' ({1})", matgrp.Name, err);
+                Console.WriteLine("Failed to create pipeline for material group '{0}' ({1})", grp, err);
+                return null;
             }
             else
-                matgrp.Pipeline = pipeline;
+                return pipeline;
         }
 
         private void ReloadMaterial(MaterialDefinition oldmatdef, MaterialDefinition newmatdef)
@@ -520,19 +557,23 @@ namespace CastleRenderer.Components
             Material material;
             if (materialmap.TryGetValue(name, out material)) return material;
 
-            // Create the pipeline
-            MaterialPipeline pipeline = new MaterialPipeline(Owner.GetComponent<Renderer>().Device.ImmediateContext);
+            // Create the main pipeline
+            MaterialPipeline mainpipeline = new MaterialPipeline(Owner.GetComponent<Renderer>().Device.ImmediateContext);
             foreach (IShader shader in shaders)
-                pipeline.AddShader(shader);
+                mainpipeline.AddShader(shader);
             string err;
-            if (!pipeline.Link(out err))
+            if (!mainpipeline.Link(out err))
             {
                 Console.WriteLine("Failed to create pipeline for material '{0}' ({1})", name, err);
                 return null;
             }
 
+            // Setup pipelines
+            MaterialPipeline[] pipelines = new MaterialPipeline[(int)PipelineType._last];
+            pipelines[(int)PipelineType.Main] = mainpipeline;
+
             // Create it
-            material = new Material(name, pipeline);
+            material = new Material(name, pipelines);
             materialmap.Add(name, material);
             return material;
         }
@@ -561,7 +602,7 @@ namespace CastleRenderer.Components
                 MaterialParameterSet matpset = material.GetParameterBlock(pair.Key) as MaterialParameterSet;
                 if (matpset == null)
                 {
-                    matpset = material.Pipeline.CreateParameterSet(pair.Key);
+                    matpset = material.MainPipeline.CreateParameterSet(pair.Key);
                     material.SetParameterBlock(pair.Key, matpset);
                 }
                 if (matpset != null)
@@ -573,7 +614,7 @@ namespace CastleRenderer.Components
                 MaterialParameterSet matpset = material.GetParameterBlock(mapping.TargetSet) as MaterialParameterSet;
                 if (matpset == null)
                 {
-                    matpset = material.Pipeline.CreateParameterSet(mapping.TargetSet);
+                    matpset = material.MainPipeline.CreateParameterSet(mapping.TargetSet);
                     material.SetParameterBlock(mapping.TargetSet, matpset);
                 }
                 if (matpset != null)
@@ -606,7 +647,7 @@ namespace CastleRenderer.Components
             }
 
             // Create the material
-            Material material = new Material(name, matdef.Group.Pipeline);
+            Material material = new Material(name, matdef.Group.Pipelines);
             
             // Apply
             ApplyMaterial(matdef, material);

@@ -121,7 +121,9 @@ namespace CastleRenderer.Structures
 
             // Send to all components
             iterating++;
-            foreach (var c in set) c.HandleMessage(msg);
+            foreach (var c in set)
+                if (c.Owner != null) // Edge case where a previous HandleMessage call caused a component later on in set to become unsubbed
+                    c.HandleMessage(msg);
             iterating--;
 
             // Handle any sub requests

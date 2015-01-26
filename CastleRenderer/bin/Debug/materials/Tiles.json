@@ -1,0 +1,57 @@
+{
+	"Pipelines":
+	{
+		"Main":
+		[
+			"Vertex_Transform_Full",
+			"Pixel_Physical_BumpTextured"
+		]
+	},
+	"ParameterSets":
+	{
+		"TextureTransform":
+		{
+			"TextureOffset": [ 0.0, 1.0 ],
+			"TextureScale": [ 1.0, -1.0 ]
+		},
+		"PhysicalProperties":
+		{
+			"Roughness": 0.2,
+			"Reflectivity": 0.2,
+			"IndexOfRefraction": 0.8
+		},
+		"BumpmapProperties":
+		{
+			"BumpHeight": 1.0
+		}
+	},
+	"Resources":
+	{
+		"SpecularMaskTexture": "Texture:tile_s.png",
+		"NormalTexture": "Texture:tile_n.png",
+		"DiffuseTexture": "Texture:tile_d.png"
+	},
+	"SamplerStates":
+	{
+		"TextureSampler": "Wrap"
+	},
+	"CullingMode": "Backface",
+	"Mappings":
+	{
+		"Roughness": "PhysicalProperties.Roughness",
+		"Reflectivity": "PhysicalProperties.Reflectivity",
+		"Height": "BumpmapProperties.BumpHeight"
+	},
+	"Materials":
+	{
+		"Tile01":
+		{
+			"Roughness": 0.1,
+			"Reflectivity": 0.2,
+			"Height": 1.0,
+			"Resources.DiffuseTexture": "Texture:tiles/tile01_d.png",
+			"Resources.NormalTexture": "Texture:tiles/tile01_n.png",
+			"Resources.SpecularMaskTexture": "Texture:tiles/tile01_s.png"
+		}
+	}
+}

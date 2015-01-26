@@ -4,8 +4,7 @@ CBUFFER_PHYSICAL_PROPERTIES(b0);
 
 Texture2D DiffuseTexture : register(t0);
 Texture2D NormalTexture : register(t1);
-Texture2D SpecularMaskTexture : register(t2);
-Texture2D AmbientOcclusionTexture : register(t3);
+Texture2D MaterialTexture : register(t2);
 
 SamplerState TextureSampler : register(s0);
 
@@ -26,12 +25,10 @@ GBufferOutputPixel main(FullOutputVertex vertex) : SV_TARGET
 	float4 colour = DiffuseTexture.Sample(TextureSampler, vertex.TexCoord);
 		clip(colour.a - 0.5);
 
-	float specularmask = SpecularMaskTexture.Sample(TextureSampler, vertex.TexCoord).r;
-
-	float ao = AmbientOcclusionTexture.Sample(TextureSampler, vertex.TexCoord).r;
+	float4 mat = MaterialTexture.Sample(TextureSampler, vertex.TexCoord);
 
 	float3 texturenormal = UnpackNormal(NormalTexture.Sample(TextureSampler, vertex.TexCoord).xyz);
-	//float3 texturenormal = float3(0.0, 1.0, 0.0);
+		//float3 texturenormal = float3(0.0, 1.0, 0.0);
 		float3x3 normalmatrix = CreateNormalMatrix(vertex.WorldNormal, vertex.WorldTangent, vertex.WorldBinormal);
 		float3 normal = normalize(mul(texturenormal * float3(BumpHeight, 1.0, BumpHeight), normalmatrix));
 
@@ -40,7 +37,7 @@ GBufferOutputPixel main(FullOutputVertex vertex) : SV_TARGET
 	output.Position = float4(vertex.WorldPosition, 1.0);
 	//output.Normal = float4(mul(texturenormal, normalmatrix), 1.0);
 	output.Normal = float4(normal, 1.0);
-	output.Material = float4(Roughness, Reflectivity * specularmask, IndexOfRefraction, ao);
+	output.Material = float4(Roughness * mat.r, Reflectivity * mat.g, IndexOfRefraction, mat.b);
 
 	return output;
 }

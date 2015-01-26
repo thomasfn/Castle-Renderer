@@ -51,7 +51,7 @@ GBufferOutputPixel main(FullOutputVertex vertex) : SV_TARGET
 	output.Colour = float4(Colour.xyz, 1.0);
 	output.Position = float4(vertex.WorldPosition, 1.0);
 	output.Normal = float4(vertex.WorldNormal, 1.0);
-	output.Material = float4(Roughness, Reflectivity, 0.0, 0.0);
+	output.Material = float4(Roughness, Reflectivity, IndexOfRefraction, 1.0);
 	output.Reflection = float4(SampleReflection(vertex.WorldPosition, vertex.WorldNormal).xyz * Reflectivity, 1.0);
 
 	return output;

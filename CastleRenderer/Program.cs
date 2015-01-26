@@ -50,7 +50,7 @@ namespace CastleRenderer
             pool.SendMessage(initmsg);
 
             // Load the scene
-            if (!root.GetComponent<SceneLoader>().LoadSceneFromFile("scene/main.json"))
+            if (!root.GetComponent<SceneLoader>().LoadSceneFromFile("scene/main.json", true))
             {
                 Console.WriteLine("Failed to load scene!");
                 Console.ReadKey();
