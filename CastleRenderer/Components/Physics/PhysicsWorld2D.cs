@@ -24,6 +24,11 @@ namespace CastleRenderer.Components.Physics
         public IIntegrator2D Integrator { get; set; }
 
         /// <summary>
+        /// Gets or sets the broadphase to use
+        /// </summary>
+        public IBroadPhase2D BroadPhase { get; set; }
+
+        /// <summary>
         /// Called when this component has been attached to an actor
         /// </summary>
         public override void OnAttach()
@@ -43,6 +48,7 @@ namespace CastleRenderer.Components.Physics
         public void AddRigidBody(RigidBody2D body)
         {
             rigidbodies.Add(body);
+            BroadPhase.AddObject(body);
         }
 
         /// <summary>
@@ -53,6 +59,7 @@ namespace CastleRenderer.Components.Physics
         public void RemoveRigidBody(RigidBody2D body)
         {
             rigidbodies.Remove(body);
+            BroadPhase.RemoveObject(body);
         }
 
          /// <summary>
@@ -65,6 +72,27 @@ namespace CastleRenderer.Components.Physics
             // Integrate all bodies
             foreach (RigidBody2D body in rigidbodies)
                 body.Integrate(Integrator, msg.DeltaTime);
+
+            // Iterate though all potential collision pairs
+            Manifold2D manifold;
+            foreach (CollisionTestPair pair in BroadPhase.Test())
+            {
+                // Perform narrow-phase collision test
+                if (pair.A.TestCollision(pair.B, out manifold))
+                {
+                    // Resolve collision
+                    ResolveManifold(manifold);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resolves a collision using the specified manifold
+        /// </summary>
+        /// <param name="manifold"></param>
+        private void ResolveManifold(Manifold2D manifold)
+        {
+
         }
     }
 }

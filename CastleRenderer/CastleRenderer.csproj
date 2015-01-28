@@ -86,11 +86,16 @@
     <Compile Include="Messages\PopulateParticleSystemList.cs" />
     <Compile Include="Messages\PostSceneLoadedMessage.cs" />
     <Compile Include="Messages\UpdateMessage.cs" />
+    <Compile Include="Physics2D\BroadPhases\BruteForceBroadphase2D.cs" />
+    <Compile Include="Physics2D\IBroadPhase2D.cs" />
     <Compile Include="Physics2D\IIntegrator2D.cs" />
     <Compile Include="Physics2D\Integrators\EulerIntegrator2D.cs" />
+    <Compile Include="Physics2D\IPhysicsObject2D.cs" />
+    <Compile Include="Physics2D\Manifold2D.cs" />
     <Compile Include="Physics2D\PhysicsMaterial.cs" />
     <Compile Include="Physics2D\Shape2D.cs" />
     <Compile Include="Physics2D\Shapes\CircleShape.cs" />
+    <Compile Include="Physics2D\Shapes\RectangleShape.cs" />
     <Compile Include="Structures\OrderedList.cs">
       <SubType>Code</SubType>
     </Compile>
