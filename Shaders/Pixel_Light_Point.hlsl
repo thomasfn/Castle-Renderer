@@ -12,15 +12,15 @@ cbuffer Point : register(b1)
 	float Range;
 };
 
-DeferredLightOutputPixel main(TexturedOutputVertex vertex) : SV_TARGET
+DeferredLightOutputPixel main(TexturedOutputVertex vertex)
 {
 	DeferredLightOutputPixel output = (DeferredLightOutputPixel)0;
 
 	float4 position = PositionTexture.Sample(GBufferSampler, vertex.TexCoord);
-		float4 normal = NormalTexture.Sample(GBufferSampler, vertex.TexCoord);
-		float4 material = MaterialTexture.Sample(GBufferSampler, vertex.TexCoord);
+	float4 normal = NormalTexture.Sample(GBufferSampler, vertex.TexCoord);
+	float4 material = MaterialTexture.Sample(GBufferSampler, vertex.TexCoord);
 
-		float diffuseterm, specularterm;
+	float diffuseterm, specularterm;
 
 	float3 between = Position - position.xyz;
 	float dist = length(between);

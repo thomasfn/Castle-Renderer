@@ -14,7 +14,7 @@ GBufferOutputPixel main(FullOutputVertex vertex) : SV_TARGET
 
 	output.Colour = DiffuseTexture.Sample(TextureSampler, vertex.TexCoord);
 	//output.Colour = float4(vertex.WorldNormal, 1.0);
-	output.Position = float4(vertex.WorldPosition, 1.0);
+	output.Position = float4(vertex.WorldPosition, vertex.ClipDepth);
 	output.Normal = float4(vertex.WorldNormal, 1.0);
 	output.Material = float4(Roughness, Reflectivity, IndexOfRefraction, 1.0);
 

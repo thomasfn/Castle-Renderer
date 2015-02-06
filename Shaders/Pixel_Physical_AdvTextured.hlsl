@@ -34,7 +34,7 @@ GBufferOutputPixel main(FullOutputVertex vertex) : SV_TARGET
 
 		output.Colour = float4(colour.xyz, 1.0);
 	//output.Colour = float4(normal, 1.0);
-	output.Position = float4(vertex.WorldPosition, 1.0);
+	output.Position = float4(vertex.WorldPosition, vertex.ClipDepth);
 	//output.Normal = float4(mul(texturenormal, normalmatrix), 1.0);
 	output.Normal = float4(normal, 1.0);
 	output.Material = float4(Roughness * mat.r, Reflectivity * mat.g, IndexOfRefraction, mat.b);

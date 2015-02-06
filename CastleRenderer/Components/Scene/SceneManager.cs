@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 using CastleRenderer.Structures;
 using CastleRenderer.Messages;
@@ -8,6 +9,7 @@ using CastleRenderer.Graphics;
 using CastleRenderer.Graphics.MaterialSystem;
 
 using SlimDX;
+using SlimDX.Direct3D11;
 
 namespace CastleRenderer.Components
 {
@@ -42,6 +44,12 @@ namespace CastleRenderer.Components
         private RenderTarget swapB;
         private int swapB_colour;
 
+        private RenderTarget aotargetA;
+        private int aotargetA_colour;
+
+        private RenderTarget aotargetB;
+        private int aotargetB_colour;
+
         private Material mat_blit, mat_blitlight;
         private Dictionary<LightType, Material> mat_lights;
 
@@ -50,6 +58,12 @@ namespace CastleRenderer.Components
 
         private MaterialParameterStruct<CBuffer_Clip> matpset_clip;
         private MaterialParameterStruct<CBuffer_PPEffectInfo> matpset_ppeffectinfo;
+        private MaterialParameterStruct<CBuffer_SSAO> matpset_ssao;
+
+        private Material mat_ssao, mat_ssao_blur;
+
+        private Texture2D ssaokernel;
+        private Texture2D ssaonoise;
 
         /// <summary>
         /// Called when the initialise message has been received
@@ -110,9 +124,86 @@ namespace CastleRenderer.Components
             swapB_colour = swapB.AddTextureComponent();
             swapB.Finish();
 
+            // Setup AO buffers
+            aotargetA = renderer.CreateRenderTarget(1, "AOTargetA");
+            aotargetA_colour = aotargetA.AddTextureComponent();
+            aotargetA.Finish();
+            aotargetB = renderer.CreateRenderTarget(1, "AOTargetB");
+            aotargetB_colour = aotargetB.AddTextureComponent();
+            aotargetB.Finish();
+
+            // Setup SSAO kernels
+            const int kernelsize = 4;
+            const int kernelrandomsize = 1;
+            const int noisesize = 4;
+            {
+                Random rnd = new Random();
+                using (DataStream ds = new DataStream(kernelsize * kernelrandomsize * sizeof(float) * 3, true, true))
+                {
+                    for (int i = 0; i < kernelrandomsize; i++)
+                        for (int j = 0; j < kernelsize; j++)
+                        {
+                            float x = -1.0f + (float)rnd.NextDouble() * 2.0f;
+                            float y = (float)rnd.NextDouble();
+                            float z = -1.0f + (float)rnd.NextDouble() * 2.0f;
+                            float scale = j / (float)kernelsize;
+                            scale = 0.1f + 0.9f * scale * scale;
+                            ds.Write(new Vector3(x, y, z) * scale);
+                        }
+                    ds.Position = 0;
+                    DataRectangle dr = new DataRectangle(kernelsize * sizeof(float) * 3, ds);
+                    ssaokernel = new Texture2D(renderer.Device, new Texture2DDescription
+                    {
+                        Width = kernelsize,
+                        Height = kernelrandomsize,
+                        Usage = ResourceUsage.Default,
+                        Format = SlimDX.DXGI.Format.R32G32B32_Float,
+                        BindFlags = BindFlags.ShaderResource,
+                        CpuAccessFlags = CpuAccessFlags.None,
+                        OptionFlags = ResourceOptionFlags.None,
+                        MipLevels = 1,
+                        ArraySize = 1,
+                        SampleDescription = new SlimDX.DXGI.SampleDescription(1, 0)
+                    }, dr);
+                    ssaokernel.DebugName = "SSAO Kernel Texture";
+                }
+                using (DataStream ds = new DataStream(noisesize * noisesize * sizeof(float) * 3, true, true))
+                {
+                    for (int y = 0; y < noisesize; y++)
+                        for (int x = 0; x < noisesize; x++)
+                        {
+                            float xterm = -1.0f + (float)rnd.NextDouble() * 2.0f;
+                            float yterm = -1.0f + (float)rnd.NextDouble() * 2.0f;
+                            ds.Write(new Vector3(xterm, 0.0f, yterm));
+                        }
+                    ds.Position = 0;
+                    DataRectangle dr = new DataRectangle(noisesize * sizeof(float) * 3, ds);
+                    ssaonoise = new Texture2D(renderer.Device, new Texture2DDescription
+                    {
+                        Width = noisesize,
+                        Height = noisesize,
+                        Usage = ResourceUsage.Default,
+                        Format = SlimDX.DXGI.Format.R32G32B32_Float,
+                        BindFlags = BindFlags.ShaderResource,
+                        CpuAccessFlags = CpuAccessFlags.None,
+                        OptionFlags = ResourceOptionFlags.None,
+                        MipLevels = 1,
+                        ArraySize = 1,
+                        SampleDescription = new SlimDX.DXGI.SampleDescription(1, 0)
+                    }, dr);
+                    ssaonoise.DebugName = "SSAO Noise Texture";
+                }
+            }
+
             // Initialise struct-based parameter blocks
             matpset_clip = new MaterialParameterStruct<CBuffer_Clip>(renderer.Device.ImmediateContext, default(CBuffer_Clip));
             matpset_ppeffectinfo = new MaterialParameterStruct<CBuffer_PPEffectInfo>(renderer.Device.ImmediateContext, new CBuffer_PPEffectInfo { ImageSize = new Vector2(swapA.Width, swapA.Height) });
+            matpset_ssao = new MaterialParameterStruct<CBuffer_SSAO>(renderer.Device.ImmediateContext, new CBuffer_SSAO
+            {
+                Scale = new Vector3(1.0f, 1.0f, 2.5f),
+                KernelSize = new Vector2(kernelsize, noisesize),
+                NoiseScale = new Vector2(swapA.Width / (float)noisesize, swapA.Height / (float)noisesize)
+            });
 
             // Setup materials
             MaterialSystem matsys = Owner.GetComponent<MaterialSystem>();
@@ -125,6 +216,19 @@ namespace CastleRenderer.Components
             mat_blitlight.SetResource("ReflectionTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_reflection)));
             mat_blitlight.SetResource("DiffuseTexture", renderer.AcquireResourceView(lightaccum.GetTexture(lightaccum_diffuse)));
             mat_blitlight.SetResource("SpecularTexture", renderer.AcquireResourceView(lightaccum.GetTexture(lightaccum_specular)));
+            mat_ssao = matsys.CreateMaterial("SSAO", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_SSAO"));
+            mat_ssao.SetSamplerState("GBufferSampler", renderer.Sampler_Clamp);
+            mat_ssao.SetSamplerState("KernelSampler", renderer.Sampler_Wrap);
+            mat_ssao.SetResource("PositionTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_position)));
+            mat_ssao.SetResource("NormalTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_normal)));
+            mat_ssao.SetResource("KernelTexture", renderer.AcquireResourceView(ssaokernel));
+            mat_ssao.SetResource("NoiseTexture", renderer.AcquireResourceView(ssaonoise));
+            mat_ssao.SetParameterBlock("SSAO", matpset_ssao);
+            mat_ssao_blur = matsys.CreateMaterial("SSAOBlur", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_SSAO_Blur"));
+            mat_ssao_blur.SetSamplerState("GBufferSampler", renderer.Sampler_Clamp);
+            mat_ssao_blur.SetResource("PositionTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_position)));
+            mat_ssao_blur.SetResource("AOTexture", renderer.AcquireResourceView(aotargetA.GetTexture(aotargetA_colour)));
+            mat_ssao_blur.SetParameterBlock("SSAO", matpset_ssao);
 
             // Setup lights
             mat_lights = new Dictionary<LightType, Material>();
@@ -137,8 +241,14 @@ namespace CastleRenderer.Components
                 mat.SetResource("NormalTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_normal)));
                 mat.SetResource("MaterialTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_material)));
                 mat.SetResource("ReflectionTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_reflection)));
+                mat.SetResource("AOTexture", renderer.AcquireResourceView(aotargetB.GetTexture(aotargetB_colour)));
                 mat.SetSamplerState("GBufferSampler", renderer.Sampler_Clamp);
                 mat.SetSamplerState("ShadowMapSampler", renderer.Sampler_Clamp);
+                if (mat.MainPipeline.LookupMaterialParameterBlockIndex("SSAO") != -1)
+                {
+                    mat.SetParameterBlock("SSAO", matpset_ssao);
+                    mat.SetResource("SSAOSampleTexture", renderer.AcquireResourceView(ssaokernel));
+                }
             }
 
             // Setup meshes
@@ -273,8 +383,6 @@ namespace CastleRenderer.Components
                         {
                             activematerial = item.Material;
                             activematerial.SetParameterBlock("Camera", caster.CameraParameterBlock);
-                            //if (activematerial.ShadowPipeline != null)
-                            //activematerial.ShadowShader.SetVariable("light_position", position);
                             renderer.SetActiveMaterial(activematerial, true, false, false, true);
                         }
 
@@ -338,12 +446,33 @@ namespace CastleRenderer.Components
                     renderer.DrawImmediate(item.Mesh, item.SubmeshIndex, cam.CameraTransformParameterBlock, item.ObjectTransformParameterBlock);
                 }
 
-                // Setup light accum state
-                lightaccum.Bind();
-                lightaccum.Clear();
                 renderer.Depth = renderer.Depth_Disabled;
                 renderer.Blend = renderer.Blend_Add;
                 renderer.Culling = renderer.Culling_None;
+
+                // Do we need to draw AO?
+                if (cam.UseAO)
+                {
+                    // Draw SSAO pass
+                    aotargetA.Bind();
+                    aotargetA.Clear();
+                    mat_ssao.MainPipeline.SetMaterialParameterBlock("Camera", cam.CameraParameterBlock);
+                    mat_ssao.MainPipeline.SetMaterialParameterBlock("CameraTransform", cam.CameraTransformParameterBlock);
+                    renderer.SetActiveMaterial(mat_ssao);
+                    renderer.DrawImmediate(mesh_fs, 0);
+
+                    // Draw SSAO blur pass
+                    aotargetB.Bind();
+                    aotargetB.Clear();
+                    mat_ssao_blur.MainPipeline.SetMaterialParameterBlock("Camera", cam.CameraParameterBlock);
+                    mat_ssao_blur.MainPipeline.SetMaterialParameterBlock("CameraTransform", cam.CameraTransformParameterBlock);
+                    renderer.SetActiveMaterial(mat_ssao_blur);
+                    renderer.DrawImmediate(mesh_fs, 0);
+                }
+
+                // Setup light accum state
+                lightaccum.Bind();
+                lightaccum.Clear();
 
                 // Update camera details on all light types
                 foreach (Material lightmat in mat_lights.Values)
@@ -351,6 +480,7 @@ namespace CastleRenderer.Components
                     //lightmat.SetParameter("camera_position", position);
                     //lightmat.SetParameter("camera_forward", forward);
                     lightmat.MainPipeline.SetMaterialParameterBlock("Camera", cam.CameraParameterBlock);
+                    lightmat.MainPipeline.SetMaterialParameterBlock("CameraTransform", cam.CameraTransformParameterBlock);
                 }
 
                 // Draw all lights
@@ -465,6 +595,11 @@ namespace CastleRenderer.Components
                 mat_blit.SetResource("SourceTexture", renderer.AcquireResourceView(pp_source.GetTexture(0)));
                 renderer.SetActiveMaterial(mat_blit, false, true);
                 renderer.DrawImmediate(mesh_fs, 0);
+
+                // Debug blit
+                //mat_blit.SetResource("SourceTexture", renderer.AcquireResourceView(aotargetB.GetTexture(aotargetB_colour)));
+                //renderer.SetActiveMaterial(mat_blit, false, true);
+                //renderer.DrawImmediate(mesh_fs, 0);
             }
         }
 

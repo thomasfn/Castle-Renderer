@@ -75,6 +75,11 @@ namespace CastleRenderer.Components
         /// </summary>
         public Plane ClipPlane { get; set; }
 
+        /// <summary>
+        /// Whether or not to use ambient occlusion
+        /// </summary>
+        public bool UseAO { get; set; }
+
         public override void OnAttach()
         {
             // Base attach

@@ -74,4 +74,15 @@ namespace CastleRenderer.Graphics
         public Matrix ShadowMatrix;
         public float UseShadowMapping;
     }
+
+    /// <summary>
+    /// CBuffer that represents SSAO info
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 32)]
+    public struct CBuffer_SSAO
+    {
+        public Vector2 KernelSize;
+        public Vector2 NoiseScale;
+        public Vector3 Scale;
+    }
 }
