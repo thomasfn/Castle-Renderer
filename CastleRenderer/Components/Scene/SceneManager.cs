@@ -121,6 +121,7 @@ namespace CastleRenderer.Components
             mat_blitlight = matsys.CreateMaterial("BlitLight", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_BlitLight"));
             mat_blitlight.SetSamplerState("BlitSampler", renderer.Sampler_Clamp);
             mat_blitlight.SetResource("ColourTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_colour)));
+            mat_blitlight.SetResource("NormalTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_normal)));
             mat_blitlight.SetResource("ReflectionTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_reflection)));
             mat_blitlight.SetResource("DiffuseTexture", renderer.AcquireResourceView(lightaccum.GetTexture(lightaccum_diffuse)));
             mat_blitlight.SetResource("SpecularTexture", renderer.AcquireResourceView(lightaccum.GetTexture(lightaccum_specular)));
