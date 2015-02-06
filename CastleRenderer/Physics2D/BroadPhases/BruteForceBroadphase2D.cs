@@ -54,9 +54,18 @@ namespace CastleRenderer.Physics2D.BroadPhases
         public IEnumerable<CollisionTestPair> Test()
         {
             int cnt = objects.Count;
+
+            // Loop all objects
             for (int i = 0; i < cnt; i++)
                 for (int j = i + 1; j < cnt; j++)
-                    yield return new CollisionTestPair { A = objects[i], B = objects[j] };
+                {
+                    IPhysicsObject2D objA = objects[i];
+                    IPhysicsObject2D objB = objects[j];
+
+                    // If it's not static <-> static, it's a potential collision pair
+                    if (!(objA.Static && objB.Static))
+                        yield return new CollisionTestPair { A = objA, B = objB };
+                }
         }
     }
 }

@@ -8,7 +8,9 @@
 				"Transform": {},
 				"PhysicsWorld2D":
 				{
-					"Integrator": "new:EulerIntegrator2D"
+					"Integrator": "new:EulerIntegrator2D",
+					"BroadPhase": "new:BruteForceBroadphase2D",
+					"CollisionResolver": "new:CollisionResolver2D"
 				}
 			}
 		},
@@ -18,7 +20,7 @@
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 0.0, 0.0, 0.0 ],
+					"LocalPosition": [ 10.0, 0.5, 2.0 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
 					"LocalScale": [ 20.0, 1.0, 4.0 ]
 				},
@@ -26,6 +28,13 @@
 				{
 					"Mesh": "Primitive:Cube:5.0:0.25:1.0",
 					"Materials": [ "MossyStone01" ]
+				},
+				"RigidBody2D":
+				{
+					"World": "Phys2D",
+					"MoveType": "Static",
+					"Shape": "new:RectangleShape:20.0:1.0",
+					"Velocity": [ 0.0, 0.0 ]
 				}
 			}
 		},
@@ -35,7 +44,7 @@
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 0.0, 10.0, 0.0 ],
+					"LocalPosition": [ 10.0, 10.5, 1.0 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
 					"LocalScale": [ 20.0, 1.0, 2.0 ]
 				},
@@ -43,6 +52,13 @@
 				{
 					"Mesh": "Primitive:Cube:10.0:0.5:1.0",
 					"Materials": [ "BrickWall02" ]
+				},
+				"RigidBody2D":
+				{
+					"World": "Phys2D",
+					"MoveType": "Static",
+					"Shape": "new:RectangleShape:20.0:1.0",
+					"Velocity": [ 0.0, 0.0 ]
 				}
 			}
 		},
@@ -52,7 +68,7 @@
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 0.0, 1.0, 0.0 ],
+					"LocalPosition": [ 0.5, 5.5, 1.0 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
 					"LocalScale": [ 1.0, 9.0, 2.0 ]
 				},
@@ -60,6 +76,13 @@
 				{
 					"Mesh": "Primitive:Cube:0.5:4.5:1.0",
 					"Materials": [ "BrickWall02" ]
+				},
+				"RigidBody2D":
+				{
+					"World": "Phys2D",
+					"MoveType": "Static",
+					"Shape": "new:RectangleShape:1.0:9.0",
+					"Velocity": [ 0.0, 0.0 ]
 				}
 			}
 		},
@@ -69,7 +92,7 @@
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 19.0, 1.0, 0.0 ],
+					"LocalPosition": [ 19.5, 5.5, 1.0 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
 					"LocalScale": [ 1.0, 9.0, 2.0 ]
 				},
@@ -77,6 +100,13 @@
 				{
 					"Mesh": "Primitive:Cube:0.5:4.5:1.0",
 					"Materials": [ "BrickWall02" ]
+				},
+				"RigidBody2D":
+				{
+					"World": "Phys2D",
+					"MoveType": "Static",
+					"Shape": "new:RectangleShape:1.0:9.0",
+					"Velocity": [ 0.0, 0.0 ]
 				}
 			}
 		},
@@ -86,7 +116,7 @@
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 0.0, 0.0, -1.0 ],
+					"LocalPosition": [ 10.0, 5.5, -0.5 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
 					"LocalScale": [ 20.0, 11.0, 1.0 ]
 				},

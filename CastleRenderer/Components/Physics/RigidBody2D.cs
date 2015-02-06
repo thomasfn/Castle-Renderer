@@ -32,6 +32,16 @@ namespace CastleRenderer.Components.Physics
         public BodyMoveType MoveType { get; set; }
 
         /// <summary>
+        /// Gets or sets the position of this body
+        /// </summary>
+        public Vector2 Position { get; set; }
+
+        /// <summary>
+        /// Gets or sets the rotation of this body
+        /// </summary>
+        public float Rotation { get; set; }
+
+        /// <summary>
         /// Gets or sets the current velocity of this body
         /// </summary>
         public Vector2 Velocity { get; set; }
@@ -72,6 +82,8 @@ namespace CastleRenderer.Components.Physics
         /// </summary>
         public bool Static { get { return MoveType == BodyMoveType.Static; } }
 
+        private bool ignoretransform;
+
         /// <summary>
         /// Initialises a new instance of the RigidBody2D class
         /// </summary>
@@ -88,6 +100,11 @@ namespace CastleRenderer.Components.Physics
         {
             // Call base
             base.OnAttach();
+
+            // Hook transform
+            Transform transform = Owner.GetComponent<Transform>();
+            transform.OnTransformChange += transform_OnTransformChange;
+            transform_OnTransformChange(transform);
 
             // Initialise
             if (World != null) World.AddRigidBody(this);
@@ -106,8 +123,24 @@ namespace CastleRenderer.Components.Physics
             // Call base
             base.OnDetach();
 
+            // Unhook transform
+            Transform transform = Owner.GetComponent<Transform>();
+            if (transform != null) transform.OnTransformChange -= transform_OnTransformChange;
+
             // Clean up
             if (World != null) World.RemoveRigidBody(this);
+        }
+
+        /// <summary>
+        /// Called when the transform has been changed
+        /// </summary>
+        /// <param name="sender"></param>
+        private void transform_OnTransformChange(Transform sender)
+        {
+            if (ignoretransform) return;
+            Position = sender.LocalPosition2D;
+            // TODO: Read real rotation
+            Rotation = 0.0f;
         }
 
         /// <summary>
@@ -117,24 +150,17 @@ namespace CastleRenderer.Components.Physics
         /// <param name="timestep"></param>
         public void Integrate(IIntegrator2D integrator, float timestep)
         {
-            // Integrate
-            Transform transform = Owner.GetComponent<Transform>();
-            Vector2 newvel, newpos;
-            integrator.IntegrateVariable(transform.LocalPosition2D, Velocity, timestep, ComputeAcceleration(), out newpos, out newvel);
-            Velocity = newvel;
+            // Check for static
+            if (MoveType == BodyMoveType.Static) return;
 
-            // Fake bounce for now
-            if (newpos.Y < 1.5f)
-            {
-                newpos.Y = 1.5f;
-                Velocity = new Vector2(Velocity.X, -Velocity.Y * Material.Restitution);
-            }
+            // Integrate
+            Vector2 newvel, newpos;
+            integrator.IntegrateVariable(Position, Velocity, timestep, ComputeAcceleration(), out newpos, out newvel);
+            Velocity = newvel;
+            Position = newpos;
 
             // Dampen velocity
             Velocity *= (float)Math.Pow(1.0f - LinearDamping, timestep);
-
-            // Set new position
-            transform.LocalPosition2D = newpos;
         }
 
         /// <summary>
@@ -144,6 +170,7 @@ namespace CastleRenderer.Components.Physics
         private Vector2 ComputeAcceleration()
         {
             return new Vector2(0.0f, -9.81f);
+            //return Vector2.Zero;
         }
 
         /// <summary>
@@ -158,17 +185,26 @@ namespace CastleRenderer.Components.Physics
             RigidBody2D otherbody = other as RigidBody2D;
             if (otherbody != null)
             {
-                // Get pair's transform
-                Transform mytransform = Owner.GetComponent<Transform>();
-                Transform othertransform = otherbody.Owner.GetComponent<Transform>();
-
-                // Test collision using shapes
-                // TODO: Use real 2D rotations
-                return Shape.TestCollision(mytransform.LocalPosition2D, 0.0f, otherbody.Shape, othertransform.LocalPosition2D, 0.0f, out manifold);
+                // Test collision
+                ICollisionTester2D tester = CollisionTester2D.GetCollisionTester(Shape, otherbody.Shape);
+                return tester.Test(Shape, Position, Rotation, otherbody.Shape, other.Position, other.Rotation, out manifold);
             }
 
             // Unknown body type
-            throw new NotImplementedException("RigidBody2D.TestCollision is not implemented for " + other.GetType()));
+            throw new NotImplementedException("RigidBody2D.TestCollision is not implemented for " + other.GetType());
+        }
+
+        /// <summary>
+        /// Updates this body after a physics iteration
+        /// </summary>
+        public void Apply()
+        {
+            // Update transform
+            ignoretransform = true;
+            Transform transform = Owner.GetComponent<Transform>();
+            transform.LocalPosition2D = Position;
+            transform.LocalRotation = Quaternion.RotationAxis(Vector3.UnitZ, Rotation);
+            ignoretransform = false;
         }
     }
 }

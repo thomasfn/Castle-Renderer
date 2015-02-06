@@ -40,14 +40,26 @@ namespace CastleRenderer.Physics2D
         }
 
         /// <summary>
-        /// Tests for collision between this shape and another
+        /// Finds the closest point on this shape to the specified point
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        public abstract Vector2 FindClosestPoint(Vector2 mypos, float myrot, Vector2 pt);
+
+        /// <summary>
+        /// Finds the closest point on this shape's edge to the specified point
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        public abstract Vector2 FindClosestEdgePoint(Vector2 mypos, float myrot, Vector2 pt);
+
+        /// <summary>
+        /// Returns if this shape contains the specified point or not
         /// </summary>
         /// <param name="mypos"></param>
         /// <param name="myrot"></param>
-        /// <param name="other"></param>
-        /// <param name="otherpos"></param>
-        /// <param name="otherrot"></param>
+        /// <param name="pt"></param>
         /// <returns></returns>
-        public abstract bool TestCollision(Vector2 mypos, float myrot, Shape2D other, Vector2 otherpos, float otherrot, out Manifold2D manifold);
+        public abstract bool ContainsPoint(Vector2 mypos, float myrot, Vector2 pt);
     }
 }

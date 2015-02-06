@@ -29,6 +29,11 @@ namespace CastleRenderer.Components.Physics
         public IBroadPhase2D BroadPhase { get; set; }
 
         /// <summary>
+        /// Gets or sets the collision resolver to use
+        /// </summary>
+        public ICollisionResolver2D CollisionResolver { get; set; }
+
+        /// <summary>
         /// Called when this component has been attached to an actor
         /// </summary>
         public override void OnAttach()
@@ -80,19 +85,18 @@ namespace CastleRenderer.Components.Physics
                 // Perform narrow-phase collision test
                 if (pair.A.TestCollision(pair.B, out manifold))
                 {
+                    // Set A and B
+                    manifold.A = pair.A;
+                    manifold.B = pair.B;
+
                     // Resolve collision
-                    ResolveManifold(manifold);
+                    CollisionResolver.ResolveManifold(manifold);
                 }
             }
-        }
 
-        /// <summary>
-        /// Resolves a collision using the specified manifold
-        /// </summary>
-        /// <param name="manifold"></param>
-        private void ResolveManifold(Manifold2D manifold)
-        {
-
+            // Apply all bodies
+            foreach (RigidBody2D body in rigidbodies)
+                body.Apply();
         }
     }
 }

@@ -416,14 +416,44 @@ namespace CastleRenderer.Components
                                     Console.WriteLine("Failed to parse generic object assignment '{0}' (argument #1 referenced unknown type '{1}')!", cmd, typename);
                                     return null;
                                 }
+                                ConstructorInfo ctor = null;
+                                object[] ctorargs = null;
+                                foreach (ConstructorInfo ctorinfo in thetype.GetConstructors())
+                                {
+                                    ParameterInfo[] ctorparams = ctorinfo.GetParameters();
+                                    if (ctorparams.Length == args.Length - 2)
+                                    {
+                                        bool valid = true;
+                                        ctorargs = new object[ctorparams.Length];
+                                        for (int i = 0; i < ctorparams.Length; i++)
+                                        {
+                                            string toparse = args[i + 2];
+                                            if (!TryParse(toparse, ctorparams[i].ParameterType, out ctorargs[i]))
+                                            {
+                                                valid = false;
+                                                break;
+                                            }
+                                        }
+                                        if (valid)
+                                        {
+                                            ctor = ctorinfo;
+                                            break;
+                                        }
+                                    }
+                                }
                                 object obj;
+                                if (ctor == null)
+                                {
+                                    Console.WriteLine("Failed to parse generic object assignment '{0}' (could not find appropiate constructor for type at argument #1 '{1}')!", cmd, typename);
+                                    return null;
+                                }
                                 try
                                 {
-                                    obj = Activator.CreateInstance(thetype);
+                                    obj = ctor.Invoke(ctorargs);
                                 }
                                 catch (Exception)
                                 {
-                                    Console.WriteLine("Failed to parse generic object assignment '{0}' (exception occured while allocating type at argument #1 '{1}')!", cmd, typename);
+                                    Console.WriteLine("Failed to parse generic object assignment '{0}' (exception occured while creating type at argument #1 '{1}')!", cmd, typename);
                                     return null;
                                 }
                                 return obj;
@@ -495,6 +525,31 @@ namespace CastleRenderer.Components
             return null;
         }
 
+        private bool TryParse(string str, Type type, out object obj)
+        {
+            obj = null;
+            if (type == typeof(int))
+            {
+                int val;
+                if (!int.TryParse(str, out val)) return false;
+                obj = val;
+                return true;
+            }
+            else if (type == typeof(float))
+            {
+                float val;
+                if (!float.TryParse(str, out val)) return false;
+                obj = val;
+                return true;
+            }
+            else if (type == typeof(string))
+            {
+                obj = str;
+                return true;
+            }
+            return false;
+        }
+
         private Material GetMaterial(string name)
         {
             return Owner.GetComponent<MaterialSystem>().GetMaterial(name);
@@ -535,10 +590,10 @@ namespace CastleRenderer.Components
                                     Console.WriteLine("Failed to parse mesh '{0}' (bad argument #4 '{1}')!", name, args[4]);
                                     return null;
                                 }
-                                return MeshBuilder.BuildCube(Matrix.Identity, texturescale);
+                                return MeshBuilder.BuildCube(Matrix.Translation(-0.5f, -0.5f, -0.5f), texturescale);
                             }
                             else
-                                return MeshBuilder.BuildCube(Matrix.Identity);
+                                return MeshBuilder.BuildCube(Matrix.Translation(-0.5f, -0.5f, -0.5f));
                         case "sphere":
                             int divs = 8;
                             if (args.Length >= 3)

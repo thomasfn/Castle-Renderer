@@ -26,56 +26,73 @@ namespace CastleRenderer.Physics2D.Shapes
         }
 
         /// <summary>
-        /// Tests for collision between this shape and another
+        /// Initialises a new instance of the CircleShape class
+        /// </summary>
+        /// <param name="radius"></param>
+        public CircleShape(float radius)
+        {
+            Radius = radius;
+        }
+
+        /// <summary>
+        /// Finds the closest point on this circle shape to the specified point
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        public override Vector2 FindClosestPoint(Vector2 mypos, float myrot, Vector2 pt)
+        {
+            // Get distance between
+            Vector2 between = pt - mypos;
+            float dist2 = between.LengthSquared();
+
+            // If it's less than radius, the point is inside us
+            if (dist2 <= Radius * Radius) return pt;
+
+            // Find the normalisation ratio
+            float dist = (float)Math.Sqrt(dist2);
+            float ratio = Radius / dist;
+
+            // Return point
+            return mypos + between * ratio;
+        }
+
+        /// <summary>
+        /// Finds the closest point on this circle shape to the specified point
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        public override Vector2 FindClosestEdgePoint(Vector2 mypos, float myrot, Vector2 pt)
+        {
+            // Get distance between
+            Vector2 between = pt - mypos;
+            float dist2 = between.LengthSquared();
+
+            // If it's 0, there is no closest
+            if (dist2 == 0.0f) return pt;
+
+            // Find the normalisation ratio
+            float dist = (float)Math.Sqrt(dist2);
+            float ratio = Radius / dist;
+
+            // Return point
+            return mypos + between * ratio;
+        }
+
+        /// <summary>
+        /// Returns if this shape contains the specified point or not
         /// </summary>
         /// <param name="mypos"></param>
         /// <param name="myrot"></param>
-        /// <param name="other"></param>
-        /// <param name="otherpos"></param>
-        /// <param name="otherrot"></param>
-        /// <param name="manifold"></param>
+        /// <param name="pt"></param>
         /// <returns></returns>
-        public override bool TestCollision(Vector2 mypos, float myrot, Shape2D other, Vector2 otherpos, float otherrot, out Manifold2D manifold)
+        public override bool ContainsPoint(Vector2 mypos, float myrot, Vector2 pt)
         {
-            // Circle-to-circle
-            CircleShape othercircle = other as CircleShape;
-            if (othercircle != null)
-            {
-                // Find the distance squared between both objects
-                Vector2 normal = otherpos - mypos;
-                float dist2 = normal.LengthSquared();
+            // Get distance squared between
+            Vector2 between = pt - mypos;
+            float dist2 = between.LengthSquared();
 
-                // Find the distance squared if they were touching
-                float r2 = Radius + othercircle.Radius;
-                r2 *= r2;
-
-                // Test for collision
-                if (dist2 > r2)
-                {
-                    // No collision
-                    manifold = default(Manifold2D);
-                    return false;
-                }
-
-                // Find actual distance
-                float dist = (float)Math.Sqrt(dist2);
-
-                // Are they at the same position?
-                if (dist == 0.0f)
-                {
-                    manifold = new Manifold2D { Normal = Vector2.UnitX, Penetration = Radius };
-                }
-                else
-                {
-                    manifold = new Manifold2D { Normal = normal / dist, Penetration = r2 - dist }; // NOTE: Should it be r - dist or r2 - dist?
-                }
-
-                // Collision occured
-                return true;
-            }
-
-            // Unhandled shape collision
-            throw new NotImplementedException("CircleShape.TestCollision is not implemented for " + other.GetType());
+            // If it's less than radius squared, the point is inside us
+            return dist2 <= Radius * Radius;
         }
     }
 }

@@ -7,7 +7,7 @@
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 10.0, 5.0, 1.0 ],
+					"LocalPosition": [ 14.0, 6.0, 1.0 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
 					"LocalScale": [ 0.5, 0.5, 0.5 ]
 				},
@@ -19,7 +19,58 @@
 				"RigidBody2D":
 				{
 					"World": "Phys2D",
-					"MoveType": "Dynamic"
+					"MoveType": "Dynamic",
+					"Shape": "new:CircleShape:0.5",
+					"Velocity": [ -1.5, -0.1 ]
+				}
+			}
+		},
+		{
+			"Name": "Sphere2",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 6.0, 4.0, 1.0 ],
+					"LocalRotation": [ 0.0, 0.0, 0.0 ],
+					"LocalScale": [ 0.75, 0.75, 0.75 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Sphere:7",
+					"Materials": [ "Ball01" ]
+				},
+				"RigidBody2D":
+				{
+					"Enabled": false,
+					"World": "Phys2D",
+					"MoveType": "Dynamic",
+					"Shape": "new:CircleShape:0.75",
+					"Velocity": [ 1.0, 0.2 ]
+				}
+			}
+		},
+		{
+			"Name": "Sphere3",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 10.0, 3.0, 1.0 ],
+					"LocalRotation": [ 0.0, 0.0, 0.0 ],
+					"LocalScale": [ 0.6, 0.6, 0.6 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Sphere:7",
+					"Materials": [ "Ball01" ]
+				},
+				"RigidBody2D":
+				{
+					"World": "Phys2D",
+					"MoveType": "Dynamic",
+					"Shape": "new:CircleShape:0.6",
+					"Velocity": [ 0.0, -0.5 ]
 				}
 			}
 		}
