@@ -47,9 +47,19 @@ namespace CastleRenderer.Components.Physics
         public Vector2 Velocity { get; set; }
 
         /// <summary>
+        /// Gets or sets the rotational velocity of this body
+        /// </summary>
+        public float RotationalVelocity { get; set; }
+
+        /// <summary>
         /// Gets or sets the linear damping of this body
         /// </summary>
         public float LinearDamping { get; set; }
+
+        /// <summary>
+        /// Gets or sets the rotational damping of this body
+        /// </summary>
+        public float RotationalDamping { get; set; }
 
         /// <summary>
         /// Gets or sets the physics material of this body
@@ -65,6 +75,16 @@ namespace CastleRenderer.Components.Physics
         /// Gets the inverse mass of this body
         /// </summary>
         public float InvMass { get; private set; }
+
+        /// <summary>
+        /// Gets the inertia of this body
+        /// </summary>
+        public float Inertia { get; private set; }
+
+        /// <summary>
+        /// Gets the inverse inertia of this body
+        /// </summary>
+        public float InvInertia { get; private set; }
 
         /// <summary>
         /// Gets the AABB of this body
@@ -110,9 +130,15 @@ namespace CastleRenderer.Components.Physics
             if (World != null) World.AddRigidBody(this);
             Mass = Shape.Mass;
             if (MoveType == BodyMoveType.Static)
+            {
                 InvMass = 0.0f;
+                InvInertia = 0.0f;
+            }
             else
+            {
                 InvMass = 1.0f / Mass;
+                InvInertia = 1.0f / Inertia;
+            }
         }
 
         /// <summary>
@@ -154,23 +180,40 @@ namespace CastleRenderer.Components.Physics
             if (MoveType == BodyMoveType.Static) return;
 
             // Integrate
-            Vector2 newvel, newpos;
-            integrator.IntegrateVariable(Position, Velocity, timestep, ComputeAcceleration(), out newpos, out newvel);
-            Velocity = newvel;
-            Position = newpos;
+            BodyIntegrationInfo newinfo = integrator.IntegrateVariable(new BodyIntegrationInfo
+            {
+                Velocity = Velocity,
+                Position = Position,
+                RotationalVelocity = RotationalVelocity,
+                Rotation = Rotation
+            }, timestep, ComputeLinearAcceleration(), ComputeRotationalAcceleration());
+            Velocity = newinfo.Velocity;
+            Position = newinfo.Position;
+            RotationalVelocity = newinfo.RotationalVelocity;
+            Rotation = newinfo.Rotation;
 
             // Dampen velocity
-            Velocity *= (float)Math.Pow(1.0f - LinearDamping, timestep);
+            if (LinearDamping != 0.0f) Velocity *= (float)Math.Pow(1.0f - LinearDamping, timestep);
+            if (RotationalDamping != 0.0f) RotationalVelocity *= (float)Math.Pow(1.0f - RotationalDamping, timestep);
         }
 
         /// <summary>
-        /// Computes the current acceleration acting on this rigid body
+        /// Computes the current linear acceleration acting on this rigid body
         /// </summary>
         /// <returns></returns>
-        private Vector2 ComputeAcceleration()
+        private Vector2 ComputeLinearAcceleration()
         {
             return new Vector2(0.0f, -9.81f);
             //return Vector2.Zero;
+        }
+
+        /// <summary>
+        /// Computes the current rotational acceleration acting on this rigid body
+        /// </summary>
+        /// <returns></returns>
+        private float ComputeRotationalAcceleration()
+        {
+            return 0.0f;
         }
 
         /// <summary>

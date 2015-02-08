@@ -5,6 +5,11 @@
 		[
 			"Vertex_Transform_Full",
 			"Pixel_Physical_BumpTextured"
+		],
+		"ShadowMapping":
+		[
+			"Vertex_Transform_Full",
+			"Pixel_Shadow_VSM"
 		]
 	},
 	"ParameterSets":
@@ -17,7 +22,8 @@
 		"PhysicalProperties":
 		{
 			"Roughness": 0.7,
-			"Reflectivity": 0.3
+			"Reflectivity": 0.3,
+			"IndexOfRefraction": 0.5
 		},
 		"BumpmapProperties":
 		{
@@ -26,7 +32,8 @@
 	},
 	"Resources":
 	{
-		"SpecularMaskTexture": "Texture:white.png"
+		"SpecularMaskTexture": "Texture:white.png",
+		"AmbientOcclusionTexture": "Texture:white.png"
 	},
 	"SamplerStates":
 	{
@@ -37,6 +44,7 @@
 	{
 		"Roughness": "PhysicalProperties.Roughness",
 		"Reflectivity": "PhysicalProperties.Reflectivity",
+		"IndexOfRefraction": "PhysicalProperties.IndexOfRefraction",
 		"Height": "BumpmapProperties.BumpHeight"
 	},
 	"Materials":
@@ -226,6 +234,15 @@
 			"Height": 0.5,
 			"Resources.DiffuseTexture": "Texture:sponza/sponza_curtain_green_diff.png",
 			"Resources.NormalTexture": "Texture:sponza/sponza_curtain_green_ddn.png"
+		},
+		"sponza_roof_diff":
+		{
+			"Roughness": 0.1,
+			"Reflectivity": 0.3,
+			"IndexOfRefraction": 0.2,
+			"Height": 1.0,
+			"Resources.DiffuseTexture": "Texture:sponza/sponza_roof_diff.png",
+			"Resources.NormalTexture": "Texture:flat.png"
 		}
 	}
 }

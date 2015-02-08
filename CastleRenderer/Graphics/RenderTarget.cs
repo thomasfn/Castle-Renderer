@@ -175,7 +175,7 @@ namespace CastleRenderer.Graphics
             if (depthcomponent != null)
                 context.OutputMerger.SetTargets(depthcomponent.View as DepthStencilView, views);
             else
-                context.OutputMerger.SetTargets(views);
+                context.OutputMerger.SetTargets(null, views);
         }
 
         public void BindHybrid(DepthStencilView depthview)

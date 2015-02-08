@@ -486,12 +486,13 @@ namespace CastleRenderer.Components
             }
 
             // Did the material change?
-            if (material != activematerial)
+            if (material != activematerial || shadow != activematerialshadow)
             {
                 // Did the shader change?
-                PipelineType ptype = shadow ? PipelineType.ShadowMapping : PipelineType.Main;
-                MaterialPipeline oldpipeline = activematerial.Pipelines[(int)ptype];
-                MaterialPipeline newpipeline = material.Pipelines[(int)ptype];
+                PipelineType oldptype = activematerialshadow ? PipelineType.ShadowMapping : PipelineType.Main;
+                PipelineType newptype = shadow ? PipelineType.ShadowMapping : PipelineType.Main;
+                MaterialPipeline oldpipeline = activematerial.Pipelines[(int)oldptype];
+                MaterialPipeline newpipeline = material.Pipelines[(int)newptype];
                 if (newpipeline == null)
                 {
                     activematerial = null;
@@ -502,7 +503,7 @@ namespace CastleRenderer.Components
                 // Apply
                 activematerial = material;
                 activematerialshadow = shadow;
-                if (!noapply) material.Apply(ptype);
+                if (!noapply) material.Apply(newptype);
                 SetCullingMode(material.CullingMode, invertculling);
                 frame_materialswitches++;
 

@@ -1,0 +1,54 @@
+{
+	"Actors":
+	[
+		{
+			"Name": "Ambient Light",
+			"Components":
+			{
+				"Transform": {},
+				"Light":
+				{
+					"Type": "Ambient",
+					"Colour": [ 0.4, 0.4, 0.45 ]
+				}
+			}
+		},
+		{
+			"Name": "Sun Light",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ -5.0, 22.0, 6.0 ],
+					"LocalForward": [ 0.8, -1.0, -0.4 ] 
+				},
+				"Light":
+				{
+					"Type": "Directional",
+					"Colour": [ 0.5, 0.5, 0.45 ]
+				},
+				"ShadowCaster":
+				{
+					"Resolution": 2048,
+					"AutoComputePosition": true
+				}
+			}
+		},
+		{
+			"Name": "Bounce Light",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ -5.0, 22.0, 6.0 ],
+					"LocalForward": [ 0.0, -0.1, -1.0 ] 
+				},
+				"Light":
+				{
+					"Type": "Directional",
+					"Colour": [ 0.05, 0.05, 0.05 ]
+				}
+			}
+		}
+	]
+}

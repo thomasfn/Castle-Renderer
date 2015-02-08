@@ -76,7 +76,7 @@ namespace CastleRenderer.Components.Physics
         {
             // Integrate all bodies
             foreach (RigidBody2D body in rigidbodies)
-                body.Integrate(Integrator, msg.DeltaTime);
+                body.Integrate(Integrator, 1.0f / 60.0f);
 
             // Iterate though all potential collision pairs
             Manifold2D manifold;

@@ -22,11 +22,22 @@ namespace CastleRenderer.Physics2D
         /// <summary>
         /// Gets the mass of this shape
         /// </summary>
-        public float Mass
+        public virtual float Mass
         {
             get
             {
                 return Density * Area;
+            }
+        }
+
+        /// <summary>
+        /// Gets the inertia of this shape
+        /// </summary>
+        public virtual float Inertia
+        {
+            get
+            {
+                return Mass;
             }
         }
 

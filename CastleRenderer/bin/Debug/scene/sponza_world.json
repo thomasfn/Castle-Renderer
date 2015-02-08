@@ -1,0 +1,21 @@
+{
+	"Actors":
+	[
+		{
+			"Name": "Sponza",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 0.0, 0.0, 0.0 ],
+					"LocalScale": [ 1.0, 1.0, 1.0 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Model:models/sponza.sbm:0:6:5",
+					"Materials": "Model:models/sponza.sbm"
+				}
+			}
+		}
+	]
+}

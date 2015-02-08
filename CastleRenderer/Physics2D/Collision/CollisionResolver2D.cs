@@ -15,8 +15,12 @@ namespace CastleRenderer.Physics2D.Collision
         /// <param name="manifold"></param>
         public void ResolveManifold(Manifold2D manifold)
         {
+            // Cache objects in locals
+            IPhysicsObject2D a = manifold.A;
+            IPhysicsObject2D b = manifold.B;
+
             // Calculate relative velocity
-            Vector2 relvel = manifold.B.Velocity - manifold.A.Velocity;
+            Vector2 relvel = b.Velocity - a.Velocity;
 
             // Calculate relative velocity along the collision normal
             float velalongnormal = Vector2.Dot(relvel, manifold.Normal);
@@ -25,16 +29,52 @@ namespace CastleRenderer.Physics2D.Collision
             if (velalongnormal > 0.0f) return;
 
             // Calculate restitution
-            float e = Math.Min(manifold.A.Material.Restitution, manifold.B.Material.Restitution);
+            float e = Math.Min(a.Material.Restitution, b.Material.Restitution);
 
             // Calculate impulse scalar
             float j = -(1.0f + e) * velalongnormal;
-            j /= manifold.A.InvMass + manifold.B.InvMass;
+            j /= (a.InvMass + b.InvMass);
 
             // Apply impulse
             Vector2 impulse = j * manifold.Normal;
-            manifold.A.Velocity -= manifold.A.InvMass * impulse;
-            manifold.B.Velocity += manifold.B.InvMass * impulse;
+            manifold.A.Velocity -= a.InvMass * impulse;
+            manifold.B.Velocity += b.InvMass * impulse;
+
+            // Recalculate relative velocity
+            relvel = b.Velocity - a.Velocity;
+
+            // Solve for the tangent vector
+            Vector2 tangent = relvel - Vector2.Dot(relvel, manifold.Normal) * manifold.Normal;
+            tangent.Normalize();
+
+            // Solve for the magnitude of friction
+            float jt = -Vector2.Dot(relvel, tangent);
+            jt /= (a.InvMass + b.InvMass);
+
+            // Approximate mu
+            float astaticfric = a.Material.StaticFriction;
+            float bstaticfric = b.Material.StaticFriction;
+            float mu = (float)Math.Sqrt(astaticfric * astaticfric + bstaticfric * bstaticfric);
+
+            // Clamp magnitude of friction and create impulse vector
+            Vector2 frictionimpulse;
+            if (Math.Abs(jt) < j * mu)
+            {
+                // Static friction is good enough
+                frictionimpulse = jt * tangent;
+            }
+            else
+            {
+                // Recalculate mu for dynamic friction
+                float adynfric = a.Material.DynamicFriction;
+                float bdynfric = b.Material.DynamicFriction;
+                mu = (float)Math.Sqrt(adynfric * adynfric + bdynfric * bdynfric);
+                frictionimpulse = -j * tangent * mu;
+            }
+
+            // Apply friction impulse
+            manifold.A.Velocity -= a.InvMass * frictionimpulse;
+            manifold.B.Velocity += b.InvMass * frictionimpulse;
 
             // Apply correction
             PositionalCorrection(manifold);

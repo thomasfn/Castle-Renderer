@@ -93,6 +93,9 @@
     <FxCompile Include="Pixel_SSAO_Blur.hlsl">
       <Filter>Pixel</Filter>
     </FxCompile>
+    <FxCompile Include="Pixel_Light_Spot.hlsl">
+      <Filter>Pixel\Lights</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common.hlsli" />

@@ -217,7 +217,7 @@ namespace CastleRenderer.Graphics
                     Vector3 v1 = lstPositions[i1];
                     Vector3 v2 = lstPositions[i2];
 
-                    bool shouldsplit = false;
+                    //bool shouldsplit = false;
 
                     // Compute area
                     float e0 = (v1 - v0).Length();

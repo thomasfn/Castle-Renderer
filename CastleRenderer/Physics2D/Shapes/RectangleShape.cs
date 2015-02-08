@@ -88,14 +88,21 @@ namespace CastleRenderer.Physics2D.Shapes
             closest.Y = closest.Y.Clamp(min.Y, max.Y);
 
             // Clip to edge
-            if (Math.Abs(pt.X - max.X) < Math.Abs(pt.X - min.X))
-                pt.X = max.X;
+            Vector2 centeroffset = pt - mypos;
+            if (Math.Abs(centeroffset.X) > Math.Abs(centeroffset.Y))
+            {
+                if (Math.Abs(pt.X - max.X) < Math.Abs(pt.X - min.X))
+                    pt.X = max.X;
+                else
+                    pt.X = min.X;
+            }
             else
-                pt.X = min.X;
-            if (Math.Abs(pt.Y - max.Y) < Math.Abs(pt.Y - min.Y))
-                pt.Y = max.Y;
-            else
-                pt.Y = min.Y;
+            {
+                if (Math.Abs(pt.Y - max.Y) < Math.Abs(pt.Y - min.Y))
+                    pt.Y = max.Y;
+                else
+                    pt.Y = min.Y;
+            }
 
             // Return
             return pt;
@@ -117,7 +124,7 @@ namespace CastleRenderer.Physics2D.Shapes
             Vector2 relpt = pt - mypos;
 
             // Check vs size
-            return Math.Abs(relpt.X) < Size.X && Math.Abs(relpt.Y) < Size.Y;
+            return Math.Abs(relpt.X) < Size.X * 0.5f && Math.Abs(relpt.Y) < Size.Y * 0.5f;
         }
     }
 }

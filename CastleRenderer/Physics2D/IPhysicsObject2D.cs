@@ -30,6 +30,11 @@ namespace CastleRenderer.Physics2D
         Vector2 Velocity { get; set; }
 
         /// <summary>
+        /// Gets or sets the rotational velocity for this physics object
+        /// </summary>
+        float RotationalVelocity { get; set; }
+
+        /// <summary>
         /// Gets the mass for this physics object
         /// </summary>
         float Mass { get; }
@@ -38,6 +43,16 @@ namespace CastleRenderer.Physics2D
         /// Gets the inverse mass for this physics object
         /// </summary>
         float InvMass { get; }
+
+        /// <summary>
+        /// Gets the inertia for this physics object
+        /// </summary>
+        float Inertia { get; }
+
+        /// <summary>
+        /// Gets the inverse inertia for this physics object
+        /// </summary>
+        float InvInertia { get; }
 
         /// <summary>
         /// Gets the physics material of this body

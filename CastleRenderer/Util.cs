@@ -96,5 +96,20 @@ namespace CastleRenderer
         {
             return value < min ? min : value > max ? max : value;
         }
+
+        public static void Shuffle<T>(T[] arr, Random rnd = null)
+        {
+            T[] copy = new T[arr.Length];
+            Array.Copy(arr, copy, arr.Length);
+            int[] indices = new int[arr.Length];
+            for (int i = 0; i < arr.Length; i++) indices[i] = i;
+            if (rnd == null) rnd = new Random();
+            for (int i = 0; i < arr.Length; i++)
+            {
+                int idx = rnd.Next(0, arr.Length - i);
+                arr[i] = copy[indices[idx]];
+                indices[idx] = indices[arr.Length - (i + 1)];
+            }
+        }
     }
 }

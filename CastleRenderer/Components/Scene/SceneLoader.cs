@@ -387,7 +387,7 @@ namespace CastleRenderer.Components
                         }
                         return actor.GetComponent(desiredtype);
                     }
-                    else if (!desiredtype.IsValueType)
+                    else
                     {
                         string name = (string)token;
                         string[] args = name.Split(':');
@@ -462,8 +462,6 @@ namespace CastleRenderer.Components
                                 return null;
                         }
                     }
-                    else
-                        return null;
                 case JTokenType.Boolean:
                     if (desiredtype == typeof(bool))
                         return (bool)token;

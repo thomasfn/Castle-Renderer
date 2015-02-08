@@ -21,7 +21,8 @@
 					"World": "Phys2D",
 					"MoveType": "Dynamic",
 					"Shape": "new:CircleShape:0.5",
-					"Velocity": [ -1.5, -0.1 ]
+					"Velocity": [ -1.5, -0.1 ],
+					"Material": "new:PhysicsMaterial:0.1:0.1:0.3"
 				}
 			}
 		},
@@ -46,7 +47,8 @@
 					"World": "Phys2D",
 					"MoveType": "Dynamic",
 					"Shape": "new:CircleShape:0.75",
-					"Velocity": [ 1.0, 0.2 ]
+					"Velocity": [ 1.0, 0.2 ],
+					"Material": "new:PhysicsMaterial:0.1:0.1:0.3"
 				}
 			}
 		},
@@ -70,7 +72,8 @@
 					"World": "Phys2D",
 					"MoveType": "Dynamic",
 					"Shape": "new:CircleShape:0.6",
-					"Velocity": [ 0.0, -0.5 ]
+					"Velocity": [ 0.0, -0.5 ],
+					"Material": "new:PhysicsMaterial:0.1:0.1:0.3"
 				}
 			}
 		}

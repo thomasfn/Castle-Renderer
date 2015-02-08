@@ -12,33 +12,36 @@ namespace CastleRenderer.Physics2D.Integrators
         /// <summary>
         /// Integrates using a variable timestep
         /// </summary>
-        /// <param name="oldposition"></param>
-        /// <param name="oldvelocity"></param>
+        /// <param name="old"></param>
         /// <param name="timestep"></param>
-        /// <param name="acceleration"></param>
-        /// <param name="newposition"></param>
-        /// <param name="newvelocity"></param>
-        public void IntegrateVariable(Vector2 oldposition, Vector2 oldvelocity, float timestep, Vector2 acceleration, out Vector2 newposition, out Vector2 newvelocity)
+        /// <param name="linearacc"></param>
+        /// <param name="rotacc"></param>
+        /// <returns></returns>
+        public BodyIntegrationInfo IntegrateVariable(BodyIntegrationInfo old, float timestep, Vector2 linearacc, float rotacc)
         {
-            IntegrateFixed(oldposition, oldvelocity, timestep, acceleration, out newposition, out newvelocity);
+            return IntegrateFixed(old, timestep, linearacc, rotacc);
         }
 
         /// <summary>
         /// Integrates using a fixed timestep
         /// </summary>
-        /// <param name="oldposition"></param>
-        /// <param name="oldvelocity"></param>
+        /// <param name="old"></param>
         /// <param name="timestep"></param>
-        /// <param name="acceleration"></param>
-        /// <param name="newposition"></param>
-        /// <param name="newvelocity"></param>
-        public void IntegrateFixed(Vector2 oldposition, Vector2 oldvelocity, float timestep, Vector2 acceleration, out Vector2 newposition, out Vector2 newvelocity)
+        /// <param name="linearacc"></param>
+        /// <param name="rotacc"></param>
+        /// <returns></returns>
+        public BodyIntegrationInfo IntegrateFixed(BodyIntegrationInfo old, float timestep, Vector2 linearacc, float rotacc)
         {
-            // Compute new velocity
-            newvelocity = oldvelocity + acceleration * timestep;
+            // Integrate acceleration
+            Vector2 newvelocity = old.Velocity + linearacc * timestep;
+            float newrotvelocity = old.RotationalVelocity + rotacc * timestep;
 
-            // Compute new position
-            newposition = oldposition + newvelocity * timestep;
+            // Integrate velocity
+            Vector2 newposition = old.Position + newvelocity * timestep;
+            float newrotation = old.Rotation + newrotvelocity * timestep;
+
+            // Return
+            return new BodyIntegrationInfo { Position = newposition, Rotation = newrotation, Velocity = newvelocity, RotationalVelocity = newrotvelocity };
         }
     }
 }

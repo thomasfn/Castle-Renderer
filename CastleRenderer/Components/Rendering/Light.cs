@@ -43,6 +43,11 @@ namespace CastleRenderer.Components
         /// </summary>
         public float Range { get; set; }
 
+        /// <summary>
+        /// The angle of this light, if it's a spot light
+        /// </summary>
+        public float Angle { get; set; }
+
         // The parameter sets for this light
         private MaterialParameterSet lightpset;
 
@@ -92,6 +97,7 @@ namespace CastleRenderer.Components
                     lightpset.SetParameter("Position", transform.Position);
                     lightpset.SetParameter("Direction", transform.Forward);
                     lightpset.SetParameter("Range", Range);
+                    lightpset.SetParameter("Angle", Angle);
                     break;
                     
             }

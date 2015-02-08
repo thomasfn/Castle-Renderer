@@ -26,6 +26,17 @@ namespace CastleRenderer.Physics2D.Shapes
         }
 
         /// <summary>
+        /// Gets the inertia of this circle shape
+        /// </summary>
+        public override float Inertia
+        {
+            get
+            {
+                return (2.0f / 5.0f) * Mass * Radius * Radius; // http://hyperphysics.phy-astr.gsu.edu/hbase/mi.html
+            }
+        }
+
+        /// <summary>
         /// Initialises a new instance of the CircleShape class
         /// </summary>
         /// <param name="radius"></param>

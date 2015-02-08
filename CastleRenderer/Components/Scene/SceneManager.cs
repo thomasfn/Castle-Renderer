@@ -133,7 +133,7 @@ namespace CastleRenderer.Components
             aotargetB.Finish();
 
             // Setup SSAO kernels
-            const int kernelsize = 4;
+            const int kernelsize = 8;
             const int kernelrandomsize = 1;
             const int noisesize = 4;
             {
@@ -200,7 +200,7 @@ namespace CastleRenderer.Components
             matpset_ppeffectinfo = new MaterialParameterStruct<CBuffer_PPEffectInfo>(renderer.Device.ImmediateContext, new CBuffer_PPEffectInfo { ImageSize = new Vector2(swapA.Width, swapA.Height) });
             matpset_ssao = new MaterialParameterStruct<CBuffer_SSAO>(renderer.Device.ImmediateContext, new CBuffer_SSAO
             {
-                Scale = new Vector3(1.0f, 1.0f, 2.5f),
+                Scale = new Vector3(0.2f, 0.4f, 2.0f),
                 KernelSize = new Vector2(kernelsize, noisesize),
                 NoiseScale = new Vector2(swapA.Width / (float)noisesize, swapA.Height / (float)noisesize)
             });
