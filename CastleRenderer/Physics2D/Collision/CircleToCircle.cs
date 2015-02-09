@@ -59,10 +59,13 @@ namespace CastleRenderer.Physics2D.Collision
             if (dist == 0.0f)
             {
                 manifold = new Manifold2D { Normal = Vector2.UnitX, Penetration = acircle.Radius };
+                manifold.AddContact(apos);
             }
             else
             {
-                manifold = new Manifold2D { Normal = normal / dist, Penetration = r2 - dist }; // NOTE: Should it be r - dist or r2 - dist?
+                normal /= dist;
+                manifold = new Manifold2D { Normal = normal, Penetration = r2 - dist }; // NOTE: Should it be r - dist or r2 - dist?
+                manifold.AddContact(Vector2.Lerp(apos + normal * acircle.Radius, bpos - normal * bcircle.Radius, 0.5f));
             }
 
             // Collision occured

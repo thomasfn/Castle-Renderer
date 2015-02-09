@@ -83,6 +83,7 @@
     <Compile Include="Graphics\SBMLoader.cs" />
     <Compile Include="Graphics\Shaders\PixelShader.cs" />
     <Compile Include="Graphics\Shaders\VertexShader.cs" />
+    <Compile Include="Matrix2x2.cs" />
     <Compile Include="Messages\PopulateParticleSystemList.cs" />
     <Compile Include="Messages\PostSceneLoadedMessage.cs" />
     <Compile Include="Messages\UpdateMessage.cs" />

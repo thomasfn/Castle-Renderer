@@ -87,6 +87,7 @@ namespace CastleRenderer.Physics2D.Collision
 
             // Return collision
             manifold = new Manifold2D { Normal = (normal / dist) * (inside ? -1.0f : 1.0f), Penetration = b.Radius - dist };
+            manifold.AddContact(closest);
             return true;
         }
     }

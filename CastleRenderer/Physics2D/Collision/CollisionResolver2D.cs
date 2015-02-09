@@ -15,15 +15,45 @@ namespace CastleRenderer.Physics2D.Collision
         /// <param name="manifold"></param>
         public void ResolveManifold(Manifold2D manifold)
         {
-            // Cache objects in locals
-            IPhysicsObject2D a = manifold.A;
-            IPhysicsObject2D b = manifold.B;
+            // Resolve contact-by-contact
+            switch (manifold.NumContacts)
+            {
+                case 0:
+                    break;
+                case 1:
+                    ResolveContact(manifold.A, manifold.B, manifold.Contact1, manifold.Normal, manifold.Penetration);
+                    break;
+                case 2:
+                    ResolveContact(manifold.A, manifold.B, manifold.Contact1, manifold.Normal, manifold.Penetration);
+                    ResolveContact(manifold.A, manifold.B, manifold.Contact2, manifold.Normal, manifold.Penetration);
+                    break;
+                default:
+                    throw new InvalidOperationException("Maximum of 2 contacts per manifold");
+            }
+
+            // Apply correction
+            PositionalCorrection(manifold);
+        }
+
+        /// <summary>
+        /// Resolves collision at the specified contact point
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="contactpoint"></param>
+        /// <param name="normal"></param>
+        /// <param name="penetration"></param>
+        private void ResolveContact(IPhysicsObject2D a, IPhysicsObject2D b, Vector2 contactpoint, Vector2 normal, float penetration)
+        {
+            // Calculate contact point relative to objects
+            Vector2 contactrelA = contactpoint - a.Position;
+            Vector2 contactrelB = contactpoint - b.Position;
 
             // Calculate relative velocity
-            Vector2 relvel = b.Velocity - a.Velocity;
+            Vector2 relvel = b.GetVelocityAtPoint(contactrelB) - a.GetVelocityAtPoint(contactrelA);
 
             // Calculate relative velocity along the collision normal
-            float velalongnormal = Vector2.Dot(relvel, manifold.Normal);
+            float velalongnormal = Vector2.Dot(relvel, normal);
 
             // If they're moving apart, do not resolve
             if (velalongnormal > 0.0f) return;
@@ -36,48 +66,50 @@ namespace CastleRenderer.Physics2D.Collision
             j /= (a.InvMass + b.InvMass);
 
             // Apply impulse
-            Vector2 impulse = j * manifold.Normal;
-            manifold.A.Velocity -= a.InvMass * impulse;
-            manifold.B.Velocity += b.InvMass * impulse;
+            Vector2 impulse = j * normal;
+            a.ApplyImpulse(-impulse, contactrelA);
+            b.ApplyImpulse(impulse, contactrelB);
 
             // Recalculate relative velocity
-            relvel = b.Velocity - a.Velocity;
+            relvel = b.GetVelocityAtPoint(contactrelB) - a.GetVelocityAtPoint(contactrelA);
 
             // Solve for the tangent vector
-            Vector2 tangent = relvel - Vector2.Dot(relvel, manifold.Normal) * manifold.Normal;
+            Vector2 tangent = relvel - Vector2.Dot(relvel, normal) * normal;
             tangent.Normalize();
-
-            // Solve for the magnitude of friction
-            float jt = -Vector2.Dot(relvel, tangent);
-            jt /= (a.InvMass + b.InvMass);
-
-            // Approximate mu
-            float astaticfric = a.Material.StaticFriction;
-            float bstaticfric = b.Material.StaticFriction;
-            float mu = (float)Math.Sqrt(astaticfric * astaticfric + bstaticfric * bstaticfric);
-
-            // Clamp magnitude of friction and create impulse vector
-            Vector2 frictionimpulse;
-            if (Math.Abs(jt) < j * mu)
+            if (tangent.LengthSquared() > 0.0f)
             {
-                // Static friction is good enough
-                frictionimpulse = jt * tangent;
-            }
-            else
-            {
-                // Recalculate mu for dynamic friction
-                float adynfric = a.Material.DynamicFriction;
-                float bdynfric = b.Material.DynamicFriction;
-                mu = (float)Math.Sqrt(adynfric * adynfric + bdynfric * bdynfric);
-                frictionimpulse = -j * tangent * mu;
-            }
+                // Solve for the magnitude of friction
+                float jt = -Vector2.Dot(relvel, tangent);
+                float ctermA = Util.Cross(contactpoint - a.Position, tangent);
+                float ctermB = Util.Cross(contactpoint - b.Position, tangent);
+                jt /= (a.InvMass + b.InvMass + ctermA * ctermA * a.InvInertia + ctermB * ctermB * b.InvInertia);
+                //jt /= (a.InvMass + b.InvMass);
 
-            // Apply friction impulse
-            manifold.A.Velocity -= a.InvMass * frictionimpulse;
-            manifold.B.Velocity += b.InvMass * frictionimpulse;
+                // Approximate mu
+                float astaticfric = a.Material.StaticFriction;
+                float bstaticfric = b.Material.StaticFriction;
+                float mu = (float)Math.Sqrt(astaticfric * astaticfric + bstaticfric * bstaticfric);
 
-            // Apply correction
-            PositionalCorrection(manifold);
+                // Clamp magnitude of friction and create impulse vector
+                Vector2 frictionimpulse;
+                if (Math.Abs(jt) < j * mu)
+                {
+                    // Static friction is good enough
+                    frictionimpulse = jt * tangent;
+                }
+                else
+                {
+                    // Recalculate mu for dynamic friction
+                    float adynfric = a.Material.DynamicFriction;
+                    float bdynfric = b.Material.DynamicFriction;
+                    mu = (float)Math.Sqrt(adynfric * adynfric + bdynfric * bdynfric);
+                    frictionimpulse = -j * tangent * mu;
+                }
+
+                // Apply friction impulse
+                a.ApplyImpulse(-frictionimpulse, contactrelA);
+                b.ApplyImpulse(frictionimpulse, contactrelB);
+            }
         }
 
         /// <summary>

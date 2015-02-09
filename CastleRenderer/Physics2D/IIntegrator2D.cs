@@ -28,7 +28,7 @@ namespace CastleRenderer.Physics2D
         /// <param name="linearacc"></param>
         /// <param name="rotacc"></param>
         /// <returns></returns>
-        BodyIntegrationInfo IntegrateVariable(BodyIntegrationInfo old, float timestep, Vector2 linearacc, float rotacc);
+        BodyIntegrationInfo IntegrateVariable(BodyIntegrationInfo old, float timestep, Vector2 acceleration, float torque);
 
         /// <summary>
         /// Integrates using a fixed timestep
@@ -38,7 +38,7 @@ namespace CastleRenderer.Physics2D
         /// <param name="linearacc"></param>
         /// <param name="rotacc"></param>
         /// <returns></returns>
-        BodyIntegrationInfo IntegrateFixed(BodyIntegrationInfo old, float timestep, Vector2 linearacc, float rotacc);
+        BodyIntegrationInfo IntegrateFixed(BodyIntegrationInfo old, float timestep, Vector2 acceleration, float torque);
 
     }
 }

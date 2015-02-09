@@ -71,5 +71,40 @@ namespace CastleRenderer.Physics2D
         /// <param name="manifold"></param>
         /// <returns></returns>
         bool TestCollision(IPhysicsObject2D other, out Manifold2D manifold);
+
+        /// <summary>
+        /// Applies an impulse to this physics object from the specified origin (in relative space)
+        /// </summary>
+        /// <param name="impulse"></param>
+        /// <param name="origin"></param>
+        void ApplyImpulse(Vector2 impulse, Vector2 origin);
+
+        /// <summary>
+        /// Applies an impulse to this physics object from the object's center of mass
+        /// </summary>
+        /// <param name="impulse"></param>
+        /// <param name="origin"></param>
+        void ApplyImpulse(Vector2 impulse);
+
+        /// <summary>
+        /// Transforms the specified world point into the object space of this physics object
+        /// </summary>
+        /// <param name="worldpoint"></param>
+        /// <returns></returns>
+        Vector2 WorldToObject(Vector2 worldpoint);
+
+        /// <summary>
+        /// Transforms the specified local point into world space
+        /// </summary>
+        /// <param name="worldpoint"></param>
+        /// <returns></returns>
+        Vector2 ObjectToWorld(Vector2 localpoint);
+
+        /// <summary>
+        /// Gets the velocity of this physics object at the specified origin (in relative space)
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <returns></returns>
+        Vector2 GetVelocityAtPoint(Vector2 origin);
     }
 }

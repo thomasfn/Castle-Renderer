@@ -111,5 +111,29 @@ namespace CastleRenderer
                 indices[idx] = indices[arr.Length - (i + 1)];
             }
         }
+
+        public static float Cross(Vector2 left, Vector2 right)
+        {
+            return left.X * right.Y - left.Y * right.X;
+        }
+
+        public static Vector2 Cross(Vector2 left, float s)
+        {
+            return new Vector2(s * left.Y, -s * left.X);
+        }
+
+        public static Vector2 Cross(float s, Vector2 right)
+        {
+            return new Vector2(-s * right.Y, s * right.X);
+        }
+
+        public static float ClampAngle(float angle)
+        {
+            const float pi = (float)Math.PI;
+            const float pi2 = pi * 2.0f;
+            while (angle > pi) angle -= pi2;
+            while (angle < -pi) angle += pi2;
+            return angle;
+        }
     }
 }

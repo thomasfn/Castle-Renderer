@@ -129,6 +129,7 @@ namespace CastleRenderer.Components.Physics
             // Initialise
             if (World != null) World.AddRigidBody(this);
             Mass = Shape.Mass;
+            Inertia = Shape.Inertia;
             if (MoveType == BodyMoveType.Static)
             {
                 InvMass = 0.0f;
@@ -186,7 +187,7 @@ namespace CastleRenderer.Components.Physics
                 Position = Position,
                 RotationalVelocity = RotationalVelocity,
                 Rotation = Rotation
-            }, timestep, ComputeLinearAcceleration(), ComputeRotationalAcceleration());
+            }, timestep, ComputeAcceleration(), ComputeTorque());
             Velocity = newinfo.Velocity;
             Position = newinfo.Position;
             RotationalVelocity = newinfo.RotationalVelocity;
@@ -201,7 +202,7 @@ namespace CastleRenderer.Components.Physics
         /// Computes the current linear acceleration acting on this rigid body
         /// </summary>
         /// <returns></returns>
-        private Vector2 ComputeLinearAcceleration()
+        private Vector2 ComputeAcceleration()
         {
             return new Vector2(0.0f, -9.81f);
             //return Vector2.Zero;
@@ -211,7 +212,7 @@ namespace CastleRenderer.Components.Physics
         /// Computes the current rotational acceleration acting on this rigid body
         /// </summary>
         /// <returns></returns>
-        private float ComputeRotationalAcceleration()
+        private float ComputeTorque()
         {
             return 0.0f;
         }
@@ -238,6 +239,59 @@ namespace CastleRenderer.Components.Physics
         }
 
         /// <summary>
+        /// Applies an impulse to this physics object from the specified origin (in object space)
+        /// </summary>
+        /// <param name="impulse"></param>
+        /// <param name="origin"></param>
+        public void ApplyImpulse(Vector2 impulse, Vector2 origin)
+        {
+            // Check for static
+            if (MoveType == BodyMoveType.Static) return;
+
+            // Apply linear velocity change
+            Velocity += impulse * InvMass;
+
+            // Apply rotational velocity change
+            RotationalVelocity += Util.Cross(origin, impulse) * InvInertia;
+        }
+
+        /// <summary>
+        /// Applies an impulse to this physics object from the object's center of mass
+        /// </summary>
+        /// <param name="impulse"></param>
+        /// <param name="origin"></param>
+        public void ApplyImpulse(Vector2 impulse)
+        {
+            // Check for static
+            if (MoveType == BodyMoveType.Static) return;
+
+            // Apply linear velocity change
+            Velocity += impulse * InvMass;
+        }
+
+        /// <summary>
+        /// Transforms the specified world point into the object space of this physics object
+        /// </summary>
+        /// <param name="worldpoint"></param>
+        /// <returns></returns>
+        public Vector2 WorldToObject(Vector2 worldpoint)
+        {
+            Matrix2x2 mat = Matrix2x2.Rotation(-Rotation);
+            return mat.Transform(worldpoint - Position);
+        }
+
+        /// <summary>
+        /// Transforms the specified local point into world space
+        /// </summary>
+        /// <param name="worldpoint"></param>
+        /// <returns></returns>
+        public Vector2 ObjectToWorld(Vector2 localpoint)
+        {
+            Matrix2x2 mat = Matrix2x2.Rotation(Rotation);
+            return mat.Transform(localpoint) + Position;
+        }
+
+        /// <summary>
         /// Updates this body after a physics iteration
         /// </summary>
         public void Apply()
@@ -246,8 +300,18 @@ namespace CastleRenderer.Components.Physics
             ignoretransform = true;
             Transform transform = Owner.GetComponent<Transform>();
             transform.LocalPosition2D = Position;
-            transform.LocalRotation = Quaternion.RotationAxis(Vector3.UnitZ, Rotation);
+            transform.LocalRotation = Quaternion.RotationAxis(Vector3.UnitZ, Util.ClampAngle(Rotation));
             ignoretransform = false;
+        }
+
+        /// <summary>
+        /// Gets the velocity of this physics object at the specified origin (in relative space)
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <returns></returns>
+        public Vector2 GetVelocityAtPoint(Vector2 origin)
+        {
+            return Velocity + Util.Cross(RotationalVelocity, origin);
         }
     }
 }
