@@ -135,5 +135,22 @@ namespace CastleRenderer
             while (angle < -pi) angle += pi2;
             return angle;
         }
+
+        public static Quaternion ForwardToRotation(Vector3 forward)
+        {
+            forward.Normalize();
+            if (forward == Vector3.UnitZ)
+            {
+                return Quaternion.Identity;
+            }
+            else if (forward == Vector3.UnitZ * -1.0f)
+            {
+                return Quaternion.RotationAxis(Vector3.UnitY, (float)Math.PI);
+            }
+            Vector3 normal = Vector3.Cross(forward, Vector3.UnitZ);
+            normal.Normalize();
+            float ang = (float)Math.Acos(forward.Z);
+            return Quaternion.RotationAxis(normal, -ang);
+        }
     }
 }

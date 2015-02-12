@@ -31,7 +31,7 @@ namespace CastleRenderer.Components
             set
             {
                 localposition = value;
-                if (OnTransformChange != null) OnTransformChange(this);
+                FireChangeEvent();
             }
         }
 
@@ -47,7 +47,7 @@ namespace CastleRenderer.Components
             set
             {
                 localposition = new Vector3(value.X, value.Y, localposition.Z);
-                if (OnTransformChange != null) OnTransformChange(this);
+                FireChangeEvent();
             }
         }
 
@@ -63,7 +63,7 @@ namespace CastleRenderer.Components
             set
             {
                 localrotation = value;
-                if (OnTransformChange != null) OnTransformChange(this);
+                FireChangeEvent();
             }
         }
 
@@ -79,7 +79,7 @@ namespace CastleRenderer.Components
             set
             {
                 localscale = value;
-                if (OnTransformChange != null) OnTransformChange(this);
+                FireChangeEvent();
             }
         }
 
@@ -94,18 +94,7 @@ namespace CastleRenderer.Components
             }
             set
             {
-                Vector3 forward = value;
-                forward.Normalize();
-                if (forward == Vector3.UnitZ)
-                {
-                    LocalRotation = Quaternion.Identity;
-                    return;
-                }
-                Vector3 normal = Vector3.Cross(forward, Vector3.UnitZ);
-                normal.Normalize();
-                float ang = (float)Math.Acos(forward.Z);
-                LocalRotation = Quaternion.RotationAxis(normal, -ang);
-                if (OnTransformChange != null) OnTransformChange(this);
+                LocalRotation = Util.ForwardToRotation(value);
             }
         }
 
@@ -122,14 +111,29 @@ namespace CastleRenderer.Components
         }
 
         /// <summary>
+        /// Gets the rotation of this transform in world space
+        /// </summary>
+        public Quaternion Rotation
+        {
+            get
+            {
+                Actor parent = Owner.Parent;
+                if (parent == null) return LocalRotation;
+                Transform parent_trans = parent.GetComponent<Transform>();
+                if (parent_trans == null) return LocalRotation;
+                return LocalRotation * parent_trans.Rotation;
+            }
+        }
+
+        /// <summary>
         /// Gets the forward vector of this transform in world space
         /// </summary>
         public Vector3 Forward
         {
             get
             {
-                // TODO: Optimise somehow
-                return Util.Vector3Transform(Vector3.UnitZ, ObjectToWorld) - Util.Vector3Transform(Vector3.Zero, ObjectToWorld);;
+                // Rotate unit z
+                return Util.Vector3Transform(Vector3.UnitZ, Rotation);
             }
         }
 
@@ -138,6 +142,21 @@ namespace CastleRenderer.Components
             LocalPosition = Vector3.Zero;
             LocalRotation = Quaternion.Identity;
             LocalScale = new Vector3(1.0f, 1.0f, 1.0f);
+        }
+
+        /// <summary>
+        /// Fires the changed event
+        /// </summary>
+        private void FireChangeEvent()
+        {
+            if (OnTransformChange != null) OnTransformChange(this);
+            if (Owner == null) return;
+            foreach (Actor child in Owner.Children)
+            {
+                Transform transform = child.GetComponent<Transform>();
+                if (transform != null)
+                    transform.FireChangeEvent();
+            }
         }
 
         /// <summary>

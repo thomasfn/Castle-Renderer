@@ -236,6 +236,9 @@ namespace CastleRenderer.Structures
         /// </summary>
         public void Destroy(bool destroychildren = false)
         {
+            // Sanity check
+            if (Destroyed) return;
+
             // Destroy and unlink all components
             Destroyed = true;
             foreach (var c in components)

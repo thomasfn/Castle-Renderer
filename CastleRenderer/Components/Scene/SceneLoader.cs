@@ -209,6 +209,7 @@ namespace CastleRenderer.Components
                     Console.WriteLine("Tried to parent '{0}' to unknown actor '{1}'!", parentname);
                     return false;
                 }
+                actor.Parent = parentactor;
             }
             else
                 actor.Parent = Owner;

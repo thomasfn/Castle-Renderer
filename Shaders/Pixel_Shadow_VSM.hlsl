@@ -13,7 +13,6 @@ BasicOutputPixel main(FullOutputVertex vertex) : SV_TARGET
 	float distance = sqrt(distance2);
 
 	output.Colour = float4(distance, distance2, 0.0, 0.0);
-	//output.Colour = float4(0.0, 0.0, 0.0, 0.0);
 
 	return output;
 }

@@ -12,8 +12,6 @@ cbuffer Directional : register(b1)
 	float UseShadowMapping;
 };
 
-
-
 #include "LightingModels.hlsli"
 #include "VarianceShadowMapping.hlsli"
 

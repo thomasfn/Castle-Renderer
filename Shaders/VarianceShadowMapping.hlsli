@@ -23,6 +23,7 @@ float SampleShadowMap(float3 position)
 {
 	// Calculate device coords
 	float4 shadowdevice = mul(float4(position, 1.0), ShadowMatrix);
+	shadowdevice /= shadowdevice.w;
 
 	// Clamp to bounds
 	float shadowterm = 1.0;
@@ -30,11 +31,13 @@ float SampleShadowMap(float3 position)
 		shadowterm = 1.0;
 	else
 	{
-		float2 uv = (shadowdevice.xy / shadowdevice.w) * 0.5 + 0.5;
+		float2 uv = shadowdevice.xy * 0.5 + 0.5;
 		uv.y = 1.0 - uv.y;
 		float2 smp = ShadowMapTexture.Sample(ShadowMapSampler, uv).xy;
 		float dist = length(position - Position);
 		shadowterm = ChebyshevUpperBound(smp, dist);
+		//float diff = dist - smp.x;
+		//shadowterm = diff < 0.01 ? 1.0 : 0.0;
 	}
 
 	// Return

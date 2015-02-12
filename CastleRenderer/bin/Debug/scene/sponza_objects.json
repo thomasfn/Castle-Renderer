@@ -1,0 +1,83 @@
+{
+	"Actors":
+	[
+		{ "Name": "MoveNodeTop1", "Components": { "Transform": { "LocalPosition": [ -7.5, 13.0, -0.5 ] } } },
+		{ "Name": "MoveNodeTop2", "Components": { "Transform": { "LocalPosition": [ 7.5, 13.0, -0.5 ] } } },
+		
+		{ "Name": "MoveNode1", "Components": { "Transform": { "LocalPosition": [ -8.5, 1.35, -4.8 ] } } },
+		{ "Name": "MoveNode2", "Components": { "Transform": { "LocalPosition": [ -11.0, 1.35, -0.4 ] } } },
+		{ "Name": "MoveNode3", "Components": { "Transform": { "LocalPosition": [ -9.3, 1.35, 3.6 ] } } },
+		{ "Name": "MoveNode4", "Components": { "Transform": { "LocalPosition": [ 10.0, 1.35, 4.2 ] } } },
+		{ "Name": "MoveNode5", "Components": { "Transform": { "LocalPosition": [ 12.0, 1.35, 0.0 ] } } },
+		{ "Name": "MoveNode6", "Components": { "Transform": { "LocalPosition": [ 10.0, 1.35, -4.8 ] } } },
+		
+		{
+			"Name": "MovingThing1",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ -7.5, 13.0, -0.5 ],
+					"LocalScale": [ 0.2, 0.2, 0.2 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Cube",
+					"Materials": [ "RedShiny" ]
+				},
+				"PathFollower":
+				{
+					"Nodes": [ "MoveNodeTop1", "MoveNodeTop2" ],
+					"Speed": 0.5
+				}
+			}
+		},
+		{
+			"Name": "MovingThing2",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ -8.5, 1.35, -4.8 ],
+					"LocalScale": [ 0.2, 0.2, 0.2 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Cube",
+					"Materials": [ "RedShiny" ],
+					"Enabled": true
+				},
+				"PathFollower":
+				{
+					"Nodes": [ "MoveNode1", "MoveNode2", "MoveNode3", "MoveNode4", "MoveNode5", "MoveNode6" ],
+					"Speed": 1.0,
+					"FaceForwards": true
+				}
+			}
+		},
+		{
+			"Name": "MovingThing2_Light",
+			"Parent": "MovingThing2",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 0.0, 0.0, 0.4 ]
+				},
+				"Light":
+				{
+					"Type": "Spot",
+					"Colour": [ 0.8, 0.8, 0.8 ],
+					"Range": 10.0,
+					"Angle": 0.8
+				},
+				"ShadowCaster":
+				{
+					"Resolution": 2048,
+					"NearZ": 0.125,
+					"FarZ": 256.0
+				}
+			}
+		},
+	]
+}

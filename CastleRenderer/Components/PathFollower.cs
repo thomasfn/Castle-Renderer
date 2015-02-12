@@ -16,14 +16,19 @@ namespace CastleRenderer.Components
     public class PathFollower : BaseComponent
     {
         /// <summary>
-        /// The nodes to follow
+        /// Gets or sets the nodes to follow
         /// </summary>
         public Actor[] Nodes { get; set; }
 
         /// <summary>
-        /// The speed at which to spin (in radians per second)
+        /// Gets or sets the speed at which to spin (in radians per second)
         /// </summary>
         public float Speed { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether the object should face towards the next node
+        /// </summary>
+        public bool FaceForwards { get; set; }
 
         private int targetnode;
         private Vector3[] nodeposarr;
@@ -66,7 +71,6 @@ namespace CastleRenderer.Components
         [MessageHandler(typeof(FrameMessage))]
         public void OnFrame(FrameMessage msg)
         {
-            // Apply
             Transform transform = Owner.GetComponent<Transform>();
 
             Vector3 dir = nodeposarr[targetnode] - transform.Position;
@@ -80,7 +84,10 @@ namespace CastleRenderer.Components
             dir /= dist;
 
             transform.LocalPosition += dir * Speed * msg.DeltaTime;
-            
+            if (FaceForwards)
+            {
+                transform.LocalRotation = Quaternion.Slerp(transform.LocalRotation, Util.ForwardToRotation(dir), (float)Math.Pow(0.05, 1.0 - msg.DeltaTime));
+            }
         }
 
         private void NextNode()

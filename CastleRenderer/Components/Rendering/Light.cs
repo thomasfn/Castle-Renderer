@@ -97,7 +97,7 @@ namespace CastleRenderer.Components
                     lightpset.SetParameter("Position", transform.Position);
                     lightpset.SetParameter("Direction", transform.Forward);
                     lightpset.SetParameter("Range", Range);
-                    lightpset.SetParameter("Angle", Angle);
+                    lightpset.SetParameter("Angle", (float)Math.Cos(Angle));
                     break;
                     
             }

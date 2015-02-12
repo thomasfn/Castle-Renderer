@@ -5,6 +5,11 @@
 		[
 			"Vertex_Transform_Full",
 			"Pixel_Physical_SolidColour"
+		],
+		"ShadowMapping":
+		[
+			"Vertex_Transform_Full",
+			"Pixel_Shadow_VSM"
 		]
 	},
 	"ParameterSets":
@@ -21,7 +26,8 @@
 		"PhysicalProperties":
 		{
 			"Roughness": 0.5,
-			"Reflectivity": 0.5
+			"Reflectivity": 0.5,
+			"IndexOfRefraction": 0.5
 		}
 	},
 	"Resources": {},
@@ -31,7 +37,8 @@
 	{
 		"Colour": "SolidColour.Colour",
 		"Roughness": "PhysicalProperties.Roughness",
-		"Reflectivity": "PhysicalProperties.Reflectivity"
+		"Reflectivity": "PhysicalProperties.Reflectivity",
+		"IndexOfRefraction": "PhysicalProperties.IndexOfRefraction"
 	},
 	"Materials":
 	{

@@ -78,8 +78,10 @@ namespace CastleRenderer.Components
             switch (light.Type)
             {
                 case LightType.Directional:
-                    Projection = Matrix.OrthoOffCenterLH(-0.5f * Scale, 0.5f * Scale, 0.5f * Scale, -0.5f * Scale, 0.125f, 256.0f);
-                    //Projection = Matrix.Identity;
+                    Projection = Matrix.OrthoOffCenterLH(-0.5f * Scale, 0.5f * Scale, 0.5f * Scale, -0.5f * Scale, NearZ, FarZ);
+                    break;
+                case LightType.Spot:
+                    Projection = Matrix.PerspectiveFovLH(light.Angle * 2.0f, 1.0f, NearZ, FarZ);
                     break;
                 default:
                     Console.WriteLine("WARNING: ShadowCaster does not yet support light of type {0}!", light.Type);

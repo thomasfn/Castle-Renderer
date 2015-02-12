@@ -235,6 +235,7 @@ namespace CastleRenderer.Components
             mat_lights.Add(LightType.Ambient, matsys.CreateMaterial("AmbientLight", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_Light_Ambient")));
             mat_lights.Add(LightType.Directional, matsys.CreateMaterial("DirectionalLight", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_Light_Directional")));
             mat_lights.Add(LightType.Point, matsys.CreateMaterial("PointLight", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_Light_Point")));
+            mat_lights.Add(LightType.Spot, matsys.CreateMaterial("SpotLight", matsys.GetShader("Vertex_Passthrough_Textured"), matsys.GetShader("Pixel_Light_Spot")));
             foreach (Material mat in mat_lights.Values)
             {
                 mat.SetResource("PositionTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_position)));
@@ -242,8 +243,8 @@ namespace CastleRenderer.Components
                 mat.SetResource("MaterialTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_material)));
                 mat.SetResource("ReflectionTexture", renderer.AcquireResourceView(gbuffer.GetTexture(gbuffer_reflection)));
                 mat.SetResource("AOTexture", renderer.AcquireResourceView(aotargetB.GetTexture(aotargetB_colour)));
-                mat.SetSamplerState("GBufferSampler", renderer.Sampler_Clamp);
-                mat.SetSamplerState("ShadowMapSampler", renderer.Sampler_Clamp);
+                mat.SetSamplerState("GBufferSampler", renderer.Sampler_Clamp_Linear);
+                mat.SetSamplerState("ShadowMapSampler", renderer.Sampler_Clamp_Linear);
                 if (mat.MainPipeline.LookupMaterialParameterBlockIndex("SSAO") != -1)
                 {
                     mat.SetParameterBlock("SSAO", matpset_ssao);
@@ -358,14 +359,6 @@ namespace CastleRenderer.Components
                 Matrix projview = caster.ProjectionView;
                 Transform transform = caster.Owner.GetComponent<Transform>();
                 Vector3 position = transform.Position;
-
-                // Does it belong to a directional-light?
-                /*Light light = caster.Owner.GetComponent<Light>();
-                if (light.Type == LightType.Directional)
-                {
-                    // We're responsible for positioning this light such that the shadow maps across the whole scene
-                    
-                }*/
 
                 // Bind the caster render target
                 caster.RT.Bind();
