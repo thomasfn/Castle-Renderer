@@ -30,6 +30,8 @@
 				"ShadowCaster":
 				{
 					"Resolution": 2048,
+					"NearZ": 0.0,
+					"FarZ": 64.0,
 					"AutoComputePosition": true
 				}
 			}

@@ -129,11 +129,12 @@ namespace CastleRenderer
 
         public static float ClampAngle(float angle)
         {
-            const float pi = (float)Math.PI;
+            return (float)Math.IEEERemainder(angle, Math.PI * 2.0);
+            /*const float pi = (float)Math.PI;
             const float pi2 = pi * 2.0f;
             while (angle > pi) angle -= pi2;
             while (angle < -pi) angle += pi2;
-            return angle;
+            return angle;*/
         }
 
         public static Quaternion ForwardToRotation(Vector3 forward)

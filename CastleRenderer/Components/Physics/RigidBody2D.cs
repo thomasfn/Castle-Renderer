@@ -127,7 +127,7 @@ namespace CastleRenderer.Components.Physics
             transform_OnTransformChange(transform);
 
             // Initialise
-            if (World != null) World.AddRigidBody(this);
+            if (World != null) World.AddObject(this);
             Mass = Shape.Mass;
             Inertia = Shape.Inertia;
             if (MoveType == BodyMoveType.Static)
@@ -155,7 +155,7 @@ namespace CastleRenderer.Components.Physics
             if (transform != null) transform.OnTransformChange -= transform_OnTransformChange;
 
             // Clean up
-            if (World != null) World.RemoveRigidBody(this);
+            if (World != null) World.RemoveObject(this);
         }
 
         /// <summary>

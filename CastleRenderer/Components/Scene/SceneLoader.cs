@@ -527,6 +527,23 @@ namespace CastleRenderer.Components
         private bool TryParse(string str, Type type, out object obj)
         {
             obj = null;
+            {
+                Actor actor;
+                if (sceneactors.TryGetValue(str, out actor))
+                {
+                    if (type == typeof(Actor))
+                    {
+                        obj = actor;
+                        return true;
+                    }
+                    BaseComponent component = actor.GetComponent(type);
+                    if (component != null)
+                    {
+                        obj = component;
+                        return true;
+                    }
+                }
+            }
             if (type == typeof(int))
             {
                 int val;
@@ -544,6 +561,16 @@ namespace CastleRenderer.Components
             else if (type == typeof(string))
             {
                 obj = str;
+                return true;
+            }
+            else if (type == typeof(Vector2))
+            {
+                string[] components = str.Split(',');
+                if (components.Length != 2) return false;
+                float x, y;
+                if (!float.TryParse(components[0], out x)) return false;
+                if (!float.TryParse(components[1], out y)) return false;
+                obj = new Vector2(x, y);
                 return true;
             }
             return false;

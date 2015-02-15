@@ -1,9 +1,0 @@
-{
-	"Include":
-	[
-		"scene/stage_camera.json",
-		"scene/stage_lighting.json",
-		"scene/stage_world.json",
-		"scene/stage_objects.json"
-	]
-}

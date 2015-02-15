@@ -15,8 +15,11 @@ namespace CastleRenderer.Components.Physics
     [RequiresComponent(typeof(Transform))]
     public class PhysicsWorld2D : BaseComponent
     {
-        // All rigid bodies
-        private HashSet<RigidBody2D> rigidbodies;
+        // All physics objects
+        private HashSet<IPhysicsObject2D> objects;
+
+        // All constraints
+        private HashSet<IPhysicsConstraint2D> constraints;
 
         /// <summary>
         /// Gets or sets the integrator to use
@@ -42,29 +45,48 @@ namespace CastleRenderer.Components.Physics
             base.OnAttach();
 
             // Initialise
-            rigidbodies = new HashSet<RigidBody2D>();
+            objects = new HashSet<IPhysicsObject2D>();
+            constraints = new HashSet<IPhysicsConstraint2D>();
         }
 
         /// <summary>
-        /// Adds a rigid body to this physics world
+        /// Adds a physics object to this world
         /// </summary>
         /// <param name="body"></param>
         /// <returns></returns>
-        public void AddRigidBody(RigidBody2D body)
+        public void AddObject(IPhysicsObject2D physobj)
         {
-            rigidbodies.Add(body);
-            BroadPhase.AddObject(body);
+            objects.Add(physobj);
+            BroadPhase.AddObject(physobj);
         }
 
         /// <summary>
-        /// Remove a rigid body from this physics world
+        /// Remove a physics object from this world
         /// </summary>
         /// <param name="body"></param>
         /// <returns></returns>
-        public void RemoveRigidBody(RigidBody2D body)
+        public void RemoveObject(IPhysicsObject2D physobj)
         {
-            rigidbodies.Remove(body);
-            BroadPhase.RemoveObject(body);
+            objects.Remove(physobj);
+            BroadPhase.RemoveObject(physobj);
+        }
+
+        /// <summary>
+        /// Adds a constraint to this world
+        /// </summary>
+        /// <param name="constraint"></param>
+        public void AddConstraint(IPhysicsConstraint2D constraint)
+        {
+            constraints.Add(constraint);
+        }
+
+        /// <summary>
+        /// Removes a constraint from this world
+        /// </summary>
+        /// <param name="constraint"></param>
+        public void RemoveConstraint(IPhysicsConstraint2D constraint)
+        {
+            constraints.Remove(constraint);
         }
 
          /// <summary>
@@ -74,10 +96,23 @@ namespace CastleRenderer.Components.Physics
         [MessageHandler(typeof(UpdateMessage))]
         public void OnUpdate(UpdateMessage msg)
         {
-            // Integrate all bodies
-            foreach (RigidBody2D body in rigidbodies)
-                body.Integrate(Integrator, 1.0f / 60.0f);
+            // Integrate all objects
+            foreach (IPhysicsObject2D physobj in objects)
+                physobj.Integrate(Integrator, 1.0f / 60.0f);
 
+            // Perform iterations
+            PerformIteration();
+
+            // Apply all objects
+            foreach (IPhysicsObject2D physobj in objects)
+                physobj.Apply();
+        }
+
+        /// <summary>
+        /// Performs a solving iteration
+        /// </summary>
+        private void PerformIteration()
+        {
             // Iterate though all potential collision pairs
             Manifold2D manifold;
             foreach (CollisionTestPair pair in BroadPhase.Test())
@@ -94,9 +129,9 @@ namespace CastleRenderer.Components.Physics
                 }
             }
 
-            // Apply all bodies
-            foreach (RigidBody2D body in rigidbodies)
-                body.Apply();
+            // Solve constraints
+            foreach (IPhysicsConstraint2D constraint in constraints)
+                constraint.Resolve();
         }
     }
 }

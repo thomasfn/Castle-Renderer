@@ -1,9 +1,9 @@
 {
 	"Include":
 	[
-		"scene/sponza_camera.json",
-		"scene/sponza_lighting.json",
-		"scene/sponza_world.json",
-		"scene/sponza_objects.json"
+		"scene/stage_camera.json",
+		"scene/stage_lighting.json",
+		"scene/stage_world.json",
+		"scene/stage_objects.json"
 	]
 }

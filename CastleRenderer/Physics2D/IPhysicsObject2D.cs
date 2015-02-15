@@ -106,5 +106,17 @@ namespace CastleRenderer.Physics2D
         /// <param name="origin"></param>
         /// <returns></returns>
         Vector2 GetVelocityAtPoint(Vector2 origin);
+
+        /// <summary>
+        /// Integrates this physics object over the specified timestep
+        /// </summary>
+        /// <param name="integrator"></param>
+        /// <param name="timestep"></param>
+        void Integrate(IIntegrator2D integrator, float timestep);
+
+        /// <summary>
+        /// Updates this physics object after a physics iteration
+        /// </summary>
+        void Apply();
     }
 }

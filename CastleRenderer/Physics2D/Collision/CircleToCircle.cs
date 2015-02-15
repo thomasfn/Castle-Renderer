@@ -41,8 +41,8 @@ namespace CastleRenderer.Physics2D.Collision
             float dist2 = normal.LengthSquared();
 
             // Find the distance squared if they were touching
-            float r2 = acircle.Radius + bcircle.Radius;
-            r2 *= r2;
+            float r = acircle.Radius + bcircle.Radius;
+            float r2 = r * r;
 
             // Check for intersection
             if (dist2 > r2)
@@ -64,7 +64,7 @@ namespace CastleRenderer.Physics2D.Collision
             else
             {
                 normal /= dist;
-                manifold = new Manifold2D { Normal = normal, Penetration = r2 - dist }; // NOTE: Should it be r - dist or r2 - dist?
+                manifold = new Manifold2D { Normal = normal, Penetration = r - dist }; // NOTE: Should it be r - dist or r2 - dist?
                 manifold.AddContact(Vector2.Lerp(apos + normal * acircle.Radius, bpos - normal * bcircle.Radius, 0.5f));
             }
 

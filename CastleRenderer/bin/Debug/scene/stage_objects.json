@@ -7,7 +7,7 @@
 			{
 				"Transform":
 				{
-					"LocalPosition": [ 14.0, 6.0, 1.0 ],
+					"LocalPosition": [ 10.0, 9.0, 1.0 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
 					"LocalScale": [ 0.5, 0.5, 0.5 ]
 				},
@@ -76,6 +76,18 @@
 					"Material": "new:PhysicsMaterial:0.1:0.1:0.3"
 				}
 			}
-		}
+		},
+		{
+			"Name": "Rope1",
+			"Components":
+			{
+				"Transform": {},
+				"Constraint2D":
+				{
+					"World": "Phys2D",
+					"Constraint": "new:RopeConstraint2D:Ceiling:0.0,-0.5:Sphere1:0.0,0.5:4.0:1.0",
+				}
+			}
+		},
 	]
 }
