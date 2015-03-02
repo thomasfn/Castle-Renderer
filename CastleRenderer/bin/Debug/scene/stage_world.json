@@ -10,7 +10,9 @@
 				{
 					"Integrator": "new:EulerIntegrator2D",
 					"BroadPhase": "new:BruteForceBroadphase2D",
-					"CollisionResolver": "new:CollisionResolver2D"
+					"CollisionResolver": "new:CollisionResolver2D",
+					"TickRate": 30,
+					"IterationCount": 4
 				}
 			}
 		},
