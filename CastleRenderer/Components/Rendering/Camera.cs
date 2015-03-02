@@ -80,6 +80,32 @@ namespace CastleRenderer.Components
         /// </summary>
         public bool UseAO { get; set; }
 
+        /// <summary>
+        /// Gets a ray for the specified pixel coordinates
+        /// </summary>
+        /// <param name="px"></param>
+        /// <param name="py"></param>
+        /// <returns></returns>
+        public override Ray GetRay(int px, int py)
+        {
+            // Convert to device coords
+            float dx = px / (float)Viewport.Width - 1.0f;
+            float dy = py / (float)Viewport.Height - 1.0f;
+            Vector4 devnear = new Vector4(dx, dy, 0.0f, 1.0f);
+            Vector4 devfar = new Vector4(dx, dy, 1.0f, 1.0f);
+
+            // Unproject
+            Matrix invproj = Projection;
+            invproj.Invert();
+            Matrix unproj = Owner.GetComponent<Transform>().ObjectToWorld * invproj;
+            Vector4 worldnear = Vector4.Transform(devnear, invproj);
+            Vector4 worldfar = Vector4.Transform(devfar, invproj);
+            Vector4 dir = worldfar - worldnear;
+
+            // Create ray
+            return new Ray(new Vector3(worldnear.X, worldnear.Y, worldnear.Z), new Vector3(dir.X, dir.Y, dir.Z));
+        }
+
         public override void OnAttach()
         {
             // Base attach

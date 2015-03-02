@@ -239,6 +239,16 @@ namespace CastleRenderer.Components.Physics
         }
 
         /// <summary>
+        /// Tests if this object contains the specified point in world space
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        public bool ContainsPoint(Vector2 pt)
+        {
+            return Shape.ContainsPoint(Position, Rotation, pt);
+        }
+
+        /// <summary>
         /// Applies an impulse to this physics object from the specified origin (in object space)
         /// </summary>
         /// <param name="impulse"></param>

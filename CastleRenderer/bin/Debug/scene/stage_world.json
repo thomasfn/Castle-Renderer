@@ -13,6 +13,10 @@
 					"CollisionResolver": "new:CollisionResolver2D",
 					"TickRate": 30,
 					"IterationCount": 4
+				},
+				"DragPlane":
+				{
+					"MainCamera": "Main Camera"
 				}
 			}
 		},

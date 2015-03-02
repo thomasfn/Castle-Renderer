@@ -49,6 +49,17 @@ namespace CastleRenderer.Components.Physics
         /// </summary>
         public int IterationCount { get; set; }
 
+        /// <summary>
+        /// Gets the 3D plane upon which the simulation takes place
+        /// </summary>
+        public Plane WorldPlane
+        {
+            get
+            {
+                return new Plane(Vector3.UnitZ, 0.5f);
+            }
+        }
+
         private float accum;
 
         /// <summary>
@@ -177,6 +188,16 @@ namespace CastleRenderer.Components.Physics
             // Solve constraints
             foreach (IPhysicsConstraint2D constraint in constraints)
                 constraint.Resolve();
+        }
+
+        /// <summary>
+        /// Returns all objects that intersect with the specified world point
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        public IEnumerable<IPhysicsObject2D> QueryPoint(Vector2 pt)
+        {
+            return BroadPhase.TestPoint(pt);
         }
     }
 }
