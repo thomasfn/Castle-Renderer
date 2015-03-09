@@ -60,15 +60,19 @@ namespace CastleRenderer.Components.Physics
                 if (Ray.Intersects(ray, plane, out dist))
                 {
                     Vector3 hitpos = ray.Position + ray.Direction * dist;
+                    Vector2 pt = new Vector2(hitpos.X, hitpos.Y);
                     if (point == null)
                     {
-                        Vector2 pt = new Vector2(hitpos.X, hitpos.Y);
                         IPhysicsObject2D obj = world.QueryPoint(pt).SingleOrDefault();
                         if (obj != null)
                         {
                             point = new PointConstraint2D(obj, pt - obj.Position);
                             world.AddConstraint(point);
                         }
+                    }
+                    if (point != null)
+                    {
+                        point.PositionB = pt;
                     }
                 }
             }

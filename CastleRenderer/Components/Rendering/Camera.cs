@@ -89,21 +89,19 @@ namespace CastleRenderer.Components
         public override Ray GetRay(int px, int py)
         {
             // Convert to device coords
-            float dx = px / (float)Viewport.Width - 1.0f;
-            float dy = py / (float)Viewport.Height - 1.0f;
-            Vector4 devnear = new Vector4(dx, dy, 0.0f, 1.0f);
-            Vector4 devfar = new Vector4(dx, dy, 1.0f, 1.0f);
+            float dx = (px / (float)Viewport.Width) * 2.0f - 1.0f;
+            float dy = (py / (float)Viewport.Height) * 2.0f - 1.0f;
 
             // Unproject
-            Matrix invproj = Projection;
-            invproj.Invert();
-            Matrix unproj = Owner.GetComponent<Transform>().ObjectToWorld * invproj;
-            Vector4 worldnear = Vector4.Transform(devnear, invproj);
-            Vector4 worldfar = Vector4.Transform(devfar, invproj);
-            Vector4 dir = worldfar - worldnear;
+            Transform transform = Owner.GetComponent<Transform>();
+            Matrix viewproj = transform.WorldToObject * Projection;
+            //Vector3 worldnear = Vector3.Unproject(new Vector3(px, py, 0.0f), 0.0f, 0.0f, Viewport.Width, Viewport.Height, NearZ, FarZ, viewproj);
+            Vector3 worldfar = Vector3.Unproject(new Vector3(px, py, 1.0f), 0.0f, 0.0f, Viewport.Width, Viewport.Height, NearZ, FarZ, viewproj);
+            Vector3 dir = worldfar - transform.Position;
+            dir.Normalize();
 
             // Create ray
-            return new Ray(new Vector3(worldnear.X, worldnear.Y, worldnear.Z), new Vector3(dir.X, dir.Y, dir.Z));
+            return new Ray(transform.Position, dir);
         }
 
         public override void OnAttach()
