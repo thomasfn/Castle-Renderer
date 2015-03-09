@@ -56,7 +56,7 @@ namespace CastleRenderer.Components.Physics
         {
             get
             {
-                return new Plane(Vector3.UnitZ, 0.5f);
+                return new Plane(Vector3.UnitZ, -1.0f);
             }
         }
 

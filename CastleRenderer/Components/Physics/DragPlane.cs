@@ -23,6 +23,16 @@ namespace CastleRenderer.Components.Physics
         /// </summary>
         public Camera MainCamera { get; set; }
 
+        /// <summary>
+        /// Gets or sets the stiffness of the constraint
+        /// </summary>
+        public float Stiffness { get; set; }
+
+        /// <summary>
+        /// Gets or sets the stiffness of the constraint at the tangent
+        /// </summary>
+        public float TangentStiffness { get; set; }
+
         private bool depressed;
         private PointConstraint2D point;
 
@@ -66,7 +76,13 @@ namespace CastleRenderer.Components.Physics
                         IPhysicsObject2D obj = world.QueryPoint(pt).SingleOrDefault();
                         if (obj != null)
                         {
-                            point = new PointConstraint2D(obj, pt - obj.Position);
+                            RigidBody2D body = obj as RigidBody2D;
+                            if (body != null)
+                            {
+                                pt = body.Shape.FindClosestPoint(obj.Position, obj.Rotation, pt);
+                            }
+                            //point = new PointConstraint2D(obj, pt - obj.Position, Stiffness, true);
+                            point = new PointConstraint2D(obj, pt - obj.Position, Stiffness, TangentStiffness, false);
                             world.AddConstraint(point);
                         }
                     }

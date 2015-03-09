@@ -10,7 +10,7 @@ namespace CastleRenderer.Physics2D.Constraints
     public class PointConstraint2D : IUnaryPhysicsConstraint2D
     {
         /// <summary>
-        /// Gets the first object constrained by this rope constraint
+        /// Gets the object constrained by this point constraint
         /// </summary>
         public IPhysicsObject2D ObjectA { get; private set; }
 
@@ -25,14 +25,32 @@ namespace CastleRenderer.Physics2D.Constraints
         public Vector2 PositionB { get; set; }
 
         /// <summary>
+        /// Gets the stiffness of this point constraint
+        /// </summary>
+        public float Stiffness { get; private set; }
+
+        /// <summary>
+        /// Gets the stiffness of this point constraint at the tangent
+        /// </summary>
+        public float TangentStiffness { get; private set; }
+
+        /// <summary>
+        /// Gets if rotation of the object should be restricted
+        /// </summary>
+        public bool RestrictRotation { get; private set; }
+
+        /// <summary>
         /// Initialises a new instance of the PointConstraint2D class
         /// </summary>
-        public PointConstraint2D(IPhysicsObject2D a, Vector2 posA)
+        public PointConstraint2D(IPhysicsObject2D a, Vector2 posA, float stiffness, float tanstiffness, bool norot)
         {
             // Store attributes
             ObjectA = a;
             PositionA = posA;
             PositionB = a.ObjectToWorld(posA);
+            Stiffness = stiffness;
+            RestrictRotation = norot;
+            TangentStiffness = tanstiffness;
         }
 
         /// <summary>
@@ -40,7 +58,50 @@ namespace CastleRenderer.Physics2D.Constraints
         /// </summary>
         public void Resolve()
         {
-            
+            // Restrict rotation
+            if (RestrictRotation)
+            {
+                ObjectA.RotationalVelocity = 0.0f;
+            }
+
+            // Find the connection points in world and relative space
+            Vector2 connectA = ObjectA.ObjectToWorld(PositionA);
+            Vector2 connectArel = connectA - ObjectA.Position;
+
+            // Find the length
+            Vector2 between = PositionB - connectA;
+            float len2 = between.LengthSquared();
+
+            // Find the expansion amount
+            float len = (float)Math.Sqrt(len2);
+            between /= len;
+
+            // Calculate relative velocity
+            Vector2 relvel = ObjectA.GetVelocityAtPoint(connectArel) * -1.0f;
+
+            // Calculate relative velocity along the collision normal
+            float velalongnormal = Vector2.Dot(relvel, between);
+
+            // Calculate impulse scalar
+            float j = (len + Math.Max(0.0f, velalongnormal)) * Stiffness;
+            j /= ObjectA.InvMass;
+
+            // Apply impulse
+            Vector2 impulse = j * between;
+            ObjectA.ApplyImpulse(impulse, connectArel);
+
+            // Recalculate relative velocity
+            relvel = ObjectA.GetVelocityAtPoint(connectArel) * -1.0f;
+
+            // Solve for the tangent vector
+            Vector2 tangent = relvel - Vector2.Dot(relvel, between) * between;
+            tangent.Normalize();
+            if (tangent.LengthSquared() > 0.0f)
+            {
+                float jt = Vector2.Dot(relvel, tangent) * TangentStiffness;
+                jt /= ObjectA.InvMass;
+                ObjectA.ApplyImpulse(jt * tangent, connectArel);
+            }
         }
     }
 }

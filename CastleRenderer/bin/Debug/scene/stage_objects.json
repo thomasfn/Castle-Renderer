@@ -85,7 +85,7 @@
 				"Constraint2D":
 				{
 					"World": "Phys2D",
-					"Constraint": "new:RopeConstraint2D:Ceiling:0.0,-0.5:Sphere1:0.0,0.5:4.0:1.0",
+					"Constraint": "new:RopeConstraint2D:Ceiling:0.0,-0.5:Sphere1:0.0,0.5:4.0:0.5",
 				}
 			}
 		},
