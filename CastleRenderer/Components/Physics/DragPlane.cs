@@ -73,9 +73,12 @@ namespace CastleRenderer.Components.Physics
                     Vector2 pt = new Vector2(hitpos.X, hitpos.Y);
                     if (point == null)
                     {
-                        IPhysicsObject2D obj = world.QueryPoint(pt).SingleOrDefault();
-                        if (obj != null)
+                        IPhysicsObject2D[] arr = world.QueryPoint(pt)
+                            .Where((obj) => !obj.Static)
+                            .ToArray();
+                        if (arr.Length > 0)
                         {
+                            IPhysicsObject2D obj = arr[0];
                             RigidBody2D body = obj as RigidBody2D;
                             if (body != null)
                             {

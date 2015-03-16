@@ -166,8 +166,7 @@ namespace CastleRenderer.Components.Physics
         {
             if (ignoretransform) return;
             Position = sender.LocalPosition2D;
-            // TODO: Read real rotation
-            Rotation = 0.0f;
+            Rotation = sender.LocalRotation2D;
         }
 
         /// <summary>

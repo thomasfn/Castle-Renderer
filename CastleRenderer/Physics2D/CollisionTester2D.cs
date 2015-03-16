@@ -57,7 +57,10 @@ namespace CastleRenderer.Physics2D
         /// <returns></returns>
         public bool Test(Shape2D a, Vector2 apos, float arot, Shape2D b, Vector2 bpos, float brot, out Manifold2D manifold)
         {
-            return source.Test(b, bpos, brot, a, apos, arot, out manifold);
+            bool test = source.Test(b, bpos, brot, a, apos, arot, out manifold);
+            if (!test) return false;
+            manifold.Normal = manifold.Normal * -1.0f;
+            return true;
         }
     }
 

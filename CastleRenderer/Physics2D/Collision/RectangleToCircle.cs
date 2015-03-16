@@ -38,9 +38,23 @@ namespace CastleRenderer.Physics2D.Collision
 
             // If the rectangle is rotated, we need to transform the circle into rectangle space
             // It's important to ensure that if this happens, the output normal should be transformed back
+            Matrix2x2 rot = Matrix2x2.Rotation(-arot);
+            //bpos = rot.Transform(bpos - apos) + apos;
             
             // For now, just assume the rectangle is axis aligned
-            return TestAxisAligned(arect, apos, bcircle, bpos, out manifold);
+            bool test = TestAxisAligned(arect, apos, bcircle, bpos, out manifold);
+            if (!test) return false;
+
+            // Transform the manifold
+            rot.Invert();
+            //if (manifold.NumContacts >= 1)
+                //manifold.Contact1 = rot.Transform(manifold.Contact1 - apos) + apos;
+            if (manifold.NumContacts >= 2)
+                manifold.Contact2 = rot.Transform(manifold.Contact2 - apos) + apos;
+            //manifold.Normal = rot.Transform(manifold.Normal);
+
+            // Collision!
+            return true;
         }
 
         /// <summary>

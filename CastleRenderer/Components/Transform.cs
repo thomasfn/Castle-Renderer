@@ -68,6 +68,22 @@ namespace CastleRenderer.Components
         }
 
         /// <summary>
+        /// The rotation of this transform in local 2D space
+        /// </summary>
+        public float LocalRotation2D
+        {
+            get
+            {
+                return (float)Math.Asin(2 * localrotation.X * localrotation.Y + 2 * localrotation.Z * localrotation.W);
+                //return (float)Math.Atan2(2 * localrotation.X * localrotation.W - 2 * localrotation.Y * localrotation.Z, 1 - 2 * localrotation.X * localrotation.X - 2 * localrotation.Z * localrotation.Z);
+            }
+            set
+            {
+                localrotation = Quaternion.RotationYawPitchRoll(0.0f, 0.0f, value);
+            }
+        }
+
+        /// <summary>
         /// The scale of this transform in local space
         /// </summary>
         public Vector3 LocalScale
