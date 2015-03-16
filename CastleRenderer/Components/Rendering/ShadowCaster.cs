@@ -153,5 +153,10 @@ namespace CastleRenderer.Components
             // Update material parameter blocks
             UpdateMaterialParameterBlocks();
         }
+
+        public override Ray GetRay(int px, int py)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

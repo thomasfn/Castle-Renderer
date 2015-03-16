@@ -7,7 +7,7 @@ namespace CastleRenderer.Physics2D.Constraints
     /// <summary>
     /// Represents a rope constraint
     /// </summary>
-    public class RopeConstraint2D : IPhysicsConstraint2D
+    public class RopeConstraint2D : IBinaryPhysicsConstraint2D
     {
         /// <summary>
         /// Gets the first object constrained by this rope constraint

@@ -10,7 +10,15 @@
 				{
 					"Integrator": "new:EulerIntegrator2D",
 					"BroadPhase": "new:BruteForceBroadphase2D",
-					"CollisionResolver": "new:CollisionResolver2D"
+					"CollisionResolver": "new:CollisionResolver2D",
+					"TickRate": 30,
+					"IterationCount": 8
+				},
+				"DragPlane":
+				{
+					"MainCamera": "Main Camera",
+					"Stiffness": 0.75,
+					"TangentStiffness": 0.1
 				}
 			}
 		},

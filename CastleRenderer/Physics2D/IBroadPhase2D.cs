@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using SlimDX;
+
 namespace CastleRenderer.Physics2D
 {
     /// <summary>
@@ -33,5 +35,12 @@ namespace CastleRenderer.Physics2D
         /// </summary>
         /// <returns></returns>
         IEnumerable<CollisionTestPair> Test();
+
+        /// <summary>
+        /// Returns a set of objects that intersect with the specified point in world space
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        IEnumerable<IPhysicsObject2D> TestPoint(Vector2 pt);
     }
 }

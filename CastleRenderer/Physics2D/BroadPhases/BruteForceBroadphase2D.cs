@@ -67,5 +67,23 @@ namespace CastleRenderer.Physics2D.BroadPhases
                         yield return new CollisionTestPair { A = objA, B = objB };
                 }
         }
+
+
+        /// <summary>
+        /// Returns a set of objects that intersect with the specified point in world space
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        public IEnumerable<IPhysicsObject2D> TestPoint(Vector2 pt)
+        {
+            // Loop all objects
+            int cnt = objects.Count;
+            for (int i = 0; i < cnt; i++)
+            {
+                IPhysicsObject2D obj = objects[i];
+                if (obj.ContainsPoint(pt))
+                    yield return obj;
+            }
+        }
     }
 }

@@ -73,6 +73,13 @@ namespace CastleRenderer.Physics2D
         bool TestCollision(IPhysicsObject2D other, out Manifold2D manifold);
 
         /// <summary>
+        /// Tests if this object contains the specified point in world space
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        bool ContainsPoint(Vector2 pt);
+
+        /// <summary>
         /// Applies an impulse to this physics object from the specified origin (in relative space)
         /// </summary>
         /// <param name="impulse"></param>

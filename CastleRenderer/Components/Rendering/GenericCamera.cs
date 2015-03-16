@@ -63,6 +63,14 @@ namespace CastleRenderer.Components
         /// </summary>
         public MaterialParameterStruct<CBuffer_CameraTransform> CameraTransformParameterBlock { get; private set; }
 
+        /// <summary>
+        /// Gets a ray for the specified pixel coordinates
+        /// </summary>
+        /// <param name="px"></param>
+        /// <param name="py"></param>
+        /// <returns></returns>
+        public abstract Ray GetRay(int px, int py);
+
         public override void OnAttach()
         {
             // Initialise parameter blocks

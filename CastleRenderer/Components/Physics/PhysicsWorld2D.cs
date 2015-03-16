@@ -21,6 +21,9 @@ namespace CastleRenderer.Components.Physics
         // All constraints
         private HashSet<IPhysicsConstraint2D> constraints;
 
+        // The current collision set
+        private List<Manifold2D> collisionset;
+
         /// <summary>
         /// Gets or sets the integrator to use
         /// </summary>
@@ -37,6 +40,29 @@ namespace CastleRenderer.Components.Physics
         public ICollisionResolver2D CollisionResolver { get; set; }
 
         /// <summary>
+        /// Gets or sets the tick rate to use
+        /// </summary>
+        public float TickRate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of iterations per frame
+        /// </summary>
+        public int IterationCount { get; set; }
+
+        /// <summary>
+        /// Gets the 3D plane upon which the simulation takes place
+        /// </summary>
+        public Plane WorldPlane
+        {
+            get
+            {
+                return new Plane(Vector3.UnitZ, -1.0f);
+            }
+        }
+
+        private float accum;
+
+        /// <summary>
         /// Called when this component has been attached to an actor
         /// </summary>
         public override void OnAttach()
@@ -47,6 +73,7 @@ namespace CastleRenderer.Components.Physics
             // Initialise
             objects = new HashSet<IPhysicsObject2D>();
             constraints = new HashSet<IPhysicsConstraint2D>();
+            collisionset = new List<Manifold2D>();
         }
 
         /// <summary>
@@ -89,30 +116,36 @@ namespace CastleRenderer.Components.Physics
             constraints.Remove(constraint);
         }
 
-         /// <summary>
+        /// <summary>
         /// Called when it's time to update the frame
         /// </summary>
         /// <param name="msg"></param>
         [MessageHandler(typeof(UpdateMessage))]
         public void OnUpdate(UpdateMessage msg)
         {
-            // Integrate all objects
-            foreach (IPhysicsObject2D physobj in objects)
-                physobj.Integrate(Integrator, 1.0f / 60.0f);
-
-            // Perform iterations
-            PerformIteration();
-
-            // Apply all objects
-            foreach (IPhysicsObject2D physobj in objects)
-                physobj.Apply();
+            // Work out how many ticks to run
+            accum += msg.DeltaTime;
+            float ticktime = 1.0f / TickRate;
+            while (accum > ticktime)
+            {
+                // Run a tick
+                accum -= ticktime;
+                PerformTick();
+            }
         }
 
         /// <summary>
-        /// Performs a solving iteration
+        /// Performs a single physics tick
         /// </summary>
-        private void PerformIteration()
+        private void PerformTick()
         {
+            // Integrate all objects
+            foreach (IPhysicsObject2D physobj in objects)
+                physobj.Integrate(Integrator, 1.0f / TickRate);
+
+            // Clear collision set
+            collisionset.Clear();
+
             // Iterate though all potential collision pairs
             Manifold2D manifold;
             foreach (CollisionTestPair pair in BroadPhase.Test())
@@ -124,14 +157,47 @@ namespace CastleRenderer.Components.Physics
                     manifold.A = pair.A;
                     manifold.B = pair.B;
 
-                    // Resolve collision
-                    CollisionResolver.ResolveManifold(manifold);
+                    // Add to collision set
+                    collisionset.Add(manifold);
                 }
+            }
+
+            // Perform iterations
+            for (int i = 0; i < IterationCount; i++)
+            {
+                PerformIteration();
+            }
+
+            // Apply all objects
+            foreach (IPhysicsObject2D physobj in objects)
+                physobj.Apply();
+        }
+
+        /// <summary>
+        /// Performs a solving iteration
+        /// </summary>
+        private void PerformIteration()
+        {
+            // Iterate though all collisions
+            foreach (Manifold2D manifold in collisionset)
+            {
+                // Resolve collision
+                CollisionResolver.ResolveManifold(manifold);
             }
 
             // Solve constraints
             foreach (IPhysicsConstraint2D constraint in constraints)
                 constraint.Resolve();
+        }
+
+        /// <summary>
+        /// Returns all objects that intersect with the specified world point
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        public IEnumerable<IPhysicsObject2D> QueryPoint(Vector2 pt)
+        {
+            return BroadPhase.TestPoint(pt);
         }
     }
 }

@@ -36,7 +36,10 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\..\..\Programming Stuff\Craft.Net-master\lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64" />
+    <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\SlimDX.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Components\PathFollower.cs" />
     <Compile Include="Components\Physics\Constraint2D.cs" />
+    <Compile Include="Components\Physics\DragPlane.cs" />
     <Compile Include="Components\Physics\PhysicsWorld2D.cs" />
     <Compile Include="Components\Physics\RigidBody2D.cs" />
     <Compile Include="Components\Rendering\Camera.cs" />
@@ -93,13 +97,16 @@
     <Compile Include="Physics2D\Collision\CircleToCircle.cs" />
     <Compile Include="Physics2D\Collision\RectangleToCircle.cs" />
     <Compile Include="Physics2D\Collision\CollisionResolver2D.cs" />
+    <Compile Include="Physics2D\Constraints\PointConstraint2D.cs" />
     <Compile Include="Physics2D\Constraints\RopeConstraint2D.cs" />
     <Compile Include="Physics2D\IBroadPhase2D.cs" />
     <Compile Include="Physics2D\ICollisionResolver2D.cs" />
     <Compile Include="Physics2D\IIntegrator2D.cs" />
     <Compile Include="Physics2D\Integrators\EulerIntegrator2D.cs" />
+    <Compile Include="Physics2D\IBinaryPhysicsConstraint2D.cs" />
     <Compile Include="Physics2D\IPhysicsConstraint2D.cs" />
     <Compile Include="Physics2D\IPhysicsObject2D.cs" />
+    <Compile Include="Physics2D\IUnaryPhysicsConstraint2D.cs" />
     <Compile Include="Physics2D\Manifold2D.cs" />
     <Compile Include="Physics2D\PhysicsMaterial.cs" />
     <Compile Include="Physics2D\Shape2D.cs" />

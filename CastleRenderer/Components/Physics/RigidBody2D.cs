@@ -166,8 +166,7 @@ namespace CastleRenderer.Components.Physics
         {
             if (ignoretransform) return;
             Position = sender.LocalPosition2D;
-            // TODO: Read real rotation
-            Rotation = 0.0f;
+            Rotation = sender.LocalRotation2D;
         }
 
         /// <summary>
@@ -236,6 +235,16 @@ namespace CastleRenderer.Components.Physics
 
             // Unknown body type
             throw new NotImplementedException("RigidBody2D.TestCollision is not implemented for " + other.GetType());
+        }
+
+        /// <summary>
+        /// Tests if this object contains the specified point in world space
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        public bool ContainsPoint(Vector2 pt)
+        {
+            return Shape.ContainsPoint(Position, Rotation, pt);
         }
 
         /// <summary>

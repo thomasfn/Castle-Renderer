@@ -100,7 +100,7 @@ namespace CastleRenderer
 
         public float Determinant()
         {
-            return (M11 - M22) / (M12 - M21);
+            return (M11 * M22) - (M12 * M21);
         }
         public bool Equals(Matrix2x2 other)
         {
