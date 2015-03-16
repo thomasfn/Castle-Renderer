@@ -50,18 +50,32 @@ namespace CastleRenderer.Physics2D.Shapes
         /// <returns></returns>
         public override Vector2 FindClosestPoint(Vector2 mypos, float myrot, Vector2 pt)
         {
-            // TODO: Handle non axis-aligned case
-            if (myrot != 0.0f) throw new NotImplementedException();
+            // Handle non axis-aligned case
+            Matrix2x2 rot = Matrix2x2.Identity;
+            //if (myrot != 0.0f)
+            {
+                // Transform the point and rect to rect space
+                rot = Matrix2x2.Rotation(-myrot);
+                pt = rot.Transform(pt - mypos);
+            }
 
             // Get extents
             Vector2 halfsize = Size * 0.5f;
-            Vector2 min = mypos - halfsize;
-            Vector2 max = mypos + halfsize;
+            Vector2 min = halfsize * -1.0f;
+            Vector2 max = halfsize;
 
             // Clamp to edge
             Vector2 closest = pt;
             closest.X = closest.X.Clamp(min.X, max.X);
             closest.Y = closest.Y.Clamp(min.Y, max.Y);
+
+            // Handle non axis-aligned case
+            //if (myrot != 0.0f)
+            {
+                // Transform back to world space
+                rot.Invert();
+                closest = rot.Transform(closest) + mypos;
+            }
 
             // Return
             return closest;
@@ -74,13 +88,14 @@ namespace CastleRenderer.Physics2D.Shapes
         /// <returns></returns>
         public override Vector2 FindClosestEdgePoint(Vector2 mypos, float myrot, Vector2 pt)
         {
-            // TODO: Handle non axis-aligned case
-            if (myrot != 0.0f) throw new NotImplementedException();
+            // Transform the point to rect space
+            var rot = Matrix2x2.Rotation(-myrot);
+            pt = rot.Transform(pt - mypos);
 
             // Get extents
             Vector2 halfsize = Size * 0.5f;
-            Vector2 min = mypos - halfsize;
-            Vector2 max = mypos + halfsize;
+            Vector2 min = halfsize * -1.0f;
+            Vector2 max = halfsize;
 
             // Clamp to edge
             Vector2 closest = pt;
@@ -88,7 +103,7 @@ namespace CastleRenderer.Physics2D.Shapes
             closest.Y = closest.Y.Clamp(min.Y, max.Y);
 
             // Clip to edge
-            Vector2 centeroffset = pt - mypos;
+            Vector2 centeroffset = pt;
             if (Math.Abs(centeroffset.X) > Math.Abs(centeroffset.Y))
             {
                 if (Math.Abs(pt.X - max.X) < Math.Abs(pt.X - min.X))
@@ -104,6 +119,10 @@ namespace CastleRenderer.Physics2D.Shapes
                     pt.Y = min.Y;
             }
 
+            // Transform back to world space
+            rot.Invert();
+            closest = rot.Transform(closest) + mypos;            
+
             // Return
             return pt;
         }
@@ -117,11 +136,13 @@ namespace CastleRenderer.Physics2D.Shapes
         /// <returns></returns>
         public override bool ContainsPoint(Vector2 mypos, float myrot, Vector2 pt)
         {
-            // TODO: Handle non axis-aligned case
-            if (myrot != 0.0f) throw new NotImplementedException();
-
             // Transform point relative to the rectangle
             Vector2 relpt = pt - mypos;
+            //if (myrot != 0.0f)
+            {
+                var rot = Matrix2x2.Rotation(-myrot);
+                relpt = rot.Transform(relpt);
+            }
 
             // Check vs size
             return Math.Abs(relpt.X) < Size.X * 0.5f && Math.Abs(relpt.Y) < Size.Y * 0.5f;
