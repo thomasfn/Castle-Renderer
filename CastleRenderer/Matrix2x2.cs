@@ -38,6 +38,32 @@ namespace CastleRenderer
             }
         }
 
+        public Vector2 Row1
+        {
+            get
+            {
+                return new Vector2(M11, M21);
+            }
+            set
+            {
+                M11 = value.X;
+                M21 = value.Y;
+            }
+        }
+
+        public Vector2 Row2
+        {
+            get
+            {
+                return new Vector2(M12, M22);
+            }
+            set
+            {
+                M12 = value.X;
+                M22 = value.Y;
+            }
+        }
+
         public Matrix2x2(Vector2 col1, Vector2 col2)
         {
             M11 = col1.X;

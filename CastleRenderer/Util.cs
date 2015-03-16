@@ -153,5 +153,10 @@ namespace CastleRenderer
             float ang = (float)Math.Acos(forward.Z);
             return Quaternion.RotationAxis(normal, -ang);
         }
+
+        public static float Lerp(float a, float b, float mu)
+        {
+            return (b - a) * mu + a;
+        }
     }
 }

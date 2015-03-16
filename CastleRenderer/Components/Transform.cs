@@ -182,7 +182,7 @@ namespace CastleRenderer.Components
         {
             get
             {
-                return Matrix.RotationQuaternion(LocalRotation) * Matrix.Scaling(LocalScale) * Matrix.Translation(LocalPosition);
+                return Matrix.Scaling(LocalScale) * Matrix.RotationQuaternion(LocalRotation) * Matrix.Translation(LocalPosition);
             }
         }
 

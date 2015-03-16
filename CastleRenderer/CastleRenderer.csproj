@@ -97,6 +97,7 @@
     <Compile Include="Physics2D\Collision\CircleToCircle.cs" />
     <Compile Include="Physics2D\Collision\RectangleToCircle.cs" />
     <Compile Include="Physics2D\Collision\CollisionResolver2D.cs" />
+    <Compile Include="Physics2D\Collision\RectangleToRectangle.cs" />
     <Compile Include="Physics2D\Constraints\PointConstraint2D.cs" />
     <Compile Include="Physics2D\Constraints\RopeConstraint2D.cs" />
     <Compile Include="Physics2D\IBroadPhase2D.cs" />
