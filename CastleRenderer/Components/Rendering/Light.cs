@@ -49,7 +49,20 @@ namespace CastleRenderer.Components
         public float Angle { get; set; }
 
         // The parameter sets for this light
+        private string psetkey;
         private MaterialParameterSet lightpset;
+
+        /// <summary>
+        /// Called when this component is attached to an actor
+        /// </summary>
+        public override void OnAttach()
+        {
+            // Call base
+            base.OnAttach();
+
+            // Cache things
+            psetkey = Type.ToString();
+        }
 
         /// <summary>
         /// Applies this light's settings to the specified material
@@ -103,7 +116,7 @@ namespace CastleRenderer.Components
             }
 
             // Apply to material
-            material.SetParameterBlock(Type.ToString(), lightpset);
+            material.SetParameterBlock(psetkey, lightpset);
         }
 
         /// <summary>
