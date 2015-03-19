@@ -26,10 +26,21 @@ namespace CastleRenderer.Physics2D.Shapes
         }
 
         /// <summary>
+        /// Gets the moments of inertia of this rectangle shape for both axes
+        /// </summary>
+        public override float Inertia
+        {
+            get
+            {
+                return Area * Mass * 0.5f;
+            }
+        }
+
+        /// <summary>
         /// Initialises a new instance of the RectangleShape class
         /// </summary>
         /// <param name="radius"></param>
-        public RectangleShape(float width, float height)
+        public RectangleShape(float width, float height, float density)
         {
             Size = new Vector2(width, height);
         }

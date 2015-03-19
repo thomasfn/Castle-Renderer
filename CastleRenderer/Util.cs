@@ -127,6 +127,11 @@ namespace CastleRenderer
             return new Vector2(-s * right.Y, s * right.X);
         }
 
+        public static bool Validate(this Vector2 vec)
+        {
+            return !float.IsNaN(vec.X) && !float.IsNaN(vec.Y) && !float.IsInfinity(vec.X) && !float.IsInfinity(vec.Y);
+        }
+
         public static float ClampAngle(float angle)
         {
             return (float)Math.IEEERemainder(angle, Math.PI * 2.0);

@@ -31,7 +31,7 @@ namespace CastleRenderer.Physics2D
         }
 
         /// <summary>
-        /// Gets the inertia of this shape
+        /// Gets the moment of inertia of this shape
         /// </summary>
         public virtual float Inertia
         {

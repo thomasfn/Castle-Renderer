@@ -20,7 +20,7 @@
 				{
 					"World": "Phys2D",
 					"MoveType": "Dynamic",
-					"Shape": "new:CircleShape:0.5",
+					"Shape": "new:CircleShape:0.5:1.0",
 					"Velocity": [ -1.5, -0.1 ],
 					"Material": "new:PhysicsMaterial:0.1:0.1:0.3"
 				}
@@ -46,7 +46,7 @@
 					"Enabled": false,
 					"World": "Phys2D",
 					"MoveType": "Dynamic",
-					"Shape": "new:CircleShape:0.75",
+					"Shape": "new:CircleShape:0.75:1.0",
 					"Velocity": [ 1.0, 0.2 ],
 					"Material": "new:PhysicsMaterial:0.1:0.1:0.3"
 				}
@@ -71,7 +71,7 @@
 				{
 					"World": "Phys2D",
 					"MoveType": "Dynamic",
-					"Shape": "new:CircleShape:0.6",
+					"Shape": "new:CircleShape:0.6:1.0",
 					"Velocity": [ 0.0, -0.5 ],
 					"Material": "new:PhysicsMaterial:0.1:0.1:0.3"
 				}
@@ -90,12 +90,66 @@
 			}
 		},
 		{
-			"Name": "Thing",
+			"Name": "Box1",
 			"Components":
 			{
 				"Transform":
 				{
 					"LocalPosition": [ 5.0, 5.0, 1.0 ],
+					"LocalRotation": [ 0.0, 0.0, 0.0 ],
+					"LocalScale": [ 1.25, 1.0, 1.0 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Cube:1.25:1.0:1.0",
+					"Materials": [ "BrickWall01" ]
+				},
+				"RigidBody2D":
+				{
+					"World": "Phys2D",
+					"MoveType": "Dynamic",
+					"Shape": "new:RectangleShape:1.25:1.0:1.5",
+					"Velocity": [ 0.0, 0.0 ],
+					"Material": "new:PhysicsMaterial:0.15:0.10:0.3",
+					"LinearDamping": 0.05,
+					"RotationalDamping": 0.05
+				}
+			}
+		},
+		{
+			"Name": "Box2",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 5.0, 6.5, 1.0 ],
+					"LocalRotation": [ 0.0, 0.0, 0.0 ],
+					"LocalScale": [ 1.5, 1.0, 1.0 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Cube:1.5:1.0:1.0",
+					"Materials": [ "BrickWall01" ]
+				},
+				"RigidBody2D":
+				{
+					"World": "Phys2D",
+					"MoveType": "Dynamic",
+					"Shape": "new:RectangleShape:1.5:1.0:1.5",
+					"Velocity": [ 0.0, 0.0 ],
+					"Material": "new:PhysicsMaterial:0.15:0.10:0.3",
+					"LinearDamping": 0.05,
+					"RotationalDamping": 0.05
+				}
+			}
+		},
+		{
+			"Name": "Box3",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 5.0, 8.0, 1.0 ],
 					"LocalRotation": [ 0.0, 0.0, 0.0 ],
 					"LocalScale": [ 1.0, 1.0, 1.0 ]
 				},
@@ -108,9 +162,11 @@
 				{
 					"World": "Phys2D",
 					"MoveType": "Dynamic",
-					"Shape": "new:RectangleShape:1.0:1.0",
+					"Shape": "new:RectangleShape:1.0:1.0:1.5",
 					"Velocity": [ 0.0, 0.0 ],
-					"Material": "new:PhysicsMaterial:0.15:0.10:0.3"
+					"Material": "new:PhysicsMaterial:0.15:0.10:0.3",
+					"LinearDamping": 0.05,
+					"RotationalDamping": 0.05
 				}
 			}
 		}

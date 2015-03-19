@@ -13,13 +13,15 @@ namespace CastleRenderer.Physics2D.Collision
     {
         private Vector2[] axes;
         private float[] contactpoints;
-        private Vector2[] projorigins;
+
+        private Vector2[] vertices1, vertices2;
 
         public RectangleToRectangle()
         {
             axes = new Vector2[4];
             contactpoints = new float[4];
-            projorigins = new Vector2[4];
+            vertices1 = new Vector2[4];
+            vertices2 = new Vector2[4];
         }
 
         /// <summary>
@@ -38,15 +40,8 @@ namespace CastleRenderer.Physics2D.Collision
             public float Min, Max;
             public float Origin;
 
-            public static Projection Project(RectangleShape rectshape, Vector2 origin, Vector2 axis1, Vector2 axis2, Vector2 projectionaxis)
+            public static Projection Project(Vector2[] vertices, Vector2 origin, Vector2 projectionaxis)
             {
-                // Calculate the vertices
-                Vector2 size = rectshape.Size;
-                vertices[0] = origin - axis1 * size.X * 0.5f - axis2 * size.Y * 0.5f;
-                vertices[1] = vertices[0] + axis2 * size.Y;
-                vertices[2] = vertices[1] + axis1 * size.X;
-                vertices[3] = vertices[0] + axis1 * size.X;
-
                 // Project all vertices
                 Projection result = new Projection
                 {
@@ -129,6 +124,22 @@ namespace CastleRenderer.Physics2D.Collision
             axes[2] = bmtx.Row2;
             axes[3] = bmtx.Row1;
 
+            // Calculate the vertices
+            {
+                Vector2 size = arect.Size;
+                vertices1[0] = apos - axes[1] * size.X * 0.5f - axes[0] * size.Y * 0.5f;
+                vertices1[1] = vertices1[0] + axes[0] * size.Y;
+                vertices1[2] = vertices1[1] + axes[1] * size.X;
+                vertices1[3] = vertices1[0] + axes[1] * size.X;
+            }
+            {
+                Vector2 size = brect.Size;
+                vertices2[0] = bpos - axes[3] * size.X * 0.5f - axes[2] * size.Y * 0.5f;
+                vertices2[1] = vertices2[0] + axes[2] * size.Y;
+                vertices2[2] = vertices2[1] + axes[3] * size.X;
+                vertices2[3] = vertices2[0] + axes[3] * size.X;
+            }
+
             // Loop each axis
             int minaxis = 0;
             float minpen = float.MaxValue;
@@ -136,9 +147,8 @@ namespace CastleRenderer.Physics2D.Collision
             for (int i = 0; i < 4; i++)
             {
                 Vector2 axis = axes[i];
-                Projection projA = Projection.Project(arect, apos, axes[1], axes[0], axis);
-                Projection projB = Projection.Project(brect, bpos, axes[3], axes[2], axis);
-                projorigins[i] = new Vector2(projA.Origin, projB.Origin);
+                Projection projA = Projection.Project(vertices1, apos, axis);
+                Projection projB = Projection.Project(vertices2, bpos, axis);
                 float pen;
                 if (!projA.Intersects(projB, out pen, out contactpoints[i]))
                 {
@@ -160,8 +170,13 @@ namespace CastleRenderer.Physics2D.Collision
                 Penetration = minpen
             };
 
+            if (float.IsNaN(manifold.Normal.X) || float.IsInfinity(manifold.Normal.X) || float.IsNaN(manifold.Normal.Y) || float.IsInfinity(manifold.Normal.Y) || float.IsNaN(manifold.Penetration) || float.IsInfinity(manifold.Penetration))
+            {
+                throw new Exception();
+            }
+
             // Work out the contact point
-            Vector2 cpt;
+            /*Vector2 cpt;
             if (minaxis == 0 || minaxis == 1)
             {
                 cpt = axes[0] * contactpoints[0] + axes[1] * contactpoints[1]; 
@@ -170,7 +185,52 @@ namespace CastleRenderer.Physics2D.Collision
             {
                 cpt = axes[2] * contactpoints[2] + axes[3] * contactpoints[3];
             }
-            manifold.AddContact(cpt);
+            manifold.AddContact(cpt);*/
+
+            // Work out the contact point round 2
+            Vector2 sumpt = Vector2.Zero;
+            int cnt = 0;
+            Vector2 halfsizeB = brect.Size * 0.5f;
+            Vector2 halfsizeA = arect.Size * 0.5f;
+            amtx = Matrix2x2.Rotation(-arot);
+            Vector2 prev = Vector2.Zero, cur = Vector2.Zero;
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 pt = vertices1[i];
+                Vector2 tpt = bmtx.Transform(pt - bpos);
+                if (tpt.X >= -halfsizeB.X && tpt.X <= halfsizeB.X && tpt.Y >= -halfsizeB.Y && tpt.Y <= halfsizeB.Y)
+                {
+                    sumpt += pt;
+                    prev = cur;
+                    cur = pt;
+                    cnt++;
+                }
+
+                pt = vertices2[i];
+                tpt = amtx.Transform(pt - apos);
+                if (tpt.X >= -halfsizeA.X && tpt.X <= halfsizeA.X && tpt.Y >= -halfsizeA.Y && tpt.Y <= halfsizeA.Y)
+                {
+                    sumpt += pt;
+                    prev = cur;
+                    cur = pt;
+                    cnt++;
+                }
+            }
+            if (cnt == 0) return false;
+            sumpt /= cnt;
+            sumpt += manifold.Normal * manifold.Penetration * 0.5f;
+            if (cnt == 2)
+            {
+                manifold.AddContact(prev);
+                manifold.AddContact(cur);
+            }
+            else
+                manifold.AddContact(sumpt);
+
+            // NOTE: This contact point is WRONG.
+            // It's not far off, but it always assumes line<->line contact and produces an average point in the center.
+            // This results in inaccurate impulse resolution during a point<->line contact.
+            // How do we detect/compute point<->line?
 
             // All axes intersected, there's collision
             return true;

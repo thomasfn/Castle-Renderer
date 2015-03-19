@@ -41,7 +41,7 @@
 				{
 					"World": "Phys2D",
 					"MoveType": "Static",
-					"Shape": "new:RectangleShape:20.0:1.0",
+					"Shape": "new:RectangleShape:20.0:1.0:1.0",
 					"Velocity": [ 0.0, 0.0 ],
 					"Material": "new:PhysicsMaterial:0.15:0.10:0.3"
 				}
@@ -66,7 +66,7 @@
 				{
 					"World": "Phys2D",
 					"MoveType": "Static",
-					"Shape": "new:RectangleShape:20.0:1.0",
+					"Shape": "new:RectangleShape:20.0:1.0:1.0",
 					"Velocity": [ 0.0, 0.0 ],
 					"Material": "new:PhysicsMaterial:0.5:0.3:0.2"
 				}
@@ -91,7 +91,7 @@
 				{
 					"World": "Phys2D",
 					"MoveType": "Static",
-					"Shape": "new:RectangleShape:1.0:9.0",
+					"Shape": "new:RectangleShape:1.0:9.0:1.0",
 					"Velocity": [ 0.0, 0.0 ],
 					"Material": "new:PhysicsMaterial:0.5:0.3:0.2"
 				}
@@ -116,7 +116,7 @@
 				{
 					"World": "Phys2D",
 					"MoveType": "Static",
-					"Shape": "new:RectangleShape:1.0:9.0",
+					"Shape": "new:RectangleShape:1.0:9.0:1.0",
 					"Velocity": [ 0.0, 0.0 ],
 					"Material": "new:PhysicsMaterial:0.5:0.3:0.2"
 				}
@@ -168,6 +168,81 @@
 					"Type": "Point",
 					"Colour": [ 0.8, 0.7, 0.6 ],
 					"Range": 5.0
+				}
+			}
+		},
+		{
+			"Name": "Platform1",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 5.0, 7.0, 1.0 ],
+					"LocalRotation": [ 0.0, 0.0, 0.5 ],
+					"LocalScale": [ 3.0, 0.5, 1.0 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Cube:3.0:0.5:1.0",
+					"Materials": [ "BrickWall01" ]
+				},
+				"RigidBody2D":
+				{
+					"World": "Phys2D",
+					"MoveType": "Static",
+					"Shape": "new:RectangleShape:3.0:0.5:1.5",
+					"Velocity": [ 0.0, 0.0 ],
+					"Material": "new:PhysicsMaterial:0.15:0.10:0.3"
+				}
+			}
+		},
+		{
+			"Name": "Platform2",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 2.5, 4.0, 1.0 ],
+					"LocalRotation": [ 0.0, 0.0, -0.5 ],
+					"LocalScale": [ 3.0, 0.5, 1.0 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Cube:3.0:0.5:1.0",
+					"Materials": [ "BrickWall01" ]
+				},
+				"RigidBody2D":
+				{
+					"World": "Phys2D",
+					"MoveType": "Static",
+					"Shape": "new:RectangleShape:3.0:0.5:1.5",
+					"Velocity": [ 0.0, 0.0 ],
+					"Material": "new:PhysicsMaterial:0.15:0.10:0.3"
+				}
+			}
+		},
+		{
+			"Name": "Platform3",
+			"Components":
+			{
+				"Transform":
+				{
+					"LocalPosition": [ 6.0, 0.8, 1.0 ],
+					"LocalRotation": [ 0.0, 0.0, 0.0 ],
+					"LocalScale": [ 2.0, 0.5, 1.0 ]
+				},
+				"MeshRenderer":
+				{
+					"Mesh": "Primitive:Cube:3.0:0.5:1.0",
+					"Materials": [ "BrickWall01" ]
+				},
+				"RigidBody2D":
+				{
+					"World": "Phys2D",
+					"MoveType": "Static",
+					"Shape": "new:RectangleShape:2.0:0.5:1.5",
+					"Velocity": [ 0.0, 0.0 ],
+					"Material": "new:PhysicsMaterial:0.15:0.10:3.0"
 				}
 			}
 		}

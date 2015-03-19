@@ -257,6 +257,10 @@ namespace CastleRenderer.Components.Physics
             // Check for static
             if (MoveType == BodyMoveType.Static) return;
 
+            // Error check
+            if (!impulse.Validate() || !origin.Validate())
+                throw new InvalidOperationException();
+
             // Apply linear velocity change
             Velocity += impulse * InvMass;
 
@@ -273,6 +277,10 @@ namespace CastleRenderer.Components.Physics
         {
             // Check for static
             if (MoveType == BodyMoveType.Static) return;
+
+            // Error check
+            if (!impulse.Validate())
+                throw new InvalidOperationException();
 
             // Apply linear velocity change
             Velocity += impulse * InvMass;
