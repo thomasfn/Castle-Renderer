@@ -65,6 +65,7 @@
     <Compile Include="Components\Rendering\PostProcessEffect.cs" />
     <Compile Include="Components\Rendering\ReflectionProbe.cs" />
     <Compile Include="Components\Rendering\Renderer.cs" />
+    <Compile Include="Components\Rendering\RopeRenderer.cs" />
     <Compile Include="Components\Scene\SceneLoader.cs" />
     <Compile Include="Components\Scene\SceneManager.cs" />
     <Compile Include="Components\Rendering\ShadowCaster.cs" />

@@ -86,6 +86,17 @@
 				{
 					"World": "Phys2D",
 					"Constraint": "new:RopeConstraint2D:Ceiling:0.0,-0.5:Sphere1:0.0,0.5:4.0:0.5",
+				},
+				"RopeRenderer":
+				{
+					"StartPoint": "Ceiling",
+					"StartOffset": [ 0.0, -0.5, 0.0 ],
+					"EndPoint": "Sphere1",
+					"EndOffset": [ 0.0, 0.5, 0.0 ],
+					"Divisions": 8,
+					"Curvature": 0.5,
+					"Material": "Rope01",
+					"Width": 0.1
 				}
 			}
 		},

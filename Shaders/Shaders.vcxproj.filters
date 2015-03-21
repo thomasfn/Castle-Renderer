@@ -96,6 +96,9 @@
     <FxCompile Include="Pixel_Light_Spot.hlsl">
       <Filter>Pixel\Lights</Filter>
     </FxCompile>
+    <FxCompile Include="Vertex_Rope.hlsl">
+      <Filter>Vertex</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common.hlsli" />
