@@ -72,5 +72,12 @@ namespace CastleRenderer.Physics2D
         /// <param name="pt"></param>
         /// <returns></returns>
         public abstract bool ContainsPoint(Vector2 mypos, float myrot, Vector2 pt);
+
+        /// <summary>
+        /// Finds the support point along the specified direction in object space
+        /// </summary>
+        /// <param name="normal"></param>
+        /// <returns></returns>
+        public abstract Vector2 FindSupportPoint(Vector2 direction);
     }
 }

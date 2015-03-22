@@ -105,5 +105,17 @@ namespace CastleRenderer.Physics2D.Shapes
             // If it's less than radius squared, the point is inside us
             return dist2 <= Radius * Radius;
         }
+
+        /// <summary>
+        /// Finds the support point along the specified direction in object space
+        /// </summary>
+        /// <param name="normal"></param>
+        /// <returns></returns>
+        public override Vector2 FindSupportPoint(Vector2 direction)
+        {
+            // Simply change the length to radius
+            direction.Normalize();
+            return direction * Radius;
+        }
     }
 }

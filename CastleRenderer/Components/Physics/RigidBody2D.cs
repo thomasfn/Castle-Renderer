@@ -14,6 +14,7 @@ namespace CastleRenderer.Components.Physics
     /// A component that represents a single physically simulated 2D rigid body
     /// </summary>
     [RequiresComponent(typeof(Transform))]
+    [ComponentPriority(10)]
     public class RigidBody2D : BaseComponent, IPhysicsObject2D
     {
         /// <summary>

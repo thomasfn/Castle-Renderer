@@ -158,5 +158,15 @@ namespace CastleRenderer.Physics2D.Shapes
             // Check vs size
             return Math.Abs(relpt.X) < Size.X * 0.5f && Math.Abs(relpt.Y) < Size.Y * 0.5f;
         }
+
+        /// <summary>
+        /// Finds the support point along the specified direction in object space
+        /// </summary>
+        /// <param name="normal"></param>
+        /// <returns></returns>
+        public override Vector2 FindSupportPoint(Vector2 direction)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

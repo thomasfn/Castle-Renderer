@@ -889,6 +889,97 @@ namespace CastleRenderer.Graphics
             return builder.Build();
         }
 
+        /// <summary>
+        /// Builds an extruded convex shape
+        /// </summary>
+        /// <param name="points"></param>
+        /// <param name="depth"></param>
+        /// <returns></returns>
+        public static Mesh BuildExtrudedConvexShape(Vector2[] points, float depth)
+        {
+            MeshBuilder builder = new MeshBuilder();
+            builder.UseTexCoords = true;
+            builder.UseTangents = true;
+            builder.UseNormals = true;
+
+            // find the smallest and largest
+            Vector2 min = Vector2.Zero, max = Vector2.Zero;
+            for (int i = 0; i < points.Length; i++)
+            {
+                Vector2 pt = points[i];
+                min.X = Math.Min(min.X, pt.X);
+                min.Y = Math.Min(min.Y, pt.Y);
+                max.X = Math.Max(max.X, pt.X);
+                max.Y = Math.Max(max.Y, pt.Y);
+            }
+
+            // build vertices
+            float vcoord = 0.0f;
+            for (int i = 0; i < points.Length; i++)
+            {
+                Vector2 pt = points[i];
+                builder.AddPosition(new Vector3(pt, depth * -0.5f));
+                builder.AddNormal(Vector3.UnitZ * -1.0f);
+                builder.AddTangent(Vector3.UnitX);
+                builder.AddTextureCoord(Util.Unlerp(min, max, pt) * -1.0f);
+
+                builder.AddPosition(new Vector3(pt, depth * 0.5f));
+                builder.AddNormal(Vector3.UnitZ);
+                builder.AddTangent(Vector3.UnitX * -1.0f);
+                builder.AddTextureCoord(Util.Unlerp(min, max, pt));
+
+                if (i > 1)
+                {
+                    uint curbase = (uint)(i * 6);
+                    uint prevbase = (uint)((i - 1) * 6);
+                    uint prevbase2 = (uint)((i - 2) * 6);
+
+                    builder.AddIndex(prevbase2); builder.AddIndex(prevbase); builder.AddIndex(curbase); // back face
+                    builder.AddIndex(curbase + 1); builder.AddIndex(prevbase + 1); builder.AddIndex(prevbase2 + 1); // front face
+                }
+
+                //if (i > 0)
+                {
+                    int idx = i - 1;
+                    if (idx < 0) idx += points.Length;
+                    Vector2 prevpt = points[idx];
+                    Vector2 dv = pt - prevpt;
+                    float len = dv.Length();
+                    dv /= len;
+                    Vector3 normal = new Vector3(-dv.Y, dv.X, 0.0f);
+
+                    uint baseidx = (uint)builder.CurrentVertexCount;
+
+                    builder.AddPosition(new Vector3(prevpt, depth * 0.5f));
+                    builder.AddNormal(normal);
+                    builder.AddTangent(Vector3.UnitZ * -1.0f);
+                    builder.AddTextureCoord(new Vector2(1.0f, vcoord));
+
+                    builder.AddPosition(new Vector3(prevpt, depth * -0.5f));
+                    builder.AddNormal(normal);
+                    builder.AddTangent(Vector3.UnitZ * -1.0f);
+                    builder.AddTextureCoord(new Vector2(0.0f, vcoord));
+
+                    vcoord += len * depth;
+
+                    builder.AddPosition(new Vector3(pt, depth * -0.5f));
+                    builder.AddNormal(normal);
+                    builder.AddTangent(Vector3.UnitZ * -1.0f);
+                    builder.AddTextureCoord(new Vector2(0.0f, vcoord));
+
+                    builder.AddPosition(new Vector3(pt, depth * 0.5f));
+                    builder.AddNormal(normal);
+                    builder.AddTangent(Vector3.UnitZ * -1.0f);
+                    builder.AddTextureCoord(new Vector2(1.0f, vcoord));
+
+                    builder.AddIndex(baseidx + 2); builder.AddIndex(baseidx + 1); builder.AddIndex(baseidx);
+                    builder.AddIndex(baseidx); builder.AddIndex(baseidx + 3); builder.AddIndex(baseidx + 2);
+                }
+            }
+
+            return builder.Build();
+        }
+
         #endregion
 
         private static Vector3 GetNormal(Vector3 vec)

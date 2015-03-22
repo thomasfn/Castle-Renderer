@@ -163,7 +163,7 @@ namespace CastleRenderer.Structures
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public BaseComponent GetComponent(Type type)
+        public BaseComponent GetComponent(Type type, bool allowunit = false)
         {
             // Loop until we find it
             foreach (var c in components)
@@ -171,6 +171,15 @@ namespace CastleRenderer.Structures
                 var ct = c.GetType();
                 if (type.IsAssignableFrom(ct))
                     return c;
+            }
+            if (allowunit)
+            {
+                foreach (var c in components_uninit)
+                {
+                    var ct = c.GetType();
+                    if (type.IsAssignableFrom(ct))
+                        return c;
+                }
             }
             return null;
         }

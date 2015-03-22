@@ -528,6 +528,10 @@ namespace CastleRenderer.Components
         {
             obj = null;
             {
+                if (str == "Convex1")
+                {
+                    int lol = 5;
+                }
                 Actor actor;
                 if (sceneactors.TryGetValue(str, out actor))
                 {
@@ -536,7 +540,7 @@ namespace CastleRenderer.Components
                         obj = actor;
                         return true;
                     }
-                    BaseComponent component = actor.GetComponent(type);
+                    BaseComponent component = actor.GetComponent(type, true);
                     if (component != null)
                     {
                         obj = component;

@@ -47,6 +47,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\ConvexHull.cs" />
     <Compile Include="Components\PathFollower.cs" />
     <Compile Include="Components\Physics\Constraint2D.cs" />
     <Compile Include="Components\Physics\DragPlane.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Physics2D\PhysicsMaterial.cs" />
     <Compile Include="Physics2D\Shape2D.cs" />
     <Compile Include="Physics2D\Shapes\CircleShape.cs" />
+    <Compile Include="Physics2D\Shapes\ConvexShape.cs" />
     <Compile Include="Physics2D\Shapes\RectangleShape.cs" />
     <Compile Include="Structures\OrderedList.cs">
       <SubType>Code</SubType>

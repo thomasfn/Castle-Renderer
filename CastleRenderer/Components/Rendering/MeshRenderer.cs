@@ -57,7 +57,8 @@ namespace CastleRenderer.Components
             base.UpdateMaterialParameterBlocks();
 
             // Update bounding box
-            AABB = Util.BoundingBoxTransform(Mesh.AABB, Owner.GetComponent<Transform>().ObjectToWorld);
+            if (Mesh != null)
+                AABB = Util.BoundingBoxTransform(Mesh.AABB, Owner.GetComponent<Transform>().ObjectToWorld);
         }
 
     }

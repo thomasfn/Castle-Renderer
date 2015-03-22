@@ -127,6 +127,17 @@ namespace CastleRenderer
             return new Vector2(-s * right.Y, s * right.X);
         }
 
+        public static Vector2 Unlerp(Vector2 min, Vector2 max, Vector2 val)
+        {
+            Vector2 range = max - min;
+            Vector2 diff = val - min;
+            float x = diff.X / range.X;
+            if (float.IsInfinity(x) || float.IsNaN(x)) x = 0.5f;
+            float y = diff.Y / range.Y;
+            if (float.IsInfinity(y) || float.IsNaN(y)) y = 0.5f;
+            return new Vector2(x, y);
+        }
+
         public static bool Validate(this Vector2 vec)
         {
             return !float.IsNaN(vec.X) && !float.IsNaN(vec.Y) && !float.IsInfinity(vec.X) && !float.IsInfinity(vec.Y);
@@ -162,6 +173,23 @@ namespace CastleRenderer
         public static float Lerp(float a, float b, float mu)
         {
             return (b - a) * mu + a;
+        }
+
+        /// <summary>
+        /// Finds the area of the specified triangle
+        /// </summary>
+        /// <param name="pt0"></param>
+        /// <param name="pt1"></param>
+        /// <param name="pt2"></param>
+        /// <returns></returns>
+        public static float AreaOfTriangle(Vector2 pt0, Vector2 pt1, Vector2 pt2)
+        {
+            float len0 = (pt1 - pt0).Length();
+            float len1 = (pt2 - pt1).Length();
+            float len2 = (pt0 - pt2).Length();
+
+            float s = (len0 + len1 + len2) * 0.5f;
+            return (float)Math.Sqrt(s * (s - len0) * (s - len1) * (s - len2));
         }
     }
 }
