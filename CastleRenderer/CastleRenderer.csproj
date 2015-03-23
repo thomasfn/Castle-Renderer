@@ -97,6 +97,8 @@
     <Compile Include="Physics2D\BroadPhases\BruteForceBroadphase2D.cs" />
     <Compile Include="Physics2D\CollisionTester2D.cs" />
     <Compile Include="Physics2D\Collision\CircleToCircle.cs" />
+    <Compile Include="Physics2D\Collision\ConvexToCircle.cs" />
+    <Compile Include="Physics2D\Collision\ConvexToConvex.cs" />
     <Compile Include="Physics2D\Collision\RectangleToCircle.cs" />
     <Compile Include="Physics2D\Collision\CollisionResolver2D.cs" />
     <Compile Include="Physics2D\Collision\RectangleToRectangle.cs" />

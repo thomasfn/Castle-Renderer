@@ -110,6 +110,7 @@ namespace CastleRenderer.Physics2D.Collision
             ConvexShape aconv = a as ConvexShape;
             ConvexShape bconv = b as ConvexShape;
 
+            manifold = default(Manifold2D);
             return false;
         }
     }

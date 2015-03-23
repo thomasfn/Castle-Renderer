@@ -84,7 +84,9 @@ namespace CastleRenderer.Physics2D.Collision
                 manifold = default(Manifold2D);
                 return false;
             }
-            
+
+            manifold = default(Manifold2D);
+            return false;
         }
     }
 }

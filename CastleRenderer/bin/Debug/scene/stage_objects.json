@@ -180,38 +180,6 @@
 					"RotationalDamping": 0.05
 				}
 			}
-		},
-		{
-			"Name": "Convex1",
-			"Components":
-			{
-				"Transform":
-				{
-					"LocalPosition": [ 10.0, 5.0, 1.0 ],
-					"LocalRotation": [ 0.0, 0.0, 0.0 ],
-					"LocalScale": [ 1.0, 1.0, 1.0 ]
-				},
-				"ConvexHull":
-				{
-					"Points": [ [ -1.0, -0.5 ], [ 0.0, 0.75 ], [ 1.0, -0.5 ] ],
-					"Depth": 1.0,
-					"GenerateMesh": true
-				},
-				"MeshRenderer":
-				{
-					"Materials": [ "BrickWall01" ]
-				},
-				"RigidBody2D":
-				{
-					"World": "Phys2D",
-					"MoveType": "Dynamic",
-					"Shape": "new:ConvexShape:Convex1",
-					"Velocity": [ 0.0, 0.0 ],
-					"Material": "new:PhysicsMaterial:0.15:0.10:0.3",
-					"LinearDamping": 0.05,
-					"RotationalDamping": 0.05
-				}
-			}
 		}
 	]
 }
