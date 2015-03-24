@@ -175,19 +175,7 @@ namespace CastleRenderer.Physics2D.Collision
                 throw new Exception();
             }
 
-            // Work out the contact point
-            /*Vector2 cpt;
-            if (minaxis == 0 || minaxis == 1)
-            {
-                cpt = axes[0] * contactpoints[0] + axes[1] * contactpoints[1]; 
-            }
-            else
-            {
-                cpt = axes[2] * contactpoints[2] + axes[3] * contactpoints[3];
-            }
-            manifold.AddContact(cpt);*/
-
-            // Work out the contact point round 2
+            // Work out the contact point round
             Vector2 sumpt = Vector2.Zero;
             int cnt = 0;
             Vector2 halfsizeB = brect.Size * 0.5f;
@@ -196,6 +184,7 @@ namespace CastleRenderer.Physics2D.Collision
             Vector2 prev = Vector2.Zero, cur = Vector2.Zero;
             for (int i = 0; i < 4; i++)
             {
+                // Does shape 2 contain vertex of shape 1?
                 Vector2 pt = vertices1[i];
                 Vector2 tpt = bmtx.Transform(pt - bpos);
                 if (tpt.X >= -halfsizeB.X && tpt.X <= halfsizeB.X && tpt.Y >= -halfsizeB.Y && tpt.Y <= halfsizeB.Y)
@@ -206,6 +195,7 @@ namespace CastleRenderer.Physics2D.Collision
                     cnt++;
                 }
 
+                // Does shape 1 contain vertex of shape 2?
                 pt = vertices2[i];
                 tpt = amtx.Transform(pt - apos);
                 if (tpt.X >= -halfsizeA.X && tpt.X <= halfsizeA.X && tpt.Y >= -halfsizeA.Y && tpt.Y <= halfsizeA.Y)
@@ -216,7 +206,10 @@ namespace CastleRenderer.Physics2D.Collision
                     cnt++;
                 }
             }
+            // No points in another shape? No collision.
             if (cnt == 0) return false;
+
+            // Based on how many points are in the other shape, hackily work out a good contact point (maybe 2)
             sumpt /= cnt;
             sumpt += manifold.Normal * manifold.Penetration * 0.5f;
             if (cnt == 2)
@@ -226,11 +219,6 @@ namespace CastleRenderer.Physics2D.Collision
             }
             else
                 manifold.AddContact(sumpt);
-
-            // NOTE: This contact point is WRONG.
-            // It's not far off, but it always assumes line<->line contact and produces an average point in the center.
-            // This results in inaccurate impulse resolution during a point<->line contact.
-            // How do we detect/compute point<->line?
 
             // All axes intersected, there's collision
             return true;
